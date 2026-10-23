@@ -1,0 +1,200 @@
+{
+  "date": "2026-10-22",
+  "scope": "Published fixed-revision declarations and standard-license conditions, not a legal certification or a rights-chain warranty",
+  "models": [
+    {
+      "alias": "qwen-1.7b",
+      "repo_id": "Qwen/Qwen3-ASR-1.7B-hf",
+      "revision": "bcd2b5b7f32b480ab5790554cfa8347f246a14f3",
+      "catalog_license": "Apache-2.0",
+      "publisher_card_url": "https://huggingface.co/Qwen/Qwen3-ASR-1.7B-hf/blob/bcd2b5b7f32b480ab5790554cfa8347f246a14f3/README.md",
+      "publisher_card_sha256": "427b9a6a4a32477e9df8790ef92f5cbcde790ee148ee5dd8c36f77d9556998a2",
+      "commercial_service": "supported-by-published-permissive-license-declaration",
+      "weight_redistribution": "conditional-on-license-attribution-notice-and-change-marking",
+      "rights_chain_warranty": false
+    },
+    {
+      "alias": "qwen-0.6b",
+      "repo_id": "Qwen/Qwen3-ASR-0.6B-hf",
+      "revision": "7f1569a48a89f3e3f4dc3a5c9d28bddd903bc76c",
+      "catalog_license": "Apache-2.0",
+      "publisher_card_url": "https://huggingface.co/Qwen/Qwen3-ASR-0.6B-hf/blob/7f1569a48a89f3e3f4dc3a5c9d28bddd903bc76c/README.md",
+      "publisher_card_sha256": "742006d0f99ce6475b1c5e7b66e4a2f166cce836dd7ce3d7f20707252859195a",
+      "commercial_service": "supported-by-published-permissive-license-declaration",
+      "weight_redistribution": "conditional-on-license-attribution-notice-and-change-marking",
+      "rights_chain_warranty": false
+    },
+    {
+      "alias": "aligner",
+      "repo_id": "Qwen/Qwen3-ForcedAligner-0.6B-hf",
+      "revision": "c07281df297b9905d24a508279258cccf987a064",
+      "catalog_license": "Apache-2.0",
+      "publisher_card_url": "https://huggingface.co/Qwen/Qwen3-ForcedAligner-0.6B-hf/blob/c07281df297b9905d24a508279258cccf987a064/README.md",
+      "publisher_card_sha256": "30de8315ece609b239c719539336b99188a2a92aef89a1fdcd60b11e40abd063",
+      "commercial_service": "supported-by-published-permissive-license-declaration",
+      "weight_redistribution": "conditional-on-license-attribution-notice-and-change-marking",
+      "rights_chain_warranty": false
+    },
+    {
+      "alias": "moss-4b",
+      "repo_id": "OpenMOSS-Team/MOSS-Audio-4B-Instruct",
+      "revision": "6907a499dc0e87cc77c8ae0fe23fd0eb5476a02d",
+      "catalog_license": "Apache-2.0",
+      "publisher_card_url": "https://huggingface.co/OpenMOSS-Team/MOSS-Audio-4B-Instruct/blob/6907a499dc0e87cc77c8ae0fe23fd0eb5476a02d/README.md",
+      "publisher_card_sha256": "c3dff4e8a1d4fdeaef99426d9b4501a3ee7e3617497cea76a8b2750f620df8b8",
+      "commercial_service": "supported-by-published-permissive-license-declaration",
+      "weight_redistribution": "conditional-on-license-attribution-notice-and-change-marking",
+      "rights_chain_warranty": false
+    },
+    {
+      "alias": "moss-8b",
+      "repo_id": "OpenMOSS-Team/MOSS-Audio-8B-Instruct",
+      "revision": "d4dc5a6d8cd79b43dcd82884c75e303b1ecd016d",
+      "catalog_license": "Apache-2.0",
+      "publisher_card_url": "https://huggingface.co/OpenMOSS-Team/MOSS-Audio-8B-Instruct/blob/d4dc5a6d8cd79b43dcd82884c75e303b1ecd016d/README.md",
+      "publisher_card_sha256": "dad4e68b7b720f6cba470356692ac954bd17db12ec2aa7398098239ad111c669",
+      "commercial_service": "supported-by-published-permissive-license-declaration",
+      "weight_redistribution": "conditional-on-license-attribution-notice-and-change-marking",
+      "rights_chain_warranty": false
+    },
+    {
+      "alias": "firered",
+      "repo_id": "FireRedTeam/FireRedVAD",
+      "revision": "7990aaccc6b7aec1e527743bd30201f2c4a03b8c",
+      "catalog_license": "Apache-2.0",
+      "publisher_card_url": "https://huggingface.co/FireRedTeam/FireRedVAD/blob/7990aaccc6b7aec1e527743bd30201f2c4a03b8c/README.md",
+      "publisher_card_sha256": "d54eeb2b2afc669061dc3ef6c485df2da4ba6d1a292414b605268abd0bd86b62",
+      "commercial_service": "supported-by-published-permissive-license-declaration",
+      "weight_redistribution": "conditional-on-license-attribution-notice-and-change-marking",
+      "rights_chain_warranty": false
+    },
+    {
+      "alias": "paraformer",
+      "repo_id": "iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
+      "revision": "v2.0.4",
+      "catalog_license": "Apache-2.0",
+      "publisher_card_url": "https://modelscope.cn/api/v1/models/iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch/repo?Revision=v2.0.4&FilePath=README.md",
+      "publisher_card_sha256": "9433772bbc78b8b6b46eff4082e9579e5296e6ad3647f589e2e14e9f77abe617",
+      "commercial_service": "supported-by-published-permissive-license-declaration",
+      "weight_redistribution": "conditional-on-license-attribution-notice-and-change-marking",
+      "rights_chain_warranty": false
+    },
+    {
+      "alias": "fsmn",
+      "repo_id": "iic/speech_fsmn_vad_zh-cn-16k-common-pytorch",
+      "revision": "v2.0.4",
+      "catalog_license": "Apache-2.0",
+      "publisher_card_url": "https://modelscope.cn/api/v1/models/iic/speech_fsmn_vad_zh-cn-16k-common-pytorch/repo?Revision=v2.0.4&FilePath=README.md",
+      "publisher_card_sha256": "6fc838ef6b23aef579ac9001c3d098941ff1d37b800efc0bd25e455309edcb37",
+      "commercial_service": "supported-by-published-permissive-license-declaration",
+      "weight_redistribution": "conditional-on-license-attribution-notice-and-change-marking",
+      "rights_chain_warranty": false
+    },
+    {
+      "alias": "punc",
+      "repo_id": "iic/punc_ct-transformer_cn-en-common-vocab471067-large",
+      "revision": "v2.0.4",
+      "catalog_license": "Apache-2.0",
+      "publisher_card_url": "https://modelscope.cn/api/v1/models/iic/punc_ct-transformer_cn-en-common-vocab471067-large/repo?Revision=v2.0.4&FilePath=README.md",
+      "publisher_card_sha256": "13c6d7b83c18a5294fdee6fe7b426e024286682b4df8e02a797a6c13aabd3ad8",
+      "commercial_service": "supported-by-published-permissive-license-declaration",
+      "weight_redistribution": "conditional-on-license-attribution-notice-and-change-marking",
+      "rights_chain_warranty": false
+    },
+    {
+      "alias": "cam",
+      "repo_id": "iic/speech_campplus_sv_zh-cn_16k-common",
+      "revision": "v2.0.2",
+      "catalog_license": "Apache-2.0",
+      "publisher_card_url": "https://modelscope.cn/api/v1/models/iic/speech_campplus_sv_zh-cn_16k-common/repo?Revision=v2.0.2&FilePath=README.md",
+      "publisher_card_sha256": "9bd58b989a534fa0121c8d10e62c0cce9080a9a9aeb2499bb429676f9c17cc3a",
+      "commercial_service": "supported-by-published-permissive-license-declaration",
+      "weight_redistribution": "conditional-on-license-attribution-notice-and-change-marking",
+      "rights_chain_warranty": false
+    },
+    {
+      "alias": "paraformer-v2.0.9",
+      "repo_id": "iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
+      "revision": "v2.0.9",
+      "catalog_license": "Apache-2.0",
+      "publisher_card_url": "https://modelscope.cn/api/v1/models/iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch/repo?Revision=v2.0.9&FilePath=README.md",
+      "publisher_card_sha256": "44723036963d5611d6ae0aa4eea82ba491a794cfc146cd004271a0bf27254d8d",
+      "commercial_service": "supported-by-published-permissive-license-declaration",
+      "weight_redistribution": "conditional-on-license-attribution-notice-and-change-marking",
+      "rights_chain_warranty": false
+    },
+    {
+      "alias": "ast-events",
+      "repo_id": "MIT/ast-finetuned-audioset-10-10-0.4593",
+      "revision": "f826b80d28226b62986cc218e5cec390b1096902",
+      "catalog_license": "BSD-3-Clause",
+      "publisher_card_url": "https://huggingface.co/MIT/ast-finetuned-audioset-10-10-0.4593/blob/f826b80d28226b62986cc218e5cec390b1096902/README.md",
+      "publisher_card_sha256": "dbc8ce1fc5abd1635d073640d8cb032901bfe264a5e06507f363f10a6112cfc8",
+      "commercial_service": "supported-by-published-permissive-license-declaration",
+      "weight_redistribution": "conditional-on-license-attribution-notice-and-change-marking",
+      "rights_chain_warranty": false
+    },
+    {
+      "alias": "emotion2vec-base",
+      "repo_id": "emotion2vec/emotion2vec_plus_base",
+      "revision": "b318240bfe67db81a8c572ecb37ce9c3759b81c9",
+      "catalog_license": "model-license",
+      "publisher_card_url": "https://huggingface.co/emotion2vec/emotion2vec_plus_base/blob/b318240bfe67db81a8c572ecb37ce9c3759b81c9/README.md",
+      "publisher_card_sha256": "b65c0bfa01bd991e255fa1ae7203c345f907d68eab90b1bf3482367d808e8274",
+      "commercial_service": "unresolved-source-declarations",
+      "weight_redistribution": "unresolved-source-declarations",
+      "rights_chain_warranty": false
+    }
+  ],
+  "emotion2vec_cross_hub_evidence": {
+    "modelscope_fixed_repository_revision": "a4a780d91424116a2d46330c045336a6f62a66a1",
+    "fixed_readme_sha256": "cb36ab32c3196085453c1c5a9076a0c7fed121a4487ab89a0a36c62e5ad613e0",
+    "readme_url": "https://modelscope.cn/api/v1/models/iic/emotion2vec_plus_base/repo?Revision=a4a780d91424116a2d46330c045336a6f62a66a1&FilePath=README.md",
+    "artifact_comparison": [
+      {
+        "name": "config.yaml",
+        "same_size": true,
+        "same_sha256": true,
+        "sha256": "50674ec187406b4f1208925594ceaf1f28f16a22333b5f2ac5b3d0cbffdd670e"
+      },
+      {
+        "name": "configuration.json",
+        "same_size": true,
+        "same_sha256": true,
+        "sha256": "8b6a745213025c7d4565f9f074cfef1b5cd5ef76e38e2a8f7f8a3db271e735b2"
+      },
+      {
+        "name": "model.pt",
+        "same_size": true,
+        "same_sha256": true,
+        "sha256": "60710b5aae1dbe69bdac8920028fb05882d4314fd09031922b4b61ee9e7aadbd"
+      },
+      {
+        "name": "tokens.txt",
+        "same_size": false,
+        "same_sha256": false,
+        "sha256": "654625c18ef0f0583441a3b811c20904f2cf30febb716f32e14810b8e6bb715c"
+      }
+    ],
+    "all_four_fixed_bytes_match": false,
+    "interpretation": "Same bytes carry inconsistent source declarations; this evidence does not itself settle authority or precedence.",
+    "tokens_difference": "ModelScope has one extra final newline; labels match after trimming; not byte-identical asset bundles."
+  },
+  "emotion2vec_huggingface_license": "other/model-license; links to mutable FunASR repository homepage",
+  "model_license_v11_sha256": "7dba975a2069691db4992b0592d70828b330d2f8a30a71450f4e152a554e84f8",
+  "upstream_issues": {
+    "base_3776": {
+      "url": "https://github.com/modelscope/FunASR/issues/3776",
+      "state": "open",
+      "comments": 0
+    },
+    "native_3458": {
+      "url": "https://github.com/modelscope/FunASR/issues/3458",
+      "published_license_declaration_confirmed_by_maintainer": true,
+      "publisher_rights_chain_confirmation_pending": true
+    }
+  },
+  "outbound_contact_made": false,
+  "weights_bundled": false,
+  "commercial_emotion_qualification": false
+}

@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "reviewed": "2026-10-21",
+  "source_version": "0.1.0",
+  "statements": [],
+  "notes": "No accepted Python scanner exceptions. Unknown findings, skipped packages and scope/version drift fail closed."
+}

@@ -1,0 +1,13 @@
+fastapi==0.150.0
+starlette==1.9.0
+uvicorn==0.54.0
+python-multipart==0.0.32
+transformers==5.20.2
+accelerate==1.15.0
+librosa==1.0.0
+soundfile==0.14.0
+numpy==2.5.4
+scipy==1.18.1
+nagisa==0.3.0
+soynlp==0.0.493
+setuptools==84.2.0

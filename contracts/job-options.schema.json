@@ -1,0 +1,62 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "language": {
+      "anyOf": [
+        {
+          "maxLength": 32,
+          "minLength": 1,
+          "pattern": "^[\\w-]+$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Language"
+    },
+    "speakers": {
+      "default": true,
+      "title": "Speakers",
+      "type": "boolean"
+    },
+    "analyze_sound": {
+      "default": false,
+      "description": "Request independent AST environment events",
+      "title": "Analyze Sound",
+      "type": "boolean"
+    },
+    "analyze_voice": {
+      "default": false,
+      "description": "Request the deployment-selected experimental vocal backend",
+      "title": "Analyze Voice",
+      "type": "boolean"
+    },
+    "measure_voice": {
+      "default": false,
+      "description": "Request independent weight-free pitch and energy measurements",
+      "title": "Measure Voice",
+      "type": "boolean"
+    },
+    "hotwords": {
+      "items": {
+        "maxLength": 80,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 200,
+      "title": "Hotwords",
+      "type": "array"
+    },
+    "audio_track": {
+      "default": 0,
+      "description": "Zero-based audio stream index; applies to every source in the job",
+      "minimum": 0,
+      "title": "Audio Track",
+      "type": "integer"
+    }
+  },
+  "title": "Options",
+  "type": "object"
+}

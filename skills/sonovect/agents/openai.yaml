@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sonovect"
+  short_description: "本地音视频转写、声音分析与字幕导出，复用 Sonovect 接口"
+  default_prompt: "使用 $sonovect 选择声音处理功能，提交文件并分别读取文字、字幕和分析结果。"

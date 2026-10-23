@@ -1,0 +1,281 @@
+# Default single-host deployment: 2 base containers, one optional CPU analysis unit, optional MOSS.
+name: ${SONOVECT_PROJECT:-sonovect}
+services:
+  api:
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 90s
+    security_opt:
+    - no-new-privileges:true
+    cap_drop:
+    - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    image: sonovect:${SONOVECT_VERSION:-0.1.0}
+    build:
+      context: ..
+      target: core
+      args:
+        VERSION: ${SONOVECT_VERSION:-0.1.0}
+        REVISION: ${SONOVECT_REVISION:-uncommitted}
+    environment:
+      SONOVECT_TOKEN: ${SONOVECT_TOKEN:?Set a non-placeholder token}
+      SONOVECT_DATA_DIR: /data
+      SONOVECT_BACKEND: speech
+      SONOVECT_SOUND_ENABLED: ${SONOVECT_SOUND_ENABLED:-false}
+      SONOVECT_VOICE_ENABLED: ${SONOVECT_VOICE_ENABLED:-false}
+      SONOVECT_MEASUREMENTS_ENABLED: ${SONOVECT_MEASUREMENTS_ENABLED:-false}
+      SONOVECT_MEASUREMENTS_URL: ${SONOVECT_MEASUREMENTS_URL:-http://analysis:8086}
+      SONOVECT_VOICE_BACKEND: ${SONOVECT_VOICE_BACKEND:-moss}
+      SONOVECT_PROVIDER_URL: http://worker:8080
+      SONOVECT_MAX_UPLOAD_BYTES: ${SONOVECT_MAX_UPLOAD_BYTES:-268435456}
+      SONOVECT_MAX_FILES: ${SONOVECT_MAX_FILES:-16}
+      SONOVECT_MAX_MEDIA_SECONDS: ${SONOVECT_MAX_MEDIA_SECONDS:-7200}
+      SONOVECT_MEDIA_TIMEOUT: ${SONOVECT_MEDIA_TIMEOUT:-300}
+      SONOVECT_INPUT_TTL_HOURS: ${SONOVECT_INPUT_TTL_HOURS:-24}
+      SONOVECT_RESULT_TTL_HOURS: ${SONOVECT_RESULT_TTL_HOURS:-168}
+      SONOVECT_PROVIDER_TIMEOUT: ${SONOVECT_PROVIDER_TIMEOUT:-7200}
+      SONOVECT_LEASE_SECONDS: ${SONOVECT_LEASE_SECONDS:-120}
+      SONOVECT_POLL_SECONDS: ${SONOVECT_POLL_SECONDS:-0.1}
+      SONOVECT_WORKER_STALE_SECONDS: ${SONOVECT_WORKER_STALE_SECONDS:-45}
+      SONOVECT_LAYOUT: compact
+      SONOVECT_SOUND_URL: ${SONOVECT_SOUND_URL:-http://analysis:8084}
+      SONOVECT_VOICE_URL: ${SONOVECT_VOICE_URL:-http://speech-sound:8083}
+    volumes:
+    - jobs:/data
+    ports:
+    - ${SONOVECT_BIND:-127.0.0.1}:${SONOVECT_PORT:-8096}:8096
+    depends_on:
+      worker:
+        condition: service_healthy
+  worker:
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 90s
+    security_opt:
+    - no-new-privileges:true
+    cap_drop:
+    - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    image: sonovect-qwen:${SONOVECT_VERSION:-0.1.0}
+    build:
+      context: ..
+      dockerfile: providers/speech/qwen-worker/Dockerfile
+      target: local-worker
+      args:
+        VERSION: ${SONOVECT_VERSION:-0.1.0}
+        REVISION: ${SONOVECT_REVISION:-uncommitted}
+    environment:
+      SONOVECT_TOKEN: ${SONOVECT_TOKEN:?Set a non-placeholder token}
+      SONOVECT_DATA_DIR: /data
+      SONOVECT_BACKEND: speech
+      SONOVECT_SOUND_ENABLED: ${SONOVECT_SOUND_ENABLED:-false}
+      SONOVECT_VOICE_ENABLED: ${SONOVECT_VOICE_ENABLED:-false}
+      SONOVECT_MEASUREMENTS_ENABLED: ${SONOVECT_MEASUREMENTS_ENABLED:-false}
+      SONOVECT_MEASUREMENTS_URL: ${SONOVECT_MEASUREMENTS_URL:-http://analysis:8086}
+      SONOVECT_VOICE_BACKEND: ${SONOVECT_VOICE_BACKEND:-moss}
+      SONOVECT_PROVIDER_URL: http://127.0.0.1:8080
+      SONOVECT_MAX_UPLOAD_BYTES: ${SONOVECT_MAX_UPLOAD_BYTES:-268435456}
+      SONOVECT_MAX_FILES: ${SONOVECT_MAX_FILES:-16}
+      SONOVECT_MAX_MEDIA_SECONDS: ${SONOVECT_MAX_MEDIA_SECONDS:-7200}
+      SONOVECT_MEDIA_TIMEOUT: ${SONOVECT_MEDIA_TIMEOUT:-300}
+      SONOVECT_INPUT_TTL_HOURS: ${SONOVECT_INPUT_TTL_HOURS:-24}
+      SONOVECT_RESULT_TTL_HOURS: ${SONOVECT_RESULT_TTL_HOURS:-168}
+      SONOVECT_PROVIDER_TIMEOUT: ${SONOVECT_PROVIDER_TIMEOUT:-7200}
+      SONOVECT_LEASE_SECONDS: ${SONOVECT_LEASE_SECONDS:-120}
+      SONOVECT_POLL_SECONDS: ${SONOVECT_POLL_SECONDS:-0.1}
+      SONOVECT_WORKER_STALE_SECONDS: ${SONOVECT_WORKER_STALE_SECONDS:-45}
+      SONOVECT_LAYOUT: compact
+      SONOVECT_SOUND_URL: ${SONOVECT_SOUND_URL:-http://analysis:8084}
+      SONOVECT_VOICE_URL: ${SONOVECT_VOICE_URL:-http://speech-sound:8083}
+      FIRERED_VAD_ROOT: ${FIRERED_VAD_ROOT:-}
+      MODELSCOPE_CACHE: /models/segmentation
+      SEGMENTATION_DEVICE: ${SEGMENTATION_DEVICE:-cpu}
+      VAD_BACKEND: ${SONOVECT_VAD_BACKEND:-firered}
+      HF_HOME: /models/huggingface
+      VAD_MODEL: ${VAD_MODEL:-fsmn-vad}
+      SPEAKER_MODEL: ${SPEAKER_MODEL:-cam++}
+      SPEAKER_MERGE_THRESHOLD: ${SPEAKER_MERGE_THRESHOLD:-0.78}
+      SPEAKER_LOW_COHESION_COSINE: ${SPEAKER_LOW_COHESION_COSINE:-0.45}
+      SPEAKER_FALLBACK_MIN_WINDOWS: ${SPEAKER_FALLBACK_MIN_WINDOWS:-20}
+      SPEAKER_FALLBACK_COUNT: ${SPEAKER_FALLBACK_COUNT:-2}
+      MIN_SPEAKER_PROFILE_DURATION_MS: ${MIN_SPEAKER_PROFILE_DURATION_MS:-5000}
+      SONOVECT_MODELS_OFFLINE: ${SONOVECT_MODELS_OFFLINE:-1}
+      GPU_RESERVE_MIB: ${GPU_RESERVE_MIB:-1024}
+      QWEN_GPU_BUDGET_MIB: ${QWEN_GPU_BUDGET_MIB:-8192}
+      GPU_CAPACITY_WAIT_SECONDS: ${GPU_CAPACITY_WAIT_SECONDS:-360}
+      QWEN_DEFAULT_CONTEXT: ${QWEN_DEFAULT_CONTEXT:-}
+      QWEN_ROLLING_CONTEXT_CHARS: ${QWEN_ROLLING_CONTEXT_CHARS:-0}
+      QWEN_MAX_BATCH_AUDIO_SECONDS: ${QWEN_MAX_BATCH_AUDIO_SECONDS:-60}
+      QWEN_MAX_BATCH_SIZE: ${QWEN_MAX_BATCH_SIZE:-1}
+      QWEN_MAX_NEW_TOKENS: ${QWEN_MAX_NEW_TOKENS:-2048}
+      QWEN_ATTENTION_IMPLEMENTATION: ${QWEN_ATTENTION_IMPLEMENTATION:-auto}
+      QWEN_DTYPE: ${QWEN_DTYPE:-bfloat16}
+      QWEN_ASR_MODEL: ${QWEN_ASR_MODEL:-Qwen/Qwen3-ASR-1.7B-hf}
+      QWEN_ASR_REVISION: ${QWEN_ASR_REVISION:-bcd2b5b7f32b480ab5790554cfa8347f246a14f3}
+      QWEN_ALIGNER_MODEL: ${QWEN_ALIGNER_MODEL:-Qwen/Qwen3-ForcedAligner-0.6B-hf}
+      QWEN_ALIGNER_REVISION: ${QWEN_ALIGNER_REVISION:-c07281df297b9905d24a508279258cccf987a064}
+      QWEN_DEVICE: ${QWEN_DEVICE:-cuda:0}
+      QWEN_MIN_FREE_GIB: ${QWEN_MIN_FREE_GIB:-6}
+      QWEN_IDLE_UNLOAD_SECONDS: ${QWEN_IDLE_UNLOAD_SECONDS:-300}
+      MIN_TEXT_DENSITY_PER_SPEECH_SECOND: ${MIN_TEXT_DENSITY_PER_SPEECH_SECOND:-0.2}
+      SEGMENT_PADDING_MS: ${SEGMENT_PADDING_MS:-1000}
+      SEGMENT_BOUNDARY_SILENCE_MS: ${SEGMENT_BOUNDARY_SILENCE_MS:-700}
+      SEGMENT_MERGE_GAP_MS: ${SEGMENT_MERGE_GAP_MS:-3000}
+      SEGMENT_HARD_MAX_MS: ${SEGMENT_HARD_MAX_MS:-90000}
+      SEGMENT_TARGET_MS: ${SEGMENT_TARGET_MS:-30000}
+      MOSS_TIMEOUT_SECONDS: ${MOSS_TIMEOUT_SECONDS:-3600}
+      QWEN_TIMEOUT_SECONDS: ${QWEN_TIMEOUT_SECONDS:-1800}
+      SEGMENTATION_TIMEOUT_SECONDS: ${SEGMENTATION_TIMEOUT_SECONDS:-600}
+      SEGMENTATION_URL: http://127.0.0.1:8082
+      QWEN_URL: http://127.0.0.1:8081
+      MOSS_URL: http://speech-sound:8083
+      VOICE_URL: ${SONOVECT_VOICE_URL:-http://speech-sound:8083}
+      VOICE_BACKEND: ${SONOVECT_VOICE_BACKEND:-moss}
+      SOUND_ENABLED: ${SONOVECT_SOUND_ENABLED:-false}
+      VOICE_ENABLED: ${SONOVECT_VOICE_ENABLED:-false}
+      MEASUREMENTS_ENABLED: ${SONOVECT_MEASUREMENTS_ENABLED:-false}
+      MEASUREMENTS_URL: ${SONOVECT_MEASUREMENTS_URL:-http://analysis:8086}
+      MEASUREMENTS_TIMEOUT_SECONDS: ${MEASUREMENTS_TIMEOUT_SECONDS:-600}
+      EVENTS_URL: ${SONOVECT_SOUND_URL:-http://analysis:8084}
+      EVENTS_TIMEOUT_SECONDS: ${EVENTS_TIMEOUT_SECONDS:-600}
+      SEGMENTATION_CACHE: /models/segmentation
+      SEGMENTATION_HF_HOME: /models/segmentation/huggingface
+      QWEN_HF_HOME: /models/qwen/huggingface
+    volumes:
+    - jobs:/data
+    - segmentation-models:/models/segmentation
+    - qwen-models:/models/qwen
+    command:
+    - sonovect-runtime
+    - qwen
+    healthcheck:
+      test:
+      - CMD
+      - sonovect-runtime
+      - qwen
+      - --check
+      interval: 30s
+      timeout: 15s
+      start_period: 120s
+      retries: 3
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            count: 1
+            capabilities:
+            - gpu
+    shm_size: 4gb
+  analysis:
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 90s
+    security_opt:
+    - no-new-privileges:true
+    cap_drop:
+    - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    cpus: ${ANALYSIS_CPU_LIMIT:-2}
+    mem_limit: ${ANALYSIS_MEMORY_LIMIT:-6g}
+    profiles:
+    - analysis
+    image: ${SONOVECT_ANALYSIS_IMAGE:-sonovect-analysis}:${SONOVECT_VERSION:-0.1.0}
+    build:
+      context: ..
+      target: ${SONOVECT_ANALYSIS_TARGET:-analysis-worker}
+      args:
+        VERSION: ${SONOVECT_VERSION:-0.1.0}
+        REVISION: ${SONOVECT_REVISION:-uncommitted}
+    command:
+    - sonovect-runtime
+    - analysis
+    environment:
+      SONOVECT_MODELS_OFFLINE: ${SONOVECT_MODELS_OFFLINE:-1}
+      SOUND_EVENT_MODEL_ROOT: ${SOUND_EVENT_MODEL_ROOT:-}
+      SOUND_EVENT_THRESHOLD: ${SOUND_EVENT_THRESHOLD:-0.1}
+      SOUND_EVENT_TOP_K: ${SOUND_EVENT_TOP_K:-5}
+      SOUND_EVENT_WINDOW_SECONDS: ${SOUND_EVENT_WINDOW_SECONDS:-10}
+      SOUND_EVENT_THREADS: ${SOUND_EVENT_THREADS:-2}
+      VOCAL_MODEL_ROOT: ${VOCAL_MODEL_ROOT:-}
+      VOCAL_THREADS: ${VOCAL_THREADS:-2}
+      VOCAL_WINDOW_SECONDS: ${VOCAL_WINDOW_SECONDS:-10}
+      MEASUREMENT_THREADS: ${MEASUREMENT_THREADS:-2}
+      MEASUREMENT_WINDOW_SECONDS: ${MEASUREMENT_WINDOW_SECONDS:-10}
+      SONOVECT_SOUND_ENABLED: ${SONOVECT_SOUND_ENABLED:-false}
+      SONOVECT_VOICE_ENABLED: ${SONOVECT_VOICE_ENABLED:-false}
+      SONOVECT_VOICE_BACKEND: ${SONOVECT_VOICE_BACKEND:-moss}
+      SONOVECT_MEASUREMENTS_ENABLED: ${SONOVECT_MEASUREMENTS_ENABLED:-false}
+      HF_HOME: /models/huggingface
+      HF_HUB_CACHE: /models/huggingface/hub
+    volumes:
+    - analysis-models:/models
+    pids_limit: 512
+  speech-sound:
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 90s
+    security_opt:
+    - no-new-privileges:true
+    cap_drop:
+    - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    shm_size: 4gb
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            count: 1
+            capabilities:
+            - gpu
+    profiles:
+    - voice
+    image: sonovect-sound:${SONOVECT_VERSION:-0.1.0}
+    build:
+      context: ..
+      dockerfile: providers/speech/moss-worker/Dockerfile
+      args:
+        VERSION: ${SONOVECT_VERSION:-0.1.0}
+        REVISION: ${SONOVECT_REVISION:-uncommitted}
+        MOSS_AUDIO_COMMIT: 5cbb1d823937cd5b5de3d8fa4d3a7253ebd3b883
+    environment:
+      MOSS_MODEL_ROOT: ${MOSS_MODEL_ROOT:-}
+      SONOVECT_MODELS_OFFLINE: ${SONOVECT_MODELS_OFFLINE:-1}
+      GPU_RESERVE_MIB: ${GPU_RESERVE_MIB:-1024}
+      MOSS_GPU_BUDGET_MIB: ${MOSS_GPU_BUDGET_MIB:-12288}
+      GPU_CAPACITY_WAIT_SECONDS: ${GPU_CAPACITY_WAIT_SECONDS:-360}
+      MOSS_DEBUG_RAW: ${MOSS_DEBUG_RAW:-false}
+      MOSS_UNLOAD_AFTER_REQUEST: ${MOSS_UNLOAD_AFTER_REQUEST:-true}
+      MOSS_STRUCTURED_RETRIES: ${MOSS_STRUCTURED_RETRIES:-2}
+      MOSS_IDLE_UNLOAD_SECONDS: ${MOSS_IDLE_UNLOAD_SECONDS:-300}
+      MOSS_MAX_NEW_TOKENS: ${MOSS_MAX_NEW_TOKENS:-768}
+      MOSS_MAX_CHUNK_SECONDS: ${MOSS_MAX_CHUNK_SECONDS:-90}
+      MOSS_AUDIO_MODEL: ${MOSS_AUDIO_MODEL:-OpenMOSS-Team/MOSS-Audio-4B-Instruct}
+      MOSS_AUDIO_REVISION: ${MOSS_AUDIO_REVISION:-6907a499dc0e87cc77c8ae0fe23fd0eb5476a02d}
+      MOSS_DEVICE: ${MOSS_DEVICE:-cuda:0}
+      MOSS_MIN_FREE_GIB: ${MOSS_MIN_FREE_GIB:-10}
+    volumes:
+    - sound-models:/models
+volumes:
+  jobs: {}
+  segmentation-models: {}
+  qwen-models: {}
+  analysis-models: {}
+  sound-models: {}

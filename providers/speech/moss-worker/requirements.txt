@@ -1,0 +1,14 @@
+transformers==5.20.2
+accelerate==1.15.0
+numpy==2.5.4
+soundfile==0.14.0
+librosa==1.0.0
+tiktoken==0.14.0
+einops==0.8.2
+scipy==1.18.1
+fastapi==0.150.0
+starlette==1.9.0
+uvicorn==0.54.0
+python-multipart==0.0.32
+requests>=2.34.2,<3
+setuptools==84.2.0

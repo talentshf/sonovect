@@ -1,0 +1,950 @@
+{
+  "schema_version": 1,
+  "reviewed": "2026-10-21",
+  "scope": "Supported immutable Linuxamd64 service images and maintained file-job interface only; not arbitrary operator Python/shell or host security. Raw findings remain visible.",
+  "records": {
+    "CVE-2011-3374": {
+      "source": "apt",
+      "source_version": "3.0.3",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2011-3374"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "apt-key"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "TEMP-0841856-B18BAF": {
+      "source": "bash",
+      "source_version": "5.2.37-2",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/TEMP-0841856-B18BAF"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "bash"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "CVE-2026-3184": {
+      "source": "util-linux",
+      "source_version": "2.42.4-1~sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-3184"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "login"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "CVE-2022-0563": {
+      "source": "util-linux",
+      "source_version": "2.42.4-1~sonovect13.1",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2022-0563"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "getfacl",
+          "chfn",
+          "chsh"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "CVE-2017-18018": {
+      "source": "coreutils",
+      "source_version": "9.7-3",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2017-18018"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "chown",
+          "chgrp"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "CVE-2025-5278": {
+      "source": "coreutils",
+      "source_version": "9.7-3",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2025-5278"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "sort"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "CVE-2026-56391": {
+      "source": "coreutils",
+      "source_version": "9.7-3",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-56391"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "uniq"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "CVE-2026-56392": {
+      "source": "coreutils",
+      "source_version": "9.7-3",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-56392"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "unexpand"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "CVE-2026-102473": {
+      "source": "dash",
+      "source_version": "0.5.12-12",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-102473"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "dash"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "CVE-2026-102474": {
+      "source": "dash",
+      "source_version": "0.5.12-12",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-102474"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "dash"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "CVE-2026-53910": {
+      "source": "diffutils",
+      "source_version": "1:3.10-4",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-53910"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "diff",
+          "diff3",
+          "cmp",
+          "sdiff"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "CVE-2026-102010": {
+      "source": "gcc-14",
+      "source_version": "14.2.0-19",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-102010"
+      ],
+      "status": "not-affected-runtime-package",
+      "proof": {
+        "type": "compiler-header"
+      },
+      "reason": "The defect is in the GNU PBDS priority-queue header template, not the installed gcc-base/libgcc/libstdc++ shared libraries. Compiler headers are absent. Wheel-bundled code is a separate audit scope."
+    },
+    "CVE-2026-95619": {
+      "source": "gcc-14",
+      "source_version": "14.2.0-19",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-95619",
+        "https://github.com/gcc-mirror/gcc/commit/200183d4ab5d57575f3dfebc6af3baf649910b9e"
+      ],
+      "status": "not-affected-platform-branch",
+      "proof": {
+        "type": "aligned-new",
+        "library_sha256": "972bb2a18b71140dab0240f8a1f68ab3fb1d56bcd4c4f824a91b70888faf5a00"
+      },
+      "reason": "The qualified Linux/glibc library uses POSIX memalign, not the vulnerable rounding fallback; pinned binary inspection and all nine upstream oversized-allocation cases confirm rejection."
+    },
+    "CVE-2026-54370": {
+      "source": "acl",
+      "source_version": "2.4.0-1~sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-54370"
+      ],
+      "status": "fixed-by-source-backport",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Exact hash-locked fixed upstream source or retained upstream patch, rebuilt for Debian13; actual versions and behavior are checked."
+    },
+    "CVE-2026-54371": {
+      "source": "attr",
+      "source_version": "1:2.5.2-3",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-54371"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "getfattr",
+          "setfattr"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "CVE-2026-42250": {
+      "source": "bzip2",
+      "source_version": "1.0.8-6",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-42250"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "bzip2recover"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "CVE-2026-18374": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-18374"
+      ],
+      "status": "fixed-by-source-backport",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Exact hash-locked fixed upstream source or retained upstream patch, rebuilt for Debian13; actual versions and behavior are checked."
+    },
+    "CVE-2026-19499": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-19499"
+      ],
+      "status": "fixed-by-source-backport",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Exact hash-locked fixed upstream source or retained upstream patch, rebuilt for Debian13; actual versions and behavior are checked."
+    },
+    "CVE-2026-19542": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-19542"
+      ],
+      "status": "fixed-by-source-backport",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Exact hash-locked fixed upstream source or retained upstream patch, rebuilt for Debian13; actual versions and behavior are checked."
+    },
+    "CVE-2026-5435": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-5435"
+      ],
+      "status": "fixed-by-source-backport",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Exact hash-locked fixed upstream source or retained upstream patch, rebuilt for Debian13; actual versions and behavior are checked."
+    },
+    "CVE-2026-6238": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-6238"
+      ],
+      "status": "fixed-by-source-backport",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Exact hash-locked fixed upstream source or retained upstream patch, rebuilt for Debian13; actual versions and behavior are checked."
+    },
+    "CVE-2026-6368": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-6368"
+      ],
+      "status": "fixed-by-source-backport",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Exact hash-locked fixed upstream source or retained upstream patch, rebuilt for Debian13; actual versions and behavior are checked."
+    },
+    "CVE-2026-6791": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-6791"
+      ],
+      "status": "fixed-by-source-backport",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Exact hash-locked fixed upstream source or retained upstream patch, rebuilt for Debian13; actual versions and behavior are checked."
+    },
+    "CVE-2026-77117": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-77117"
+      ],
+      "status": "fixed-by-source-backport",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Exact hash-locked fixed upstream source or retained upstream patch, rebuilt for Debian13; actual versions and behavior are checked."
+    },
+    "CVE-2026-80489": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-80489"
+      ],
+      "status": "fixed-by-source-backport",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Exact hash-locked fixed upstream source or retained upstream patch, rebuilt for Debian13; actual versions and behavior are checked."
+    },
+    "CVE-2026-8674": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-8674"
+      ],
+      "status": "fixed-by-source-backport",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Exact hash-locked fixed upstream source or retained upstream patch, rebuilt for Debian13; actual versions and behavior are checked."
+    },
+    "CVE-2026-86805": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-86805"
+      ],
+      "status": "fixed-by-source-backport",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Exact hash-locked fixed upstream source or retained upstream patch, rebuilt for Debian13; actual versions and behavior are checked."
+    },
+    "CVE-2026-89092": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-89092"
+      ],
+      "status": "fixed-by-source-backport",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Exact hash-locked fixed upstream source or retained upstream patch, rebuilt for Debian13; actual versions and behavior are checked."
+    },
+    "CVE-2026-95818": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-95818"
+      ],
+      "status": "fixed-by-source-backport",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Exact hash-locked fixed upstream source or retained upstream patch, rebuilt for Debian13; actual versions and behavior are checked."
+    },
+    "CVE-2010-4756": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2010-4756"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "service-boundary"
+      },
+      "reason": "Upstream disputes or treats this as a security limitation; no upstream fix is available. The maintained media-job interface does not accept arbitrary POSIX regex/glob patterns, ELF execution, SQL or database files. This is a scoped exposure assessment, not a claim of a repaired library. Operator arbitrary-code execution and alternate callers are excluded."
+    },
+    "CVE-2018-20796": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2018-20796"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "service-boundary",
+        "commands": [
+          "grep",
+          "egrep",
+          "fgrep"
+        ]
+      },
+      "reason": "Upstream leaves crafted POSIX regular-expression recursion unfixed/disputed. The immutable image removes grep/egrep/fgrep, and the media interface exposes no caller POSIX regex. Python text matching uses its separate engine; decoder/filter arguments are fixed. This removes a specific entry path, not glibc regex code."
+    },
+    "CVE-2019-1010022": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2019-1010022"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "service-boundary"
+      },
+      "reason": "Upstream disputes or treats this as a security limitation; no upstream fix is available. The maintained media-job interface does not accept arbitrary POSIX regex/glob patterns, ELF execution, SQL or database files. This is a scoped exposure assessment, not a claim of a repaired library. Operator arbitrary-code execution and alternate callers are excluded."
+    },
+    "CVE-2019-1010023": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2019-1010023"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "service-boundary",
+        "commands": [
+          "ldd"
+        ]
+      },
+      "reason": "The described path asks a victim to run ldd on attacker ELF files. ldd is removed from the immutable runtime; uploaded bytes are decoded with fixed FFmpeg arguments, never launched. The dynamic loader remains necessary; this is entry-point removal and a scoped mitigation, not a repaired loader."
+    },
+    "CVE-2019-1010024": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2019-1010024"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "service-boundary"
+      },
+      "reason": "Upstream disputes or treats this as a security limitation; no upstream fix is available. The maintained media-job interface does not accept arbitrary POSIX regex/glob patterns, ELF execution, SQL or database files. This is a scoped exposure assessment, not a claim of a repaired library. Operator arbitrary-code execution and alternate callers are excluded."
+    },
+    "CVE-2019-1010025": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2019-1010025"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "service-boundary"
+      },
+      "reason": "Upstream disputes or treats this as a security limitation; no upstream fix is available. The maintained media-job interface does not accept arbitrary POSIX regex/glob patterns, ELF execution, SQL or database files. This is a scoped exposure assessment, not a claim of a repaired library. Operator arbitrary-code execution and alternate callers are excluded."
+    },
+    "CVE-2019-9192": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2019-9192"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "service-boundary",
+        "commands": [
+          "grep",
+          "egrep",
+          "fgrep"
+        ]
+      },
+      "reason": "Upstream leaves crafted POSIX regular-expression recursion unfixed/disputed. The immutable image removes grep/egrep/fgrep, and the media interface exposes no caller POSIX regex. Python text matching uses its separate engine; decoder/filter arguments are fixed. This removes a specific entry path, not glibc regex code."
+    },
+    "CVE-2026-97399": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-97399"
+      ],
+      "status": "fixed-by-source-backport",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Exact hash-locked fixed upstream source or retained upstream patch, rebuilt for Debian13; actual versions and behavior are checked."
+    },
+    "CVE-2025-6141": {
+      "source": "ncurses",
+      "source_version": "6.6+20260608-2~sonovect13.1",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2025-6141"
+      ],
+      "status": "fixed-by-source-backport",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Exact hash-locked fixed upstream source or retained upstream patch, rebuilt for Debian13; actual versions and behavior are checked."
+    },
+    "CVE-2026-54411": {
+      "source": "pam",
+      "source_version": "1.7.0-5",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-54411"
+      ],
+      "status": "affected-module-absent",
+      "proof": {
+        "type": "absence",
+        "modules": [
+          "pam_userdb"
+        ]
+      },
+      "reason": "The affected optional module/extension is not installed, or is explicitly removed from the immutable service runtime; exact package/file evidence is required."
+    },
+    "CVE-2026-50812": {
+      "source": "sqlite3",
+      "source_version": "3.53.4-2~sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-50812"
+      ],
+      "status": "fixed-by-source-backport",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Exact hash-locked fixed upstream source or retained upstream patch, rebuilt for Debian13; actual versions and behavior are checked."
+    },
+    "CVE-2026-50813": {
+      "source": "sqlite3",
+      "source_version": "3.53.4-2~sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-50813"
+      ],
+      "status": "fixed-by-source-backport",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Exact hash-locked fixed upstream source or retained upstream patch, rebuilt for Debian13; actual versions and behavior are checked."
+    },
+    "CVE-2021-45346": {
+      "source": "sqlite3",
+      "source_version": "3.53.4-2~sonovect13.1",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2021-45346"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "service-boundary"
+      },
+      "reason": "The issue requires an attacker-controlled corrupt SQLite database and SQL query. Media uploads do not select the task database or SQL; the store uses fixed parameterized statements. Arbitrary operator database replacement is outside the service interface. The raw advisory remains visible."
+    },
+    "CVE-2025-70873": {
+      "source": "sqlite3",
+      "source_version": "3.53.4-2~sonovect13.1",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2025-70873"
+      ],
+      "status": "affected-module-absent",
+      "proof": {
+        "type": "absence",
+        "modules": [
+          "sqlite_zipfile"
+        ]
+      },
+      "reason": "The affected optional module/extension is not installed, or is explicitly removed from the immutable service runtime; exact package/file evidence is required."
+    },
+    "CVE-2026-15059": {
+      "source": "systemd",
+      "source_version": "257.13-1~deb13u1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-15059"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "modules": [
+          "systemd_programs"
+        ]
+      },
+      "reason": "Only libsystemd/libudev are installed; affected systemd/oomd/journald service programs are absent. This source-package match is not a library-code finding."
+    },
+    "CVE-2013-4392": {
+      "source": "systemd",
+      "source_version": "257.13-1~deb13u1",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2013-4392"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "modules": [
+          "systemd_programs"
+        ]
+      },
+      "reason": "Only libsystemd/libudev are installed; affected systemd/oomd/journald service programs are absent. This source-package match is not a library-code finding."
+    },
+    "CVE-2023-31437": {
+      "source": "systemd",
+      "source_version": "257.13-1~deb13u1",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2023-31437"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "modules": [
+          "systemd_programs"
+        ]
+      },
+      "reason": "Only libsystemd/libudev are installed; affected systemd/oomd/journald service programs are absent. This source-package match is not a library-code finding."
+    },
+    "CVE-2023-31438": {
+      "source": "systemd",
+      "source_version": "257.13-1~deb13u1",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2023-31438"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "modules": [
+          "systemd_programs"
+        ]
+      },
+      "reason": "Only libsystemd/libudev are installed; affected systemd/oomd/journald service programs are absent. This source-package match is not a library-code finding."
+    },
+    "CVE-2023-31439": {
+      "source": "systemd",
+      "source_version": "257.13-1~deb13u1",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2023-31439"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "modules": [
+          "systemd_programs"
+        ]
+      },
+      "reason": "Only libsystemd/libudev are installed; affected systemd/oomd/journald service programs are absent. This source-package match is not a library-code finding."
+    },
+    "CVE-2026-40228": {
+      "source": "systemd",
+      "source_version": "257.13-1~deb13u1",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-40228"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "modules": [
+          "systemd_programs"
+        ]
+      },
+      "reason": "Only libsystemd/libudev are installed; affected systemd/oomd/journald service programs are absent. This source-package match is not a library-code finding."
+    },
+    "CVE-2007-5686": {
+      "source": "shadow",
+      "source_version": "1:4.17.4-2",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2007-5686"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "login"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "CVE-2024-56433": {
+      "source": "shadow",
+      "source_version": "1:4.17.4-2",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2024-56433"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "newuidmap",
+          "newgidmap"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "TEMP-0628843-DBAD28": {
+      "source": "shadow",
+      "source_version": "1:4.17.4-2",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/TEMP-0628843-DBAD28"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "su"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "CVE-2026-15534": {
+      "source": "perl",
+      "source_version": "5.40.1-6+deb13u1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-15534"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "perl"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "CVE-2011-4116": {
+      "source": "perl",
+      "source_version": "5.40.1-6+deb13u1",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2011-4116"
+      ],
+      "status": "affected-module-absent",
+      "proof": {
+        "type": "absence",
+        "modules": [
+          "file_temp"
+        ]
+      },
+      "reason": "The affected optional module/extension is not installed, or is explicitly removed from the immutable service runtime; exact package/file evidence is required."
+    },
+    "CVE-2026-82560": {
+      "source": "perl",
+      "source_version": "5.40.1-6+deb13u1",
+      "severity": "UNKNOWN",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-82560"
+      ],
+      "status": "affected-module-absent",
+      "proof": {
+        "type": "absence",
+        "modules": [
+          "pod_text"
+        ]
+      },
+      "reason": "The affected optional module/extension is not installed, or is explicitly removed from the immutable service runtime; exact package/file evidence is required."
+    },
+    "TEMP-0517018-A83CE6": {
+      "source": "sysvinit",
+      "source_version": "3.14-4",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/TEMP-0517018-A83CE6"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "init",
+          "sulogin"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "CVE-2026-18477": {
+      "source": "tar",
+      "source_version": "1.35+dfsg-3.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-18477"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "tar"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "CVE-2026-18508": {
+      "source": "tar",
+      "source_version": "1.35+dfsg-3.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-18508"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "tar"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "CVE-2026-5704": {
+      "source": "tar",
+      "source_version": "1.35+dfsg-3.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-5704"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "tar"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "CVE-2005-2541": {
+      "source": "tar",
+      "source_version": "1.35+dfsg-3.1",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2005-2541"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "tar"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "TEMP-0290435-0B57B5": {
+      "source": "tar",
+      "source_version": "1.35+dfsg-3.1",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/TEMP-0290435-0B57B5"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "rmt"
+        ]
+      },
+      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+    },
+    "CVE-2026-27171": {
+      "source": "zlib",
+      "source_version": "1:1.3.dfsg+really1.3.1-1+sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-27171"
+      ],
+      "status": "fixed-by-source-backport",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Exact hash-locked fixed upstream source or retained upstream patch, rebuilt for Debian13; actual versions and behavior are checked."
+    },
+    "CVE-2026-85091": {
+      "source": "zlib",
+      "source_version": "1:1.3.dfsg+really1.3.1-1+sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-85091",
+        "https://github.com/madler/zlib/commit/81cc0bebedd935daeb81b0b6e475d8786b51af3d"
+      ],
+      "status": "not-affected-version",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Keep zlib1.3.1 plus the narrow CRC fix: the vulnerable nonblocking gzip-buffer implementation was introduced later, in1.3.1.2. No full1.3.2 upgrade introducing it is used."
+    }
+  }
+}

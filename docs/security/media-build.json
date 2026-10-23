@@ -1,0 +1,24 @@
+{
+  "component": "FFmpeg",
+  "version": "9.0.2",
+  "source_url": "https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz",
+  "source_sha256": "8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e",
+  "verified_release_signature_fingerprint": "FCF986EA15E6E293A5644F10B4322F04D67658D8",
+  "verified": "2026-10-20",
+  "configuration": "providers/speech/shared/build_media.sh",
+  "network_protocols": false,
+  "input_protocols": [
+    "file",
+    "pipe"
+  ],
+  "runtime_source_copy": "/usr/local/share/sonovect-media/ffmpeg-9.0.2.tar.xz",
+  "license": "LGPL-2.1-or-later",
+  "external_encoder_libraries": [
+    "libmp3lame0",
+    "libopus0",
+    "libvpx9"
+  ],
+  "notes": "Only media/native queue workers carry the decoder. Model workers receive normalized 16 kHz PCM and do not install a media executable. Native video encoders and external audio/video encoders support synthetic fixtures; no video frame inference is exposed. wrapped_avframe decodes internally generated raw fixture frames only; compressed video decoders remain disabled.",
+  "compressed_video_decoders": false,
+  "synthetic_frame_decoder": "wrapped_avframe"
+}

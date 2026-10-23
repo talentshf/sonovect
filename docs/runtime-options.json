@@ -1,0 +1,92 @@
+{
+  "api": {
+    "EVENTS_TIMEOUT_SECONDS": "600",
+    "EVENTS_URL": "http://speech-events:8084",
+    "MEASUREMENTS_ENABLED": "false",
+    "MEASUREMENTS_TIMEOUT_SECONDS": "600",
+    "MEASUREMENTS_URL": "http://speech-measurements:8086",
+    "MIN_TEXT_DENSITY_PER_SPEECH_SECOND": "0.2",
+    "MOSS_TIMEOUT_SECONDS": "3600",
+    "MOSS_URL": "http://moss-audio-worker:8083",
+    "QWEN_TIMEOUT_SECONDS": "1800",
+    "QWEN_URL": "http://qwen3-asr-worker:8081",
+    "SEGMENTATION_TIMEOUT_SECONDS": "600",
+    "SEGMENTATION_URL": "http://speech-segmentation-worker:8082",
+    "SEGMENT_BOUNDARY_SILENCE_MS": "700",
+    "SEGMENT_HARD_MAX_MS": "90000",
+    "SEGMENT_MERGE_GAP_MS": "3000",
+    "SEGMENT_PADDING_MS": "1000",
+    "SEGMENT_TARGET_MS": "30000",
+    "SOUND_ENABLED": "false",
+    "VOICE_BACKEND": "moss",
+    "VOICE_ENABLED": "false",
+    "VOICE_URL": null
+  },
+  "segmentation-worker": {
+    "FIRERED_VAD_ROOT": null,
+    "MIN_SPEAKER_PROFILE_DURATION_MS": "5000",
+    "MODELSCOPE_CACHE": "/models",
+    "SEGMENTATION_DEVICE": "cpu",
+    "SPEAKER_FALLBACK_COUNT": "2",
+    "SPEAKER_FALLBACK_MIN_WINDOWS": "20",
+    "SPEAKER_LOW_COHESION_COSINE": "0.45",
+    "SPEAKER_MERGE_THRESHOLD": "0.78",
+    "SPEAKER_MODEL": "cam++",
+    "VAD_BACKEND": "fsmn",
+    "VAD_MODEL": "fsmn-vad"
+  },
+  "qwen-worker": {
+    "GPU_CAPACITY_WAIT_SECONDS": "360",
+    "GPU_RESERVE_MIB": "1024",
+    "QWEN_ALIGNER_MODEL": "Qwen/Qwen3-ForcedAligner-0.6B-hf",
+    "QWEN_ALIGNER_REVISION": "c07281df297b9905d24a508279258cccf987a064",
+    "QWEN_ASR_MODEL": "Qwen/Qwen3-ASR-1.7B-hf",
+    "QWEN_ASR_REVISION": "bcd2b5b7f32b480ab5790554cfa8347f246a14f3",
+    "QWEN_ATTENTION_IMPLEMENTATION": "auto",
+    "QWEN_DEFAULT_CONTEXT": "",
+    "QWEN_DEVICE": "cuda:0",
+    "QWEN_DTYPE": "bfloat16",
+    "QWEN_GPU_BUDGET_MIB": "8192",
+    "QWEN_IDLE_UNLOAD_SECONDS": "300",
+    "QWEN_MAX_BATCH_AUDIO_SECONDS": "60",
+    "QWEN_MAX_BATCH_SIZE": "1",
+    "QWEN_MAX_NEW_TOKENS": "2048",
+    "QWEN_MIN_FREE_GIB": "6",
+    "QWEN_ROLLING_CONTEXT_CHARS": "0"
+  },
+  "moss-worker": {
+    "GPU_CAPACITY_WAIT_SECONDS": "360",
+    "GPU_RESERVE_MIB": "1024",
+    "MOSS_AUDIO_MODEL": "OpenMOSS-Team/MOSS-Audio-4B-Instruct",
+    "MOSS_AUDIO_REVISION": "6907a499dc0e87cc77c8ae0fe23fd0eb5476a02d",
+    "MOSS_DEBUG_RAW": "false",
+    "MOSS_DEVICE": "cuda:0",
+    "MOSS_GPU_BUDGET_MIB": "12288",
+    "MOSS_IDLE_UNLOAD_SECONDS": "300",
+    "MOSS_MAX_CHUNK_SECONDS": "90",
+    "MOSS_MAX_NEW_TOKENS": "768",
+    "MOSS_MIN_FREE_GIB": "10",
+    "MOSS_MODEL_ROOT": null,
+    "MOSS_STRUCTURED_RETRIES": "2",
+    "MOSS_UNLOAD_AFTER_REQUEST": "true"
+  },
+  "event-worker": {
+    "SONOVECT_MODELS_OFFLINE": "1",
+    "SOUND_EVENT_MODEL_ROOT": null,
+    "SOUND_EVENT_THREADS": "2",
+    "SOUND_EVENT_THRESHOLD": "0.1",
+    "SOUND_EVENT_TOP_K": "5",
+    "SOUND_EVENT_WINDOW_SECONDS": "10"
+  },
+  "vocal-worker": {
+    "HF_HUB_CACHE": null,
+    "SONOVECT_MODELS_OFFLINE": "1",
+    "VOCAL_MODEL_ROOT": "",
+    "VOCAL_THREADS": "2",
+    "VOCAL_WINDOW_SECONDS": "10"
+  },
+  "measurement-worker": {
+    "MEASUREMENT_THREADS": "2",
+    "MEASUREMENT_WINDOW_SECONDS": "10"
+  }
+}

@@ -1,0 +1,54 @@
+# API/media-worker deployment that reuses an existing private model-service network.
+name: sonovect
+
+x-core: &core
+  image: ${SONOVECT_IMAGE:-sonovect:0.1.0}
+  build:
+    context: ..
+    target: core
+  env_file: ${SONOVECT_ENV_FILE:-.env}
+  environment:
+    SONOVECT_LAYOUT: external
+    SONOVECT_BACKEND: speech
+    SONOVECT_DATA_DIR: /data
+    SONOVECT_PROVIDER_URL: ${SONOVECT_PROVIDER_URL:-http://speech-provider:8080}
+  volumes: [jobs:/data]
+  networks: [processing]
+  restart: unless-stopped
+  init: true
+  logging:
+    driver: json-file
+    options: {max-size: '10m', max-file: '3'}
+  security_opt: ['no-new-privileges:true']
+  cap_drop: [ALL]
+
+services:
+  api:
+    <<: *core
+    depends_on: {worker: {condition: service_healthy}}
+    ports:
+      - '${SONOVECT_BIND:-127.0.0.1}:${SONOVECT_PORT:-8096}:8096'
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8096/ready', timeout=8)"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+  worker:
+    <<: *core
+    image: ${SONOVECT_WORKER_IMAGE:-sonovect-worker:0.1.0}
+    build: {context: .., target: media-worker}
+    command: [sonovect-worker]
+    stop_grace_period: 90s
+    healthcheck:
+      test: [CMD, sonovect-health, worker]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  processing:
+    external: true
+    name: ${SONOVECT_PROCESSING_NETWORK:-sonovect_default}
+
+volumes:
+  jobs:

@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "baseline": "Debian 13 / Python 3.12",
+  "origin": "Debian signed Sources indexes, observed 2026-10-20; all downloaded bytes are pinned below",
+  "components": {
+    "util-linux": {
+      "version": "2.42.4-1~sonovect13.1",
+      "directory": "util-linux-2.42.4",
+      "files": [
+        {
+          "name": "util-linux_2.42.4.orig.tar.xz",
+          "size": 10729748,
+          "sha256": "fbd62a100ab7bb8746ba0661255c3c48185b1e9021507c624da01fbc696330ec",
+          "url": "https://deb.debian.org/debian/pool/main/u/util-linux/util-linux_2.42.4.orig.tar.xz"
+        },
+        {
+          "name": "util-linux_2.42.4-1.debian.tar.xz",
+          "size": 102552,
+          "sha256": "a00f3ceaff58a4e2d1591c620ee5d7c8bcd435fd2cbd86db604d7b6c8e19b8c9",
+          "url": "https://deb.debian.org/debian/pool/main/u/util-linux/util-linux_2.42.4-1.debian.tar.xz"
+        },
+        {
+          "name": "util-linux_2.42.4-1.dsc",
+          "size": 4719,
+          "sha256": "23501bc9fe62d130aaebc7d75eb9c3c8d0f7284075d1dae743a2889d15d8b692",
+          "url": "https://deb.debian.org/debian/pool/main/u/util-linux/util-linux_2.42.4-1.dsc"
+        }
+      ]
+    },
+    "acl": {
+      "version": "2.4.0-1~sonovect13.1",
+      "directory": "acl-2.4.0",
+      "files": [
+        {
+          "name": "acl_2.4.0.orig.tar.xz",
+          "size": 384828,
+          "sha256": "e661131456d2708a01c614a0f400e11d7d1bfaeb6f3e74b75bb980b72f0161a3",
+          "url": "https://deb.debian.org/debian/pool/main/a/acl/acl_2.4.0.orig.tar.xz"
+        },
+        {
+          "name": "acl_2.4.0.orig.tar.xz.asc",
+          "size": 833,
+          "sha256": "5f4f0b9b78821764fe6b88e32aef6ec519628522c211c36706bcb78d6f3f036b",
+          "url": "https://deb.debian.org/debian/pool/main/a/acl/acl_2.4.0.orig.tar.xz.asc"
+        },
+        {
+          "name": "acl_2.4.0-1.debian.tar.xz",
+          "size": 47932,
+          "sha256": "65931c2fb3e821bda67f8d8d72d77e99ac61502748dcdf38b6805fe89339085e",
+          "url": "https://deb.debian.org/debian/pool/main/a/acl/acl_2.4.0-1.debian.tar.xz"
+        },
+        {
+          "name": "acl_2.4.0-1.dsc",
+          "size": 2624,
+          "sha256": "b987ebbeb3d498794bad29cd65301b77384978493d8765c94dba8bad8fa325b6",
+          "url": "https://deb.debian.org/debian/pool/main/a/acl/acl_2.4.0-1.dsc"
+        }
+      ]
+    },
+    "ncurses": {
+      "version": "6.6+20260608-2~sonovect13.1",
+      "directory": "ncurses-6.6+20260608",
+      "files": [
+        {
+          "name": "ncurses_6.6+20260608.orig.tar.gz",
+          "size": 3806095,
+          "sha256": "3b91eb714ba61b9ebfcfe09cf8e7c1c45cf2e8a6282f5887fb942db514ae93bd",
+          "url": "https://deb.debian.org/debian/pool/main/n/ncurses/ncurses_6.6+20260608.orig.tar.gz"
+        },
+        {
+          "name": "ncurses_6.6+20260608.orig.tar.gz.asc",
+          "size": 729,
+          "sha256": "46de216bd447b5855b7df45d3da5a85f382aa1fea778180459049b2d6ee3c9b9",
+          "url": "https://deb.debian.org/debian/pool/main/n/ncurses/ncurses_6.6+20260608.orig.tar.gz.asc"
+        },
+        {
+          "name": "ncurses_6.6+20260608-2.debian.tar.xz",
+          "size": 50996,
+          "sha256": "52a49c453121bd90d21edef53903beac9d9d8229e0ef4f49d3b0252e49932f4c",
+          "url": "https://deb.debian.org/debian/pool/main/n/ncurses/ncurses_6.6+20260608-2.debian.tar.xz"
+        },
+        {
+          "name": "ncurses_6.6+20260608-2.dsc",
+          "size": 4163,
+          "sha256": "d12b31c11fad1c5baf42e36d643edd72cecacec67c2d14e759da42a61759582a",
+          "url": "https://deb.debian.org/debian/pool/main/n/ncurses/ncurses_6.6+20260608-2.dsc"
+        }
+      ]
+    }
+  }
+}

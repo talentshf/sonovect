@@ -1,0 +1,690 @@
+{
+  "format": "sonovect-benchmark-reference-v1",
+  "product_version": "0.1.0",
+  "purpose": "Dated configuration references; measurements are not rerun or redated when documentation is updated.",
+  "speech": {
+    "measured_on": "2026-10-21",
+    "local_hardware": {
+      "os": "Linux amd64",
+      "gpu": "NVIDIA RTX 3090",
+      "vram_gib": 24
+    },
+    "local_configuration": {
+      "speech": "Qwen3-ASR-1.7B",
+      "alignment": "Qwen3-ForcedAligner-0.6B",
+      "vad": "FireRed",
+      "speakers": "CAM++"
+    },
+    "material_manifest": "public-corpus.json",
+    "material_manifest_sha256": "0d6465c079af8ca4d30ba5246b4b90872ee0562b97167b7190deb3dd38a00001",
+    "input": "The exact same normalized mono 16 kHz PCM16 WAV bytes for all systems. Public human references are scored offline; no reference-derived hotwords or context are sent.",
+    "scoring_document": "../docs/accuracy-evaluation.md",
+    "cloud_models_are_mutable_aliases": true,
+    "systems": [
+      {
+        "name": "local-qwen-1.7b",
+        "mandarin": {
+          "cases": 1,
+          "cer": {
+            "reference_units": 8073,
+            "hypothesis_units": 7896,
+            "substitutions": 284,
+            "deletions": 246,
+            "insertions": 69,
+            "errors": 599,
+            "error_rate": 0.07419794376316115
+          }
+        },
+        "english": {
+          "cases": 12,
+          "wer": {
+            "reference_units": 241,
+            "hypothesis_units": 241,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "errors": 0,
+            "error_rate": 0.0
+          }
+        },
+        "non_speech": {
+          "clips": 10,
+          "inserted_characters": 3,
+          "provider_states": {
+            "succeeded": 10
+          },
+          "digital_silence_insertions": 0,
+          "digital_silence_states": {
+            "succeeded": 1
+          }
+        }
+      },
+      {
+        "name": "fun-asr",
+        "mandarin": {
+          "cases": 1,
+          "cer": {
+            "reference_units": 8073,
+            "hypothesis_units": 7901,
+            "substitutions": 344,
+            "deletions": 253,
+            "insertions": 81,
+            "errors": 678,
+            "error_rate": 0.08398364920104051
+          }
+        },
+        "english": {
+          "cases": 12,
+          "wer": {
+            "reference_units": 241,
+            "hypothesis_units": 241,
+            "substitutions": 1,
+            "deletions": 0,
+            "insertions": 0,
+            "errors": 1,
+            "error_rate": 0.004149377593360996
+          }
+        },
+        "non_speech": {
+          "clips": 10,
+          "inserted_characters": 0,
+          "provider_states": {
+            "failed-no-words": 10
+          },
+          "digital_silence_insertions": 0,
+          "digital_silence_states": {
+            "failed-no-words": 1
+          }
+        }
+      },
+      {
+        "name": "qwen3-asr-flash-filetrans",
+        "mandarin": {
+          "cases": 1,
+          "cer": {
+            "reference_units": 8073,
+            "hypothesis_units": 7880,
+            "substitutions": 285,
+            "deletions": 268,
+            "insertions": 75,
+            "errors": 628,
+            "error_rate": 0.07779016474668649
+          }
+        },
+        "english": {
+          "cases": 12,
+          "wer": {
+            "reference_units": 241,
+            "hypothesis_units": 241,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "errors": 0,
+            "error_rate": 0.0
+          }
+        },
+        "non_speech": {
+          "clips": 10,
+          "inserted_characters": 2,
+          "provider_states": {
+            "failed-no-words": 9,
+            "succeeded": 1
+          },
+          "digital_silence_insertions": 0,
+          "digital_silence_states": {
+            "failed-no-words": 1
+          }
+        }
+      }
+    ],
+    "interpretation": "Transcript quality matches the tested cloud services on these speech samples. This does not compare all languages, service latency, concurrency, environmental-event or emotion quality."
+  },
+  "events": {
+    "measured_on": "2026-10-23",
+    "source": "https://zenodo.org/records/20056072",
+    "model": "MIT/ast-finetuned-audioset-10-10-0.4593",
+    "revision": "f826b80d28226b62986cc218e5cec390b1096902",
+    "execution": {
+      "device": "cpu",
+      "cpu_limit": 2,
+      "threads": 2
+    },
+    "development_cases": 300,
+    "test": {
+      "cases": 300,
+      "setting": {
+        "threshold": 0.1,
+        "top_k": 5,
+        "window_seconds": 10
+      },
+      "vocabulary": [
+        "bell_ringing",
+        "cutlery_dishes",
+        "door_open_close",
+        "footsteps",
+        "keyboard_typing",
+        "keychain",
+        "microwave",
+        "phone_ringing",
+        "running_water",
+        "toilet_flushing",
+        "vacuum_cleaner",
+        "wardrobe_drawer_open_close"
+      ],
+      "micro": {
+        "tp": 389,
+        "fp": 122,
+        "fn": 398,
+        "tn": 2691,
+        "precision": 0.761252446183953,
+        "recall": 0.49428208386277,
+        "f1": 0.5993836671802774
+      },
+      "macro_f1": 0.6010630099940621,
+      "per_class": {
+        "bell_ringing": {
+          "tp": 8,
+          "fp": 5,
+          "fn": 17,
+          "tn": 270,
+          "precision": 0.6153846153846154,
+          "recall": 0.32,
+          "f1": 0.42105263157894735,
+          "false_positive_rate": {
+            "count": 5,
+            "total": 275,
+            "rate": 0.01818181818181818,
+            "wilson_95": [
+              0.007790565409569138,
+              0.04184860546277491
+            ]
+          }
+        },
+        "cutlery_dishes": {
+          "tp": 45,
+          "fp": 10,
+          "fn": 22,
+          "tn": 223,
+          "precision": 0.8181818181818182,
+          "recall": 0.6716417910447762,
+          "f1": 0.7377049180327869,
+          "false_positive_rate": {
+            "count": 10,
+            "total": 233,
+            "rate": 0.04291845493562232,
+            "wilson_95": [
+              0.023476875474258904,
+              0.07718733652396143
+            ]
+          }
+        },
+        "door_open_close": {
+          "tp": 75,
+          "fp": 32,
+          "fn": 40,
+          "tn": 153,
+          "precision": 0.7009345794392523,
+          "recall": 0.6521739130434783,
+          "f1": 0.6756756756756757,
+          "false_positive_rate": {
+            "count": 32,
+            "total": 185,
+            "rate": 0.17297297297297298,
+            "wilson_95": [
+              0.12527214079409718,
+              0.23397873157450663
+            ]
+          }
+        },
+        "footsteps": {
+          "tp": 11,
+          "fp": 1,
+          "fn": 148,
+          "tn": 140,
+          "precision": 0.9166666666666666,
+          "recall": 0.06918238993710692,
+          "f1": 0.1286549707602339,
+          "false_positive_rate": {
+            "count": 1,
+            "total": 141,
+            "rate": 0.0070921985815602835,
+            "wilson_95": [
+              0.0012530461940498637,
+              0.03907697304391938
+            ]
+          }
+        },
+        "keyboard_typing": {
+          "tp": 44,
+          "fp": 5,
+          "fn": 12,
+          "tn": 239,
+          "precision": 0.8979591836734694,
+          "recall": 0.7857142857142857,
+          "f1": 0.8380952380952381,
+          "false_positive_rate": {
+            "count": 5,
+            "total": 244,
+            "rate": 0.020491803278688523,
+            "wilson_95": [
+              0.008783868876383178,
+              0.04706416755204991
+            ]
+          }
+        },
+        "keychain": {
+          "tp": 22,
+          "fp": 1,
+          "fn": 40,
+          "tn": 237,
+          "precision": 0.9565217391304348,
+          "recall": 0.3548387096774194,
+          "f1": 0.5176470588235295,
+          "false_positive_rate": {
+            "count": 1,
+            "total": 238,
+            "rate": 0.004201680672268907,
+            "wilson_95": [
+              0.000742085257523166,
+              0.02341199836891201
+            ]
+          }
+        },
+        "microwave": {
+          "tp": 15,
+          "fp": 0,
+          "fn": 14,
+          "tn": 271,
+          "precision": 1.0,
+          "recall": 0.5172413793103449,
+          "f1": 0.6818181818181818,
+          "false_positive_rate": {
+            "count": 0,
+            "total": 271,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.013976999093140033
+            ]
+          }
+        },
+        "phone_ringing": {
+          "tp": 9,
+          "fp": 6,
+          "fn": 53,
+          "tn": 232,
+          "precision": 0.6,
+          "recall": 0.14516129032258066,
+          "f1": 0.23376623376623376,
+          "false_positive_rate": {
+            "count": 6,
+            "total": 238,
+            "rate": 0.025210084033613446,
+            "wilson_95": [
+              0.011604083050170327,
+              0.053899403812432856
+            ]
+          }
+        },
+        "running_water": {
+          "tp": 81,
+          "fp": 9,
+          "fn": 15,
+          "tn": 195,
+          "precision": 0.9,
+          "recall": 0.84375,
+          "f1": 0.8709677419354839,
+          "false_positive_rate": {
+            "count": 9,
+            "total": 204,
+            "rate": 0.04411764705882353,
+            "wilson_95": [
+              0.02338137999728914,
+              0.08170573276945131
+            ]
+          }
+        },
+        "toilet_flushing": {
+          "tp": 37,
+          "fp": 9,
+          "fn": 4,
+          "tn": 250,
+          "precision": 0.8043478260869565,
+          "recall": 0.9024390243902439,
+          "f1": 0.8505747126436781,
+          "false_positive_rate": {
+            "count": 9,
+            "total": 259,
+            "rate": 0.03474903474903475,
+            "wilson_95": [
+              0.018387354377430956,
+              0.06471011022610401
+            ]
+          }
+        },
+        "vacuum_cleaner": {
+          "tp": 19,
+          "fp": 0,
+          "fn": 6,
+          "tn": 275,
+          "precision": 1.0,
+          "recall": 0.76,
+          "f1": 0.8636363636363636,
+          "false_positive_rate": {
+            "count": 0,
+            "total": 275,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.013776498075074023
+            ]
+          }
+        },
+        "wardrobe_drawer_open_close": {
+          "tp": 23,
+          "fp": 44,
+          "fn": 27,
+          "tn": 206,
+          "precision": 0.34328358208955223,
+          "recall": 0.46,
+          "f1": 0.39316239316239315,
+          "false_positive_rate": {
+            "count": 44,
+            "total": 250,
+            "rate": 0.176,
+            "wilson_95": [
+              0.13379976146744743,
+              0.22800661660560062
+            ]
+          }
+        }
+      },
+      "pooled_class_negative_false_alarm": {
+        "count": 122,
+        "total": 2813,
+        "rate": 0.043370067543547816,
+        "wilson_95": [
+          0.03644505196388555,
+          0.05154053843723559
+        ]
+      },
+      "negative_clip_false_positive_rate": {
+        "count": 0,
+        "total": 2,
+        "rate": 0.0,
+        "wilson_95": [
+          0,
+          0.6576197724933469
+        ]
+      },
+      "unsupported_reference_clip_counts": {
+        "window_open_close": 46,
+        "light_switch": 78,
+        "coffee_machine": 9
+      },
+      "unavailable_declared_aliases": {
+        "bell_ringing": [
+          "Ringing (of bell)"
+        ]
+      },
+      "failures": 0
+    },
+    "reference_sha256": "d561a6f2b5fadf9d316c810440424eab3359b6f5cebdf2fde75dbf4f304991b6",
+    "interpretation": "Clip-level presence in 12 mapped classes. Three reference classes have vocabulary gaps. Correlated class/household cells limit uncertainty interpretation; window tags are not exact event boundaries."
+  },
+  "emotion": {
+    "measured_on": "2026-10-23",
+    "status": "experimental",
+    "source": "https://huggingface.co/datasets/ATH-MaaS/CSEMOTIONS/tree/19498e62e6745cf9ec9b69a44b826caa467eac31",
+    "execution": {
+      "device": "cpu",
+      "cpu_limit": 2,
+      "threads": 2
+    },
+    "selection": {
+      "recordings": 690,
+      "speakers": 10,
+      "six_class_development": 120,
+      "six_class_test": 480,
+      "playfulness_excluded": 90
+    },
+    "reference_sha256": "0acf15de78f7cfd62e20d4a3d5110f564847eeccb977fda9471330d29ccc8490",
+    "models": {
+      "base": {
+        "development": {
+          "cases": 120,
+          "strict_accuracy": {
+            "count": 45,
+            "total": 120,
+            "rate": 0.375,
+            "wilson_95": [
+              0.29352429786446804,
+              0.4642304937402079
+            ]
+          },
+          "macro_f1": 0.32675763482781023,
+          "multiple_labels": 0,
+          "abstentions": 0,
+          "failures": 0
+        },
+        "test": {
+          "cases": 480,
+          "strict_accuracy": {
+            "count": 226,
+            "total": 480,
+            "rate": 0.4708333333333333,
+            "wilson_95": [
+              0.42658823055211437,
+              0.5155415735613101
+            ]
+          },
+          "macro_f1": 0.41135268862958174,
+          "multiple_labels": 0,
+          "abstentions": 0,
+          "failures": 0
+        }
+      },
+      "large": {
+        "development": {
+          "cases": 120,
+          "strict_accuracy": {
+            "count": 48,
+            "total": 120,
+            "rate": 0.4,
+            "wilson_95": [
+              0.31676408120837146,
+              0.4894397520753693
+            ]
+          },
+          "macro_f1": 0.3359647875960785,
+          "multiple_labels": 0,
+          "abstentions": 0,
+          "failures": 0
+        },
+        "test": {
+          "cases": 480,
+          "strict_accuracy": {
+            "count": 261,
+            "total": 480,
+            "rate": 0.54375,
+            "wilson_95": [
+              0.49902023228353226,
+              0.5877850615463309
+            ]
+          },
+          "macro_f1": 0.5039674219289916,
+          "multiple_labels": 0,
+          "abstentions": 0,
+          "failures": 0
+        }
+      },
+      "sensevoice": {
+        "development": {
+          "cases": 120,
+          "strict_accuracy": {
+            "count": 23,
+            "total": 120,
+            "rate": 0.19166666666666668,
+            "wilson_95": [
+              0.13125025924950934,
+              0.27121156004202457
+            ]
+          },
+          "macro_f1": 0.09483784666266419,
+          "multiple_labels": 0,
+          "abstentions": 0,
+          "failures": 0
+        },
+        "test": {
+          "cases": 480,
+          "strict_accuracy": {
+            "count": 199,
+            "total": 480,
+            "rate": 0.41458333333333336,
+            "wilson_95": [
+              0.371359243359129,
+              0.45916375440161433
+            ]
+          },
+          "macro_f1": 0.38248621004038963,
+          "multiple_labels": 0,
+          "abstentions": 0,
+          "failures": 0
+        }
+      },
+      "pipeline": {
+        "development": {
+          "cases": 120,
+          "strict_accuracy": {
+            "count": 40,
+            "total": 120,
+            "rate": 0.3333333333333333,
+            "wilson_95": [
+              0.25531740501258443,
+              0.4216889837936501
+            ]
+          },
+          "macro_f1": 0.30741799332063025,
+          "multiple_labels": 18,
+          "abstentions": 0,
+          "failures": 0
+        },
+        "test": {
+          "cases": 480,
+          "strict_accuracy": {
+            "count": 215,
+            "total": 480,
+            "rate": 0.4479166666666667,
+            "wilson_95": [
+              0.4040186882804543,
+              0.49264167620780386
+            ]
+          },
+          "macro_f1": 0.4264366305970362,
+          "multiple_labels": 47,
+          "abstentions": 0,
+          "failures": 0
+        }
+      }
+    },
+    "firered_base_10s": {
+      "development": {
+        "cases": 120,
+        "strict_accuracy": {
+          "count": 40,
+          "total": 120,
+          "rate": 0.3333333333333333,
+          "wilson_95": [
+            0.25531740501258443,
+            0.4216889837936501
+          ]
+        },
+        "macro_f1": 0.30741799332063025,
+        "multiple_labels": 18,
+        "abstentions": 0,
+        "failures": 0
+      },
+      "test": {
+        "cases": 480,
+        "strict_accuracy": {
+          "count": 216,
+          "total": 480,
+          "rate": 0.45,
+          "wilson_95": [
+            0.40606658342422197,
+            0.4947273664845059
+          ]
+        },
+        "macro_f1": 0.42717497653144726,
+        "multiple_labels": 45,
+        "abstentions": 0,
+        "failures": 0
+      }
+    },
+    "natural_non_speech_controls": {
+      "fsmn_base_10s": {
+        "cases": 100,
+        "speech_gate_admitted": {
+          "count": 32,
+          "total": 100,
+          "rate": 0.32,
+          "wilson_95": [
+            0.23669147324999093,
+            0.41662618610452384
+          ]
+        },
+        "false_emotion_output": {
+          "count": 30,
+          "total": 100,
+          "rate": 0.3,
+          "wilson_95": [
+            0.2189488529493276,
+            0.3958485463334666
+          ]
+        },
+        "failures": 0,
+        "scope": "RealDESED collection forbids speech; this does not prove absence of all human vocalizations"
+      },
+      "firered_base_10s": {
+        "cases": 100,
+        "failures": 0,
+        "speech_gate_admitted": {
+          "count": 15,
+          "total": 100,
+          "rate": 0.15,
+          "wilson_95": [
+            0.0930598528365663,
+            0.23283559590832364
+          ]
+        },
+        "false_emotion_output": {
+          "count": 14,
+          "total": 100,
+          "rate": 0.14,
+          "wilson_95": [
+            0.08526343659939134,
+            0.22137188210963837
+          ]
+        }
+      }
+    },
+    "interpretation": "Existing acted labels, not natural-conversation listener consensus. Whole-utterance base/large/SenseVoice all have zero fearful-class recall; default base was retained under the predeclared development rule."
+  },
+  "short_audio_latency": {
+    "measured_on": "2026-10-23",
+    "audio_seconds": 8,
+    "warmups_per_route_layout": 2,
+    "timed_runs_per_route_layout": 9,
+    "metric": "warm median seconds",
+    "local_hardware": "Linux amd64; CPU helpers; RTX3090 for Qwen",
+    "cpu": {
+      "distributed": 1.15,
+      "compact": 1.279
+    },
+    "qwen": {
+      "distributed": 2.077,
+      "compact": 2.269
+    },
+    "interpretation": "Interleaved shared-host deployment-layout comparison; not cold-start, concurrent capacity or cloud latency."
+  }
+}

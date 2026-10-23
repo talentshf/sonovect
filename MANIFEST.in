@@ -1,0 +1,11 @@
+include README.md README.zh-CN.md PUBLICATION.md LICENSE NOTICE THIRD_PARTY_NOTICES.md CHANGELOG.md CONTRIBUTING.md SECURITY.md Dockerfile requirements.lock .dockerignore .gitignore
+recursive-include contracts *.json
+recursive-include docs *.md *.json
+recursive-include deploy *.yml *.md .env.example
+recursive-include examples *.json
+recursive-include providers *.py *.txt *.json *.sh *.lock *.patch *.md Dockerfile
+recursive-include scripts *.py
+recursive-include tests *.py
+recursive-include assets *.svg *.json *.md
+recursive-include skills *.md *.yaml
+recursive-include evaluation *.json

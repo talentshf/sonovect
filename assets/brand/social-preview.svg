@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img">
+  <title>Sonovect — Cloud-class ASR. Your own hardware.</title>
+  <desc>Local speech recognition for recordings and video soundtracks. The approved purple butterfly is referenced unchanged.</desc>
+  <rect width="1280" height="640" fill="#0B1626"/>
+  <image href="butterfly-dark.svg" x="910" y="74" width="270" height="150.12" preserveAspectRatio="xMidYMid meet"/>
+  <text x="76" y="154" fill="#F4F7FC" font-family="system-ui,sans-serif" font-size="74" font-weight="650" letter-spacing="-2">Sonovect</text>
+  <text x="80" y="252" fill="#B8C8FF" font-family="system-ui,sans-serif" font-size="40">Cloud-class ASR.</text>
+  <text x="80" y="307" fill="#F4F7FC" font-family="system-ui,sans-serif" font-size="40">Your own hardware.</text>
+  <text x="80" y="377" fill="#CFD8E7" font-family="system-ui,sans-serif" font-size="26">本地语音识别 · 视频音轨转写 · 独立声音分析</text>
+  <path d="M80 433H1200" stroke="#34425B"/>
+  <text x="80" y="494" fill="#A9B8CD" font-family="system-ui,sans-serif" font-size="23">Qwen3-ASR / FunASR   ·   Docker   ·   HTTP / CLI / MCP</text>
+  <text x="80" y="548" fill="#A9B8CD" font-family="system-ui,sans-serif" font-size="23">Transcripts. Speakers. Subtitles. Sound events.</text>
+  <text x="1120" y="584" fill="#B8C8FF" font-family="system-ui,sans-serif" font-size="22">v0.1.0</text>
+</svg>

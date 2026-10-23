@@ -1,0 +1,39 @@
+{
+  "brand_id": "purple-butterfly",
+  "version": "1.0.0",
+  "source_project": "brand-management",
+  "source_manifest_sha256": "1111bc092c54037116b451b3140ffb8a612e6b9760440d7b7913aa71d8010177",
+  "geometry_sha256": "d6860967fa0c0657cc14e6b997c0f05acb644c23fbfc0d51dd9762b56a1721d4",
+  "adopted": "2026-10-20",
+  "selection": "explicit-user-request",
+  "assets": [
+    {
+      "asset_id": "mark.color.svg",
+      "path": "butterfly-color.svg",
+      "variant": "color",
+      "background": "light",
+      "sha256": "94cb91bd3c3ea3174521b9df4b47e0f82f7d77752dc3dc108d591a2f3150546c"
+    },
+    {
+      "asset_id": "mark.dark.svg",
+      "path": "butterfly-dark.svg",
+      "variant": "dark",
+      "background": "dark",
+      "sha256": "063d1dc083d8afad79764b5634de1c3b2969219e4b7320e28d8ea85149ec785c"
+    }
+  ],
+  "presentation": {
+    "readme": "direct-original-svg-with-theme-selection",
+    "banner": "external-original-svg-reference",
+    "wordmark": "independent-product-text-not-a-new-fixed-logo"
+  },
+  "usage": {
+    "aspect_ratio": [
+      500,
+      278
+    ],
+    "clear_space_min_ratio_of_width": 0.04,
+    "uniform_scale_only": true,
+    "redraw_or_recolor": false
+  }
+}

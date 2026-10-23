@@ -1,0 +1,348 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "audio-analysis",
+  "type": "array",
+  "items": {
+    "additionalProperties": false,
+    "properties": {
+      "schema_version": {
+        "const": "audio-analysis-v1",
+        "default": "audio-analysis-v1",
+        "title": "Schema Version",
+        "type": "string"
+      },
+      "key": {
+        "title": "Key",
+        "type": "string"
+      },
+      "status": {
+        "enum": [
+          "completed",
+          "partial",
+          "failed",
+          "not_requested"
+        ],
+        "title": "Status",
+        "type": "string"
+      },
+      "stages": {
+        "additionalProperties": {
+          "$ref": "#/$defs/AnalysisStage"
+        },
+        "title": "Stages",
+        "type": "object"
+      },
+      "events": {
+        "items": {
+          "$ref": "#/$defs/Observation"
+        },
+        "title": "Events",
+        "type": "array"
+      },
+      "emotions": {
+        "items": {
+          "$ref": "#/$defs/Observation"
+        },
+        "title": "Emotions",
+        "type": "array"
+      },
+      "voice": {
+        "items": {
+          "$ref": "#/$defs/Observation"
+        },
+        "title": "Voice",
+        "type": "array"
+      },
+      "measurements": {
+        "items": {
+          "$ref": "#/$defs/VoiceMeasurement"
+        },
+        "title": "Measurements",
+        "type": "array"
+      },
+      "quality": {
+        "$ref": "#/$defs/Quality"
+      },
+      "engines": {
+        "anyOf": [
+          {
+            "additionalProperties": {
+              "$ref": "#/$defs/ModelIdentity"
+            },
+            "type": "object"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Engines"
+      },
+      "error": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Error"
+      }
+    },
+    "required": [
+      "key",
+      "status"
+    ],
+    "title": "Analysis",
+    "type": "object"
+  },
+  "$defs": {
+    "AnalysisStage": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "completed",
+            "failed",
+            "not_requested"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "title": "AnalysisStage",
+      "type": "object"
+    },
+    "ModelIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Model",
+          "type": "string"
+        },
+        "revision": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Revision",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model",
+        "revision"
+      ],
+      "title": "ModelIdentity",
+      "type": "object"
+    },
+    "Observation": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "start_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start Ms"
+        },
+        "end_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Ms"
+        },
+        "temporal_resolution": {
+          "default": "unspecified",
+          "enum": [
+            "analysis-window",
+            "model-interval",
+            "unspecified"
+          ],
+          "title": "Temporal Resolution",
+          "type": "string"
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kind"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        }
+      },
+      "required": [
+        "label"
+      ],
+      "title": "Observation",
+      "type": "object"
+    },
+    "Quality": {
+      "additionalProperties": false,
+      "properties": {
+        "duration_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration Ms"
+        },
+        "speech_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Speech Ms"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "title": "Quality",
+      "type": "object"
+    },
+    "VoiceMeasurement": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "pitch",
+            "relative-energy"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "unit": {
+          "enum": [
+            "Hz",
+            "dBFS"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "method": {
+          "enum": [
+            "pyin-50-600hz",
+            "pcm-rms"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "measured",
+            "unavailable"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "start_ms": {
+          "minimum": 0,
+          "title": "Start Ms",
+          "type": "integer"
+        },
+        "end_ms": {
+          "minimum": 0,
+          "title": "End Ms",
+          "type": "integer"
+        },
+        "temporal_resolution": {
+          "const": "analysis-window",
+          "default": "analysis-window",
+          "title": "Temporal Resolution",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "unit",
+        "method",
+        "status",
+        "start_ms",
+        "end_ms"
+      ],
+      "title": "VoiceMeasurement",
+      "type": "object"
+    }
+  }
+}

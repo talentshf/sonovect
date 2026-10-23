@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "baseline": "Debian13/Python3.12; exact-source security backports",
+  "origin": "Official signed Debian forky/trixie Sources observed2026-10-20, signature/index receipts retained",
+  "components": {
+    "glibc": {
+      "upstream_debian_version": "2.43-7",
+      "files": [
+        {
+          "name": "glibc_2.43-7.dsc",
+          "size": 8571,
+          "sha256": "a99e5beb8f568765d191f3d0d074cf6b60d2c89dec84f2f4bb70573e52e0a835",
+          "url": "https://deb.debian.org/debian/pool/main/g/glibc/glibc_2.43-7.dsc"
+        },
+        {
+          "name": "glibc_2.43.orig.tar.xz",
+          "size": 21553420,
+          "sha256": "b8f0d50a7d4255658efe1f608cacdc4be82bb3c009875626df5968cc64c58880",
+          "url": "https://deb.debian.org/debian/pool/main/g/glibc/glibc_2.43.orig.tar.xz"
+        },
+        {
+          "name": "glibc_2.43-7.debian.tar.xz",
+          "size": 498952,
+          "sha256": "9f62b90fb4c7423ed5023698c9014ad0086d26f9b6f46b2a163afcea7e581a02",
+          "url": "https://deb.debian.org/debian/pool/main/g/glibc/glibc_2.43-7.debian.tar.xz"
+        }
+      ],
+      "directory": "glibc-2.43",
+      "version": "2.43-7~sonovect13.1"
+    },
+    "sqlite3": {
+      "upstream_debian_version": "3.53.4-2",
+      "files": [
+        {
+          "name": "sqlite3_3.53.4-2.dsc",
+          "size": 2641,
+          "sha256": "777dcd95dd918525202b89b02f9f1f1e3e1d80e2d39cdec2841b38268069c21d",
+          "url": "https://deb.debian.org/debian/pool/main/s/sqlite3/sqlite3_3.53.4-2.dsc"
+        },
+        {
+          "name": "sqlite3_3.53.4.orig-www.tar.xz",
+          "size": 6326460,
+          "sha256": "ea1d8746c27ca69c1b899864dde8cf819ce3d55f186d031fd71ea3207df97feb",
+          "url": "https://deb.debian.org/debian/pool/main/s/sqlite3/sqlite3_3.53.4.orig-www.tar.xz"
+        },
+        {
+          "name": "sqlite3_3.53.4.orig.tar.xz",
+          "size": 8656972,
+          "sha256": "05366adc8ee80c6b1faa71285b49d133c2121238ca58934b077fdeb95934abd4",
+          "url": "https://deb.debian.org/debian/pool/main/s/sqlite3/sqlite3_3.53.4.orig.tar.xz"
+        },
+        {
+          "name": "sqlite3_3.53.4-2.debian.tar.xz",
+          "size": 31864,
+          "sha256": "43bc295284387f7b69aca9ace6c43f16e6d9472905dbd7d9ab707576db887962",
+          "url": "https://deb.debian.org/debian/pool/main/s/sqlite3/sqlite3_3.53.4-2.debian.tar.xz"
+        }
+      ],
+      "directory": "sqlite3-3.53.4",
+      "version": "3.53.4-2~sonovect13.1"
+    },
+    "zlib": {
+      "upstream_debian_version": "1:1.3.dfsg+really1.3.1-1",
+      "files": [
+        {
+          "name": "zlib_1.3.dfsg+really1.3.1-1.dsc",
+          "size": 2637,
+          "sha256": "ede2791e29c1d3b422f9208bdd7edf040c20445ea1e7453a72037576e64fa197",
+          "url": "https://deb.debian.org/debian/pool/main/z/zlib/zlib_1.3.dfsg+really1.3.1-1.dsc"
+        },
+        {
+          "name": "zlib_1.3.dfsg+really1.3.1.orig.tar.gz",
+          "size": 1325737,
+          "sha256": "60dd315c07f616887caa029408308a018ace66e3d142726a97db164b3b8f69fb",
+          "url": "https://deb.debian.org/debian/pool/main/z/zlib/zlib_1.3.dfsg+really1.3.1.orig.tar.gz"
+        },
+        {
+          "name": "zlib_1.3.dfsg+really1.3.1-1.debian.tar.xz",
+          "size": 16576,
+          "sha256": "9ed525955ce9fb0c1b39be8ff98f73450dbfc6305a9a27e6149c8972d38a0a9e",
+          "url": "https://deb.debian.org/debian/pool/main/z/zlib/zlib_1.3.dfsg+really1.3.1-1.debian.tar.xz"
+        }
+      ],
+      "directory": "zlib-1.3.dfsg+really1.3.1",
+      "version": "1:1.3.dfsg+really1.3.1-1+sonovect13.1"
+    }
+  },
+  "patches": {
+    "zlib": {
+      "url": "https://github.com/madler/zlib/commit/ba829a458576d1ff0f26fc7230c6de816d1f6a77.patch",
+      "sha256": "4c4a40b7329015fd89070667dd32e9307819e699d3ec4118af0a959f5fe1608c",
+      "size": 2122,
+      "cve": "CVE-2026-27171"
+    }
+  }
+}

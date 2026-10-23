@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security reporting / 安全反馈
+    url: https://github.com/talentshf/sonovect/security/advisories/new
+    about: Report vulnerabilities privately / 私密报告漏洞，不在普通问题中提交细节
+  - name: Configuration and setup / 配置与部署
+    url: https://github.com/talentshf/sonovect/tree/main/docs
+    about: Compare deployment choices, parameters and agent setup / 查看选型、参数和智能体接入
+  - name: Questions and deployment experiences / 使用交流与部署经验
+    url: https://github.com/talentshf/sonovect/discussions
+    about: Ask questions, share hardware results and discuss ideas / 提问、分享硬件实测与交流想法

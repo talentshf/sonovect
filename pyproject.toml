@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=83"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sonovect"
+dynamic = ["version"]
+description = "Self-hosted ASR for audio and video soundtracks with FunASR results and separate sound analysis"
+keywords = ["asr", "speech-to-text", "self-hosted", "local-asr", "funasr", "qwen3-asr", "speaker-diarization", "video-transcription", "audio-event-detection", "mcp"]
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+requires-python = ">=3.12"
+authors = [{name = "Sonovect contributors"}]
+classifiers = ["Development Status :: 4 - Beta", "Programming Language :: Python :: 3", "Topic :: Multimedia :: Sound/Audio :: Speech"]
+dependencies = ["certifi>=2026.10.19", "fastapi>=0.150,<1", "starlette>=1.9,<2", "httpx>=0.28,<1", "pydantic>=2.12,<3", "python-multipart>=0.0.32,<1", "uvicorn>=0.54,<1"]
+
+[project.urls]
+Homepage = "https://github.com/talentshf/sonovect"
+Documentation = "https://github.com/talentshf/sonovect/tree/main/docs"
+Repository = "https://github.com/talentshf/sonovect"
+Issues = "https://github.com/talentshf/sonovect/issues"
+Changelog = "https://github.com/talentshf/sonovect/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+mcp = ["mcp>=2.3,<3"]
+funasr = ["funasr==1.4.16", "torch==2.14.1", "torchaudio==2.11.0", "transformers==5.20.2", "modelscope==1.40.2"]
+evaluation = ["rapidfuzz>=3.14,<4"]
+test = ["rapidfuzz>=3.14,<4", "jsonschema>=4,<5", "numpy>=1.26,<3", "scipy>=1.14,<2", "librosa==1.0.0"]
+
+[project.scripts]
+sonovect = "sonovect.cli:main"
+sonovect-worker = "sonovect.worker:main"
+sonovect-runtime = "sonovect.runtime:main"
+sonovect-health = "sonovect.health:main"
+sonovect-mcp = "sonovect.mcp_server:main"
+sonovect-evaluate = "sonovect.evaluation:main"
+
+
+[tool.setuptools.packages.find]
+include = ["sonovect*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "sonovect.__version__"}
+
+[tool.setuptools.package-data]
+sonovect = ["model-catalog.json"]

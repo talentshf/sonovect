@@ -1,0 +1,6 @@
+Sonovect
+Copyright 2026 Sonovect contributors
+
+This project uses FunASR and optionally Qwen and MOSS through their public
+Python or HTTP interfaces. It is an independent project and does not imply
+endorsement by the authors of these dependencies.

@@ -1,0 +1,73 @@
+name: checks
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  contracts-and-tests:
+    strategy:
+      matrix:
+        python: ['3.12', '3.13']
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python }}
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: python -m pip install -e '.[mcp,test]' build
+      - run: python -m unittest discover -s tests -v
+      - run: python -m unittest discover -s providers/speech/tests -v
+      - run: python scripts/export_contracts.py && git diff --exit-code -- contracts
+      - run: python scripts/check_public_tree.py
+      - run: python scripts/check_configuration.py
+      - name: Review retained upstream advisory drift
+        if: matrix.python == '3.12'
+        run: python scripts/check_retained_advisories.py --output "$RUNNER_TEMP/sonovect-advisory-review.json"
+      - name: Retain advisory review receipt
+        if: always() && matrix.python == '3.12'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: retained-advisory-review
+          path: ${{ runner.temp }}/sonovect-advisory-review.json
+          if-no-files-found: warn
+      - run: python -m build
+      - run: SONOVECT_TOKEN=ci-compose-validation-only docker compose -f deploy/compose.yml config -q
+      - run: SONOVECT_TOKEN=ci-compose-validation-only docker compose -f deploy/compose.qwen.yml config -q
+      - name: Validate independent event and vocal profiles
+        env:
+          SONOVECT_TOKEN: ci-compose-validation-only
+          SONOVECT_SOUND_ENABLED: 'true'
+          SONOVECT_VOICE_ENABLED: 'true'
+          COMPOSE_PROFILES: analysis,voice
+        run: |
+          docker compose -f deploy/compose.yml config -q
+          docker compose -f deploy/compose.qwen.yml config -q
+
+      - name: Build core container
+        if: matrix.python == '3.12'
+        run: docker build --target core -t sonovect-ci .
+      - name: Validate CPU vocal profile
+        env:
+          SONOVECT_TOKEN: ci-compose-validation-only
+          SONOVECT_VOICE_ENABLED: 'true'
+          SONOVECT_VOICE_BACKEND: emotion2vec
+          SONOVECT_VOICE_URL: http://analysis:8085
+          COMPOSE_PROFILES: analysis
+        run: |
+          docker compose -f deploy/compose.yml config -q
+          docker compose -f deploy/compose.qwen.yml config -q
+      - name: Build CPU vocal container without weights
+        if: matrix.python == '3.12'
+        run: docker build --target analysis-worker -t sonovect-analysis-ci .
+
+      - name: Validate independent weight-free measurement profile
+        env:
+          SONOVECT_TOKEN: ci-compose-validation-only
+          SONOVECT_MEASUREMENTS_ENABLED: 'true'
+          COMPOSE_PROFILES: analysis
+        run: |
+          docker compose -f deploy/compose.yml config -q
+          docker compose -f deploy/compose.qwen.yml config -q
+      - name: Build weight-free measurement container
+        if: matrix.python == '3.12'
+        run: docker build --target analysis-measurements -t sonovect-measurements-ci .

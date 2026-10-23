@@ -1,0 +1,42 @@
+[
+  {
+    "key": "audio_0000",
+    "text": "你好。Hello!",
+    "timestamp": [
+      [
+        100,
+        450
+      ],
+      [
+        800,
+        1400
+      ]
+    ],
+    "sentence_info": [
+      {
+        "text": "你好。",
+        "start": 100,
+        "end": 500,
+        "timestamp": [
+          [
+            100,
+            450
+          ]
+        ],
+        "spk": 0
+      },
+      {
+        "text": "Hello!",
+        "start": 800,
+        "end": 1400,
+        "timestamp": [
+          [
+            800,
+            1400
+          ]
+        ],
+        "spk": 1
+      }
+    ]
+  }
+]

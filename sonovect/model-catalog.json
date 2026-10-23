@@ -1,0 +1,527 @@
+{
+  "schema_version": "sonovect/model-catalog-v1",
+  "models": {
+    "qwen-1.7b": {
+      "hub": "huggingface",
+      "repo_id": "Qwen/Qwen3-ASR-1.7B-hf",
+      "revision": "bcd2b5b7f32b480ab5790554cfa8347f246a14f3",
+      "license": "Apache-2.0",
+      "source": "https://huggingface.co/Qwen/Qwen3-ASR-1.7B-hf/tree/bcd2b5b7f32b480ab5790554cfa8347f246a14f3",
+      "files": {
+        "chat_template.jinja": {
+          "size": 1434,
+          "algorithm": "git-sha1",
+          "digest": "491fff331513a97316daf53591c7b9b9da53ef8c"
+        },
+        "config.json": {
+          "size": 2399,
+          "algorithm": "git-sha1",
+          "digest": "331292992b1933c69fc83d77f0de560ab122a0d5"
+        },
+        "generation_config.json": {
+          "size": 165,
+          "algorithm": "git-sha1",
+          "digest": "3ed98c80087572bad932a83279c5602e58bbfc5c"
+        },
+        "model.safetensors": {
+          "size": 4076193080,
+          "algorithm": "sha256",
+          "digest": "2db53c7d81bd9b8cbc6a074e89be2c968a0d373fb4ee68bb1b1e14f7042dfee1"
+        },
+        "processor_config.json": {
+          "size": 487,
+          "algorithm": "git-sha1",
+          "digest": "a07dff48032bed341260501d6688036c6fd7f3ef"
+        },
+        "tokenizer.json": {
+          "size": 11429653,
+          "algorithm": "sha256",
+          "digest": "fe1fad59be22a41ee293363fcf95fdedbc7c93f3b49270b1d2e18bd1399a7a05"
+        },
+        "tokenizer_config.json": {
+          "size": 998,
+          "algorithm": "git-sha1",
+          "digest": "aa62b6c06ab8a704dc0895420fb1d2515954a49c"
+        }
+      },
+      "bytes": 4087628216
+    },
+    "qwen-0.6b": {
+      "hub": "huggingface",
+      "repo_id": "Qwen/Qwen3-ASR-0.6B-hf",
+      "revision": "7f1569a48a89f3e3f4dc3a5c9d28bddd903bc76c",
+      "license": "Apache-2.0",
+      "source": "https://huggingface.co/Qwen/Qwen3-ASR-0.6B-hf/tree/7f1569a48a89f3e3f4dc3a5c9d28bddd903bc76c",
+      "files": {
+        "chat_template.jinja": {
+          "size": 1434,
+          "algorithm": "git-sha1",
+          "digest": "491fff331513a97316daf53591c7b9b9da53ef8c"
+        },
+        "config.json": {
+          "size": 2398,
+          "algorithm": "git-sha1",
+          "digest": "3b4221f651b59ec21f545e5852b4d6cb23420b09"
+        },
+        "generation_config.json": {
+          "size": 165,
+          "algorithm": "git-sha1",
+          "digest": "3ed98c80087572bad932a83279c5602e58bbfc5c"
+        },
+        "model.safetensors": {
+          "size": 1564928088,
+          "algorithm": "sha256",
+          "digest": "d3f212dd20abecd315d830bc54ae3865e56ebfc3276484e57b771288ba27fd35"
+        },
+        "processor_config.json": {
+          "size": 487,
+          "algorithm": "git-sha1",
+          "digest": "a07dff48032bed341260501d6688036c6fd7f3ef"
+        },
+        "tokenizer.json": {
+          "size": 11429653,
+          "algorithm": "sha256",
+          "digest": "fe1fad59be22a41ee293363fcf95fdedbc7c93f3b49270b1d2e18bd1399a7a05"
+        },
+        "tokenizer_config.json": {
+          "size": 998,
+          "algorithm": "git-sha1",
+          "digest": "aa62b6c06ab8a704dc0895420fb1d2515954a49c"
+        }
+      },
+      "bytes": 1576363223
+    },
+    "aligner": {
+      "hub": "huggingface",
+      "repo_id": "Qwen/Qwen3-ForcedAligner-0.6B-hf",
+      "revision": "c07281df297b9905d24a508279258cccf987a064",
+      "license": "Apache-2.0",
+      "source": "https://huggingface.co/Qwen/Qwen3-ForcedAligner-0.6B-hf/tree/c07281df297b9905d24a508279258cccf987a064",
+      "files": {
+        "chat_template.jinja": {
+          "size": 551,
+          "algorithm": "git-sha1",
+          "digest": "1d6020e0ee6f66499d674a3fc2bbae5a99482c0e"
+        },
+        "config.json": {
+          "size": 248029,
+          "algorithm": "git-sha1",
+          "digest": "74b91ca23584bdebd82ffaaeb21f72444baa2dd8"
+        },
+        "model.safetensors": {
+          "size": 1835545960,
+          "algorithm": "sha256",
+          "digest": "00568245ceca5af1991d28562a75fe1ddc9bfeb041c27fda66947ea05c47fb86"
+        },
+        "processor_config.json": {
+          "size": 487,
+          "algorithm": "git-sha1",
+          "digest": "a07dff48032bed341260501d6688036c6fd7f3ef"
+        },
+        "tokenizer.json": {
+          "size": 11429842,
+          "algorithm": "sha256",
+          "digest": "cadfb9cbd9ff8f4e309075ec6a71b063295ff796afb4b5dbc0fd2873fbb301f2"
+        },
+        "tokenizer_config.json": {
+          "size": 998,
+          "algorithm": "git-sha1",
+          "digest": "aa62b6c06ab8a704dc0895420fb1d2515954a49c"
+        }
+      },
+      "bytes": 1847225867
+    },
+    "moss-4b": {
+      "hub": "huggingface",
+      "repo_id": "OpenMOSS-Team/MOSS-Audio-4B-Instruct",
+      "revision": "6907a499dc0e87cc77c8ae0fe23fd0eb5476a02d",
+      "license": "Apache-2.0",
+      "source": "https://huggingface.co/OpenMOSS-Team/MOSS-Audio-4B-Instruct/tree/6907a499dc0e87cc77c8ae0fe23fd0eb5476a02d",
+      "files": {
+        "added_tokens.json": {
+          "size": 707,
+          "algorithm": "git-sha1",
+          "digest": "b54f9135e44c1e81047e8d05cb027af8bc039eed"
+        },
+        "chat_template.jinja": {
+          "size": 4116,
+          "algorithm": "git-sha1",
+          "digest": "699ff8df401fe4788525e9c1f9b86a99eadd6230"
+        },
+        "config.json": {
+          "size": 2714,
+          "algorithm": "git-sha1",
+          "digest": "e28bb45dcc6e9cf11f2bfadb2352d8583e630346"
+        },
+        "generation_config.json": {
+          "size": 121,
+          "algorithm": "git-sha1",
+          "digest": "4835636feaab94c609ee8e876bc0c7c701bc048e"
+        },
+        "merges.txt": {
+          "size": 1671853,
+          "algorithm": "git-sha1",
+          "digest": "31349551d90c7606f325fe0f11bbb8bd5fa0d7c7"
+        },
+        "model-00001-of-00003.safetensors": {
+          "size": 4993537896,
+          "algorithm": "sha256",
+          "digest": "a87bddad846a58affb7a737d70c9cb01a41225887b0b25048fc1b543ecaba110"
+        },
+        "model-00002-of-00003.safetensors": {
+          "size": 4674299440,
+          "algorithm": "sha256",
+          "digest": "1a25d9dec4fd4336bc5197c336733d2874f00e51569ac9c0042460d4579ded77"
+        },
+        "model-00003-of-00003.safetensors": {
+          "size": 777912448,
+          "algorithm": "sha256",
+          "digest": "09ec9f23bdf35a0e7668d94276b8808bc40b05cf5a594508264fa5883c0057d0"
+        },
+        "model.safetensors.index.json": {
+          "size": 80030,
+          "algorithm": "git-sha1",
+          "digest": "65db839bbbf4c21248acccfcd24516c62d9e1c3a"
+        },
+        "processor_config.json": {
+          "size": 426,
+          "algorithm": "git-sha1",
+          "digest": "bd284896dcd78cc124b92cdc2dffedce22937431"
+        },
+        "special_tokens_map.json": {
+          "size": 613,
+          "algorithm": "git-sha1",
+          "digest": "ac23c0aaa2434523c494330aeb79c58395378103"
+        },
+        "tokenizer_config.json": {
+          "size": 5404,
+          "algorithm": "git-sha1",
+          "digest": "ddaf69808214a44fdd26d3785b66c1367c78277a"
+        },
+        "vocab.json": {
+          "size": 3383407,
+          "algorithm": "git-sha1",
+          "digest": "6bce3a0a3866c4791a74d83d78f6824c3af64ec3"
+        }
+      },
+      "bytes": 10450899175
+    },
+    "moss-8b": {
+      "hub": "huggingface",
+      "repo_id": "OpenMOSS-Team/MOSS-Audio-8B-Instruct",
+      "revision": "d4dc5a6d8cd79b43dcd82884c75e303b1ecd016d",
+      "license": "Apache-2.0",
+      "source": "https://huggingface.co/OpenMOSS-Team/MOSS-Audio-8B-Instruct/tree/d4dc5a6d8cd79b43dcd82884c75e303b1ecd016d",
+      "files": {
+        "added_tokens.json": {
+          "size": 801,
+          "algorithm": "git-sha1",
+          "digest": "901becf1b925158ca398c16ca738469639d47cee"
+        },
+        "chat_template.jinja": {
+          "size": 4116,
+          "algorithm": "git-sha1",
+          "digest": "699ff8df401fe4788525e9c1f9b86a99eadd6230"
+        },
+        "config.json": {
+          "size": 2715,
+          "algorithm": "git-sha1",
+          "digest": "393f2b4d18adea5de3a55791b912f7ac198a01f9"
+        },
+        "generation_config.json": {
+          "size": 121,
+          "algorithm": "git-sha1",
+          "digest": "4835636feaab94c609ee8e876bc0c7c701bc048e"
+        },
+        "merges.txt": {
+          "size": 1671853,
+          "algorithm": "git-sha1",
+          "digest": "31349551d90c7606f325fe0f11bbb8bd5fa0d7c7"
+        },
+        "model-00001-of-00004.safetensors": {
+          "size": 4931218512,
+          "algorithm": "sha256",
+          "digest": "ead244c31d39119e1447f31ff04d7a52698c8352553fec472c6284ed6828c3d6"
+        },
+        "model-00002-of-00004.safetensors": {
+          "size": 4983069720,
+          "algorithm": "sha256",
+          "digest": "cdfb0c2c3c1c98208cd40bb72bbeda4faa2436dca55fc461b535e6e9a80736d6"
+        },
+        "model-00003-of-00004.safetensors": {
+          "size": 4999847608,
+          "algorithm": "sha256",
+          "digest": "eeaeb7cb4575954150f43f81c83988abe48a45d668aed637ce5bf4f0d0d050b8"
+        },
+        "model-00004-of-00004.safetensors": {
+          "size": 3190899536,
+          "algorithm": "sha256",
+          "digest": "2e9a71c1548f6850c6113e94a3ecafde650a1b4e870c3bca5b686ed744c68792"
+        },
+        "model.safetensors.index.json": {
+          "size": 80030,
+          "algorithm": "git-sha1",
+          "digest": "802e1c8d00498e8e145d19a1a3428b7dbd49f04b"
+        },
+        "preprocessor_config.json": {
+          "size": 427,
+          "algorithm": "git-sha1",
+          "digest": "381a60749bc471161e2928c23f640e58d456f725"
+        },
+        "processor_config.json": {
+          "size": 427,
+          "algorithm": "git-sha1",
+          "digest": "381a60749bc471161e2928c23f640e58d456f725"
+        },
+        "special_tokens_map.json": {
+          "size": 613,
+          "algorithm": "git-sha1",
+          "digest": "ac23c0aaa2434523c494330aeb79c58395378103"
+        },
+        "tokenizer_config.json": {
+          "size": 6114,
+          "algorithm": "git-sha1",
+          "digest": "aaeca3e2ba281c9daeb1d10a4e14c585008ee092"
+        },
+        "vocab.json": {
+          "size": 3383407,
+          "algorithm": "git-sha1",
+          "digest": "6bce3a0a3866c4791a74d83d78f6824c3af64ec3"
+        }
+      },
+      "bytes": 18110186000
+    },
+    "firered": {
+      "hub": "huggingface",
+      "repo_id": "FireRedTeam/FireRedVAD",
+      "revision": "7990aaccc6b7aec1e527743bd30201f2c4a03b8c",
+      "license": "Apache-2.0",
+      "source": "https://huggingface.co/FireRedTeam/FireRedVAD/tree/7990aaccc6b7aec1e527743bd30201f2c4a03b8c",
+      "files": {
+        "VAD/cmvn.ark": {
+          "size": 1311,
+          "algorithm": "git-sha1",
+          "digest": "5b21592ae056b8b11ae23074542a175cdf8160a4"
+        },
+        "VAD/model.pth.tar": {
+          "size": 2368049,
+          "algorithm": "sha256",
+          "digest": "63f4fb1b00a6b8607c118dd48efc18d5e40d67d99b7bf9aa7a8d61540cf23d71"
+        }
+      },
+      "bytes": 2369360
+    },
+    "paraformer": {
+      "hub": "modelscope",
+      "repo_id": "iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
+      "revision": "v2.0.4",
+      "license": "Apache-2.0",
+      "source": "https://www.modelscope.cn/models/iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
+      "files": {
+        "am.mvn": {
+          "size": 11203,
+          "algorithm": "sha256",
+          "digest": "29b3c740a2c0cfc6b308126d31d7f265fa2be74f3bb095cd2f143ea970896ae5"
+        },
+        "config.yaml": {
+          "size": 3420,
+          "algorithm": "sha256",
+          "digest": "f4cb124f0abaff662e9e8b80e5ce54e873932d988c608dc08b344c3a71455458"
+        },
+        "configuration.json": {
+          "size": 478,
+          "algorithm": "sha256",
+          "digest": "1acac324430b5a4680ef5ee2947575443ab2039a92c8a0551665f6bc9a606b41"
+        },
+        "model.pt": {
+          "size": 989763045,
+          "algorithm": "sha256",
+          "digest": "3d491689244ec5dfbf9170ef3827c358aa10f1f20e42a7c59e15e688647946d1"
+        },
+        "tokens.json": {
+          "size": 93676,
+          "algorithm": "sha256",
+          "digest": "2b20c2b12572d682afff84ce1c8d560f67b8b32a4c1f21567411d141ed352127"
+        }
+      },
+      "bytes": 989871822
+    },
+    "fsmn": {
+      "hub": "modelscope",
+      "repo_id": "iic/speech_fsmn_vad_zh-cn-16k-common-pytorch",
+      "revision": "v2.0.4",
+      "license": "Apache-2.0",
+      "source": "https://www.modelscope.cn/models/iic/speech_fsmn_vad_zh-cn-16k-common-pytorch",
+      "files": {
+        "am.mvn": {
+          "size": 8040,
+          "algorithm": "sha256",
+          "digest": "6820fef9687708c4fc3fab2530179c8fcea6262daa25514380056cd8f6eb1754"
+        },
+        "config.yaml": {
+          "size": 1215,
+          "algorithm": "sha256",
+          "digest": "486861ca26ddb79081663b6179cb204c6bfae71c52f04aafc48a9e9d8dde1e93"
+        },
+        "configuration.json": {
+          "size": 365,
+          "algorithm": "sha256",
+          "digest": "7bce8867e37d55c3dd8f672695ced18077a2be199ea529a5d432d5350fc0acba"
+        },
+        "model.pt": {
+          "size": 1721366,
+          "algorithm": "sha256",
+          "digest": "b3be75be477f0780277f3bae0fe489f48718f585f3a6e45d7dd1fbb1a4255fc5"
+        }
+      },
+      "bytes": 1730986
+    },
+    "punc": {
+      "hub": "modelscope",
+      "repo_id": "iic/punc_ct-transformer_cn-en-common-vocab471067-large",
+      "revision": "v2.0.4",
+      "license": "Apache-2.0",
+      "source": "https://www.modelscope.cn/models/iic/punc_ct-transformer_cn-en-common-vocab471067-large",
+      "files": {
+        "config.yaml": {
+          "size": 812,
+          "algorithm": "sha256",
+          "digest": "c5ffb25cd063ed366cb26283908dca05a08ecfef8e90bef1d498ef9ffacd7552"
+        },
+        "configuration.json": {
+          "size": 450,
+          "algorithm": "sha256",
+          "digest": "7043245e6264cea789404e498a6f55a330a18585a4690d35dfe71741e6982237"
+        },
+        "model.pt": {
+          "size": 1125507622,
+          "algorithm": "sha256",
+          "digest": "7176cae922a872e130e6b88aef9a1153581711baf79c9124c7c95be383cd6f81"
+        },
+        "tokens.json": {
+          "size": 8280697,
+          "algorithm": "sha256",
+          "digest": "89951fe0669380ed33298ee048c4a2b0ebcaaf6ee8f332d85c281c41d0f38392"
+        }
+      },
+      "bytes": 1133789581
+    },
+    "cam": {
+      "hub": "modelscope",
+      "repo_id": "iic/speech_campplus_sv_zh-cn_16k-common",
+      "revision": "v2.0.2",
+      "license": "Apache-2.0",
+      "source": "https://www.modelscope.cn/models/iic/speech_campplus_sv_zh-cn_16k-common",
+      "files": {
+        "campplus_cn_common.bin": {
+          "size": 28036335,
+          "algorithm": "sha256",
+          "digest": "3388cf5fd3493c9ac9c69851d8e7a8badcfb4f3dc631020c4961371646d5ada8"
+        },
+        "config.yaml": {
+          "size": 537,
+          "algorithm": "sha256",
+          "digest": "17342041bd5b22f6fd7e32f6e7a267b0bf65f018c0a721bada6547e3d28fbfc9"
+        },
+        "configuration.json": {
+          "size": 581,
+          "algorithm": "sha256",
+          "digest": "6f7acaf1e81ca121f4a3c71b6ddb66beec24350a3ef330e2c846f17829176a8f"
+        }
+      },
+      "bytes": 28037453
+    },
+    "paraformer-v2.0.9": {
+      "hub": "modelscope",
+      "repo_id": "iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
+      "revision": "v2.0.9",
+      "license": "Apache-2.0",
+      "source": "https://www.modelscope.cn/models/iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
+      "files": {
+        "am.mvn": {
+          "size": 11203,
+          "algorithm": "sha256",
+          "digest": "29b3c740a2c0cfc6b308126d31d7f265fa2be74f3bb095cd2f143ea970896ae5"
+        },
+        "config.yaml": {
+          "size": 3474,
+          "algorithm": "sha256",
+          "digest": "8e77b1c260ace850da67fed908e8ecd4b90b1664a506b45c28c2a3e09fa7ba4e"
+        },
+        "configuration.json": {
+          "size": 478,
+          "algorithm": "sha256",
+          "digest": "1acac324430b5a4680ef5ee2947575443ab2039a92c8a0551665f6bc9a606b41"
+        },
+        "model.pt": {
+          "size": 989763045,
+          "algorithm": "sha256",
+          "digest": "3d491689244ec5dfbf9170ef3827c358aa10f1f20e42a7c59e15e688647946d1"
+        },
+        "tokens.json": {
+          "size": 93676,
+          "algorithm": "sha256",
+          "digest": "2b20c2b12572d682afff84ce1c8d560f67b8b32a4c1f21567411d141ed352127"
+        }
+      },
+      "bytes": 989871876
+    },
+    "ast-events": {
+      "hub": "huggingface",
+      "repo_id": "MIT/ast-finetuned-audioset-10-10-0.4593",
+      "revision": "f826b80d28226b62986cc218e5cec390b1096902",
+      "license": "BSD-3-Clause",
+      "source": "https://huggingface.co/MIT/ast-finetuned-audioset-10-10-0.4593/tree/f826b80d28226b62986cc218e5cec390b1096902",
+      "files": {
+        "config.json": {
+          "size": 26763,
+          "algorithm": "git-sha1",
+          "digest": "9b822c630bc1a61312ac702cca4d8fb5a524e729"
+        },
+        "model.safetensors": {
+          "size": 346404948,
+          "algorithm": "sha256",
+          "digest": "ae0c1e2ad4e1381d851fa9bf298ba13ebc9c5a914cdee2dbe427a6583869924d"
+        },
+        "preprocessor_config.json": {
+          "size": 297,
+          "algorithm": "git-sha1",
+          "digest": "d93e9e561c374604096fd5868c97e08130638f72"
+        }
+      },
+      "bytes": 346432008
+    },
+    "emotion2vec-base": {
+      "hub": "huggingface",
+      "repo_id": "emotion2vec/emotion2vec_plus_base",
+      "revision": "b318240bfe67db81a8c572ecb37ce9c3759b81c9",
+      "license": "model-license",
+      "source": "https://huggingface.co/emotion2vec/emotion2vec_plus_base/tree/b318240bfe67db81a8c572ecb37ce9c3759b81c9",
+      "maturity": "experimental",
+      "commercial_redistribution": "unresolved",
+      "files": {
+        "config.yaml": {
+          "size": 3170,
+          "algorithm": "sha256",
+          "digest": "50674ec187406b4f1208925594ceaf1f28f16a22333b5f2ac5b3d0cbffdd670e"
+        },
+        "configuration.json": {
+          "size": 343,
+          "algorithm": "sha256",
+          "digest": "8b6a745213025c7d4565f9f074cfef1b5cd5ef76e38e2a8f7f8a3db271e735b2"
+        },
+        "model.pt": {
+          "size": 1118245678,
+          "algorithm": "sha256",
+          "digest": "60710b5aae1dbe69bdac8920028fb05882d4314fd09031922b4b61ee9e7aadbd"
+        },
+        "tokens.txt": {
+          "size": 119,
+          "algorithm": "sha256",
+          "digest": "866121e470057b847d7a50e9923509141fb2924392f53385a186482a1ec0fb7f"
+        }
+      },
+      "bytes": 1118249310
+    }
+  }
+}

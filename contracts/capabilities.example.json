@@ -1,0 +1,213 @@
+{
+  "version": "0.1.0",
+  "api_version": "v1",
+  "backend": "funasr",
+  "transcript": "funasr-speech-v1",
+  "analysis": "audio-analysis-v1",
+  "speakers": true,
+  "sound_analysis": false,
+  "voice_analysis": false,
+  "voice_backend": "moss",
+  "voice_measurements": false,
+  "analysis_limits": {
+    "events": {
+      "kind": "closed-vocabulary-tags",
+      "confidence": "uncalibrated",
+      "requires_review": true
+    },
+    "vocal": {
+      "maturity": "experimental",
+      "presence": "model-gated",
+      "measurements": false,
+      "chinese_quality_qualified": false,
+      "requires_review": true
+    },
+    "measurements": {
+      "kind": "signal-measurements",
+      "model_weights": false,
+      "independent_of_vocal_backend": true,
+      "requires_speech_intervals": true
+    }
+  },
+  "timestamp_unit": "millisecond",
+  "speaker_scope": "recording",
+  "max_files": 16,
+  "max_upload_bytes": 268435456,
+  "input_ttl_hours": 24,
+  "result_ttl_hours": 168,
+  "input": {
+    "transport": "multipart-upload",
+    "audio_examples": [
+      "WAV",
+      "FLAC",
+      "MP3",
+      "M4A/AAC",
+      "OGG/Opus",
+      "AIFF"
+    ],
+    "video_examples": [
+      "MP4",
+      "MOV",
+      "MKV",
+      "WebM",
+      "AVI"
+    ],
+    "video_processing": "audio-track-only",
+    "audio_track_index": "zero-based",
+    "timeline_origin": "container_start",
+    "channel_handling": "mono-downmix",
+    "decoded_sample_rate": 16000,
+    "max_media_seconds": 7200,
+    "media_timeout_seconds": 300,
+    "codec_support": "depends-on-worker-ffmpeg-build"
+  },
+  "processing_routes": [
+    {
+      "id": "speech",
+      "available": true,
+      "options": {
+        "speakers": true,
+        "analyze_sound": false,
+        "analyze_voice": false
+      }
+    },
+    {
+      "id": "speech-events",
+      "available": false,
+      "options": {
+        "speakers": true,
+        "analyze_sound": true,
+        "analyze_voice": false
+      }
+    },
+    {
+      "id": "speech-measurements",
+      "available": false,
+      "options": {
+        "analyze_voice": false,
+        "measure_voice": true
+      }
+    },
+    {
+      "id": "speech-events-vocal",
+      "available": false,
+      "options": {
+        "speakers": true,
+        "analyze_sound": true,
+        "analyze_voice": true
+      }
+    }
+  ],
+  "options_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "language": {
+        "anyOf": [
+          {
+            "maxLength": 32,
+            "minLength": 1,
+            "pattern": "^[\\w-]+$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Language"
+      },
+      "speakers": {
+        "default": true,
+        "title": "Speakers",
+        "type": "boolean"
+      },
+      "analyze_sound": {
+        "default": false,
+        "description": "Request independent AST environment events",
+        "title": "Analyze Sound",
+        "type": "boolean"
+      },
+      "analyze_voice": {
+        "default": false,
+        "description": "Request the deployment-selected experimental vocal backend",
+        "title": "Analyze Voice",
+        "type": "boolean"
+      },
+      "measure_voice": {
+        "default": false,
+        "description": "Request independent weight-free pitch and energy measurements",
+        "title": "Measure Voice",
+        "type": "boolean"
+      },
+      "hotwords": {
+        "items": {
+          "maxLength": 80,
+          "minLength": 1,
+          "type": "string"
+        },
+        "maxItems": 200,
+        "title": "Hotwords",
+        "type": "array"
+      },
+      "audio_track": {
+        "default": 0,
+        "description": "Zero-based audio stream index; applies to every source in the job",
+        "minimum": 0,
+        "title": "Audio Track",
+        "type": "integer"
+      }
+    },
+    "title": "Options",
+    "type": "object"
+  },
+  "default_options": {
+    "language": null,
+    "speakers": true,
+    "analyze_sound": false,
+    "analyze_voice": false,
+    "measure_voice": false,
+    "hotwords": [],
+    "audio_track": 0
+  },
+  "option_semantics": {
+    "language": "model-dependent-hint",
+    "hotwords": "model-dependent-hint",
+    "speakers_false": "skip-speaker-model",
+    "analyze_sound_false": "skip-event-inference",
+    "analyze_voice_false": "skip-vocal-inference",
+    "measure_voice_true": "independent-numeric-stage",
+    "measure_voice_false": "skip-measurement-inference",
+    "independent_acoustic_stages": true
+  },
+  "outputs": {
+    "result": {
+      "formats": [
+        "json",
+        "text",
+        "srt"
+      ],
+      "default": "json",
+      "srt_requires": "one-successful-source-with-sentence-timing"
+    },
+    "analysis": {
+      "formats": [
+        "json"
+      ],
+      "separate_from_transcript": true
+    },
+    "export": {
+      "artifacts": [
+        "result.json",
+        "analysis.json",
+        "manifest.json"
+      ],
+      "sha256": true
+    }
+  },
+  "execution": {
+    "layout": "compact",
+    "mode": "queued-file-jobs",
+    "streaming": false,
+    "backend_selection": "deployment"
+  }
+}

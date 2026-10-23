@@ -1,0 +1,21 @@
+{
+  "schema_version": "sonovect/model-files-v1",
+  "verified_against_official_at": "2026-09-24",
+  "aliases": {
+    "fsmn-vad": "speech_fsmn_vad_zh-cn-16k-common-pytorch",
+    "cam++": "speech_campplus_sv_zh-cn_16k-common"
+  },
+  "models": {
+    "speech_fsmn_vad_zh-cn-16k-common-pytorch": {
+      "model.pt": "b3be75be477f0780277f3bae0fe489f48718f585f3a6e45d7dd1fbb1a4255fc5",
+      "config.yaml": "486861ca26ddb79081663b6179cb204c6bfae71c52f04aafc48a9e9d8dde1e93",
+      "configuration.json": "7bce8867e37d55c3dd8f672695ced18077a2be199ea529a5d432d5350fc0acba",
+      "am.mvn": "6820fef9687708c4fc3fab2530179c8fcea6262daa25514380056cd8f6eb1754"
+    },
+    "speech_campplus_sv_zh-cn_16k-common": {
+      "campplus_cn_common.bin": "3388cf5fd3493c9ac9c69851d8e7a8badcfb4f3dc631020c4961371646d5ada8",
+      "config.yaml": "17342041bd5b22f6fd7e32f6e7a267b0bf65f018c0a721bada6547e3d28fbfc9",
+      "configuration.json": "6f7acaf1e81ca121f4a3c71b6ddb66beec24350a3ef330e2c846f17829176a8f"
+    }
+  }
+}

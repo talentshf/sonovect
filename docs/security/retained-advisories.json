@@ -1,0 +1,54 @@
+{
+  "reviewed_utc": "2026-10-23T11:42:27.585177+00:00",
+  "review_scope": "Eight retained upstream advisories reviewed; no applicable fixed version. This is not library remediation.",
+  "records": {
+    "CVE-2010-4756": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "semantic_sha256": "f533ac8a3db59674508e1db045567d39b4432ddd6ad68810721959aae3a6878f",
+      "url": "https://security-tracker.debian.org/tracker/CVE-2010-4756"
+    },
+    "CVE-2018-20796": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "semantic_sha256": "bc0b7800ada2fac1934e421b4d00f1c4ef1ddd5010009a65802c464e8d50943b",
+      "url": "https://security-tracker.debian.org/tracker/CVE-2018-20796"
+    },
+    "CVE-2019-1010022": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "semantic_sha256": "5a412e277e3e6a1459ad759f2380b77066af846a5f701c649eec4a5f6256140f",
+      "url": "https://security-tracker.debian.org/tracker/CVE-2019-1010022"
+    },
+    "CVE-2019-1010023": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "semantic_sha256": "ea054863e2d0612cb96fd9ff8f3b99b31cd5a3874a73e9c18a6b965134d266e1",
+      "url": "https://security-tracker.debian.org/tracker/CVE-2019-1010023"
+    },
+    "CVE-2019-1010024": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "semantic_sha256": "5b05c0669fae462fc096e15b0d80e2318495cb322143fcb139b2a202f42d8246",
+      "url": "https://security-tracker.debian.org/tracker/CVE-2019-1010024"
+    },
+    "CVE-2019-1010025": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "semantic_sha256": "347e807a51e78bc887475663a2fdc342381fdabe8be401bf4ff67fc76088c7c7",
+      "url": "https://security-tracker.debian.org/tracker/CVE-2019-1010025"
+    },
+    "CVE-2019-9192": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "semantic_sha256": "4cc63563ceb63e881ed851ef63b17e77f930177d2ed146356ddae836c6064807",
+      "url": "https://security-tracker.debian.org/tracker/CVE-2019-9192"
+    },
+    "CVE-2021-45346": {
+      "source": "sqlite3",
+      "source_version": "3.53.4-2~sonovect13.1",
+      "semantic_sha256": "a0a06bc95101368d8b8abf10e0b10646772080855169fbc0fa53b3527fd3828f",
+      "url": "https://security-tracker.debian.org/tracker/CVE-2021-45346"
+    }
+  }
+}

@@ -1,0 +1,134 @@
+name: ${SONOVECT_PROJECT:-sonovect}
+
+x-runtime: &runtime
+  restart: unless-stopped
+  init: true
+  stop_grace_period: 90s
+  security_opt: ['no-new-privileges:true']
+  cap_drop: [ALL]
+  logging:
+    driver: json-file
+    options: {max-size: '10m', max-file: '3'}
+
+x-environment: &environment
+    SONOVECT_TOKEN: ${SONOVECT_TOKEN:?Set a non-placeholder token}
+    SONOVECT_DATA_DIR: /data
+    SONOVECT_LAYOUT: distributed
+    SONOVECT_BACKEND: funasr
+    SONOVECT_SOUND_ENABLED: ${SONOVECT_SOUND_ENABLED:-false}
+    SONOVECT_SOUND_URL: ${SONOVECT_SOUND_URL:-http://speech-events:8084}
+    SONOVECT_VOICE_ENABLED: ${SONOVECT_VOICE_ENABLED:-false}
+    SONOVECT_MEASUREMENTS_ENABLED: ${SONOVECT_MEASUREMENTS_ENABLED:-false}
+    SONOVECT_MEASUREMENTS_URL: ${SONOVECT_MEASUREMENTS_URL:-http://speech-measurements:8086}
+    SONOVECT_VOICE_BACKEND: ${SONOVECT_VOICE_BACKEND:-moss}
+    SONOVECT_VOICE_URL: ${SONOVECT_VOICE_URL:-http://speech-sound:8083}
+    SONOVECT_MODEL: ${SONOVECT_MODEL:-paraformer-zh}
+    SONOVECT_MODEL_REVISION: ${SONOVECT_MODEL_REVISION:-v2.0.4}
+    SONOVECT_DEVICE: cpu
+    SONOVECT_MAX_UPLOAD_BYTES: ${SONOVECT_MAX_UPLOAD_BYTES:-268435456}
+    SONOVECT_MAX_FILES: ${SONOVECT_MAX_FILES:-16}
+    SONOVECT_MAX_MEDIA_SECONDS: ${SONOVECT_MAX_MEDIA_SECONDS:-7200}
+    SONOVECT_MEDIA_TIMEOUT: ${SONOVECT_MEDIA_TIMEOUT:-300}
+    SONOVECT_INPUT_TTL_HOURS: ${SONOVECT_INPUT_TTL_HOURS:-24}
+    SONOVECT_RESULT_TTL_HOURS: ${SONOVECT_RESULT_TTL_HOURS:-168}
+    SONOVECT_PROVIDER_TIMEOUT: ${SONOVECT_PROVIDER_TIMEOUT:-7200}
+    SONOVECT_LEASE_SECONDS: ${SONOVECT_LEASE_SECONDS:-120}
+    SONOVECT_POLL_SECONDS: ${SONOVECT_POLL_SECONDS:-0.1}
+    SONOVECT_WORKER_STALE_SECONDS: ${SONOVECT_WORKER_STALE_SECONDS:-45}
+
+services:
+  api:
+    <<: *runtime
+    image: sonovect:${SONOVECT_VERSION:-0.1.0}
+    build: {context: .., target: core, args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
+    environment: *environment
+    volumes: [jobs:/data]
+    ports: ['${SONOVECT_BIND:-127.0.0.1}:${SONOVECT_PORT:-8096}:8096']
+    depends_on: {worker: {condition: service_healthy}}
+  worker:
+    <<: *runtime
+    image: sonovect-funasr:${SONOVECT_VERSION:-0.1.0}
+    build: {context: .., target: funasr-worker, args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
+    environment:
+      <<: *environment
+      MODELSCOPE_CACHE: /models/modelscope
+      MODELSCOPE_OFFLINE: ${SONOVECT_MODELS_OFFLINE:-1}
+      HF_HOME: /models/huggingface
+    volumes: [jobs:/data, models:/models]
+
+  speech-events:
+    <<: *runtime
+    profiles: [events]
+    image: sonovect-events:${SONOVECT_VERSION:-0.1.0}
+    build: {context: .., dockerfile: providers/speech/event-worker/Dockerfile, args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
+    environment:
+      SONOVECT_MODELS_OFFLINE: ${SONOVECT_MODELS_OFFLINE:-1}
+      SOUND_EVENT_MODEL_ROOT: ${SOUND_EVENT_MODEL_ROOT:-}
+      SOUND_EVENT_THRESHOLD: ${SOUND_EVENT_THRESHOLD:-0.1}
+      SOUND_EVENT_TOP_K: ${SOUND_EVENT_TOP_K:-5}
+      SOUND_EVENT_WINDOW_SECONDS: ${SOUND_EVENT_WINDOW_SECONDS:-10}
+      SOUND_EVENT_THREADS: ${SOUND_EVENT_THREADS:-2}
+    volumes: [event-models:/models]
+  speech-sound:
+    <<: *runtime
+    deploy:
+      resources:
+        reservations:
+          devices: [{driver: nvidia, count: 1, capabilities: [gpu]}]
+    shm_size: 4gb
+    profiles: [voice]
+    image: sonovect-sound:${SONOVECT_VERSION:-0.1.0}
+    build:
+      context: ..
+      dockerfile: providers/speech/moss-worker/Dockerfile
+      args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}', MOSS_AUDIO_COMMIT: 5cbb1d823937cd5b5de3d8fa4d3a7253ebd3b883}
+    environment:
+      MOSS_MODEL_ROOT: ${MOSS_MODEL_ROOT:-}
+      SONOVECT_MODELS_OFFLINE: ${SONOVECT_MODELS_OFFLINE:-1}
+      GPU_RESERVE_MIB: ${GPU_RESERVE_MIB:-1024}
+      MOSS_GPU_BUDGET_MIB: ${MOSS_GPU_BUDGET_MIB:-12288}
+      GPU_CAPACITY_WAIT_SECONDS: ${GPU_CAPACITY_WAIT_SECONDS:-360}
+      MOSS_DEBUG_RAW: ${MOSS_DEBUG_RAW:-false}
+      MOSS_UNLOAD_AFTER_REQUEST: ${MOSS_UNLOAD_AFTER_REQUEST:-true}
+      MOSS_STRUCTURED_RETRIES: ${MOSS_STRUCTURED_RETRIES:-2}
+      MOSS_IDLE_UNLOAD_SECONDS: ${MOSS_IDLE_UNLOAD_SECONDS:-300}
+      MOSS_MAX_NEW_TOKENS: ${MOSS_MAX_NEW_TOKENS:-768}
+      MOSS_MAX_CHUNK_SECONDS: ${MOSS_MAX_CHUNK_SECONDS:-90}
+      MOSS_AUDIO_MODEL: ${MOSS_AUDIO_MODEL:-OpenMOSS-Team/MOSS-Audio-4B-Instruct}
+      MOSS_AUDIO_REVISION: ${MOSS_AUDIO_REVISION:-6907a499dc0e87cc77c8ae0fe23fd0eb5476a02d}
+      MOSS_DEVICE: ${MOSS_DEVICE:-cuda:0}
+      MOSS_MIN_FREE_GIB: ${MOSS_MIN_FREE_GIB:-10}
+    volumes: [sound-models:/models]
+
+  speech-vocal:
+    <<: *runtime
+    profiles: [vocal-cpu]
+    image: sonovect-vocal:${SONOVECT_VERSION:-0.1.0}
+    build: {context: .., target: vocal-worker, args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
+    cpus: 2
+    mem_limit: 6g
+    environment:
+      SONOVECT_MODELS_OFFLINE: ${SONOVECT_MODELS_OFFLINE:-1}
+      VOCAL_MODEL_ROOT: ${VOCAL_MODEL_ROOT:-}
+      VOCAL_THREADS: ${VOCAL_THREADS:-2}
+      VOCAL_WINDOW_SECONDS: ${VOCAL_WINDOW_SECONDS:-10}
+    volumes: [vocal-models:/models]
+
+  speech-measurements:
+    <<: *runtime
+    profiles: [measurements]
+    image: sonovect-measurements:${SONOVECT_VERSION:-0.1.0}
+    build: {context: .., target: measurements-worker, args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
+    cpus: ${MEASUREMENTS_CPU_LIMIT:-2}
+    mem_limit: ${MEASUREMENTS_MEMORY_LIMIT:-2g}
+    pids_limit: 256
+    environment:
+      MEASUREMENT_THREADS: ${MEASUREMENT_THREADS:-2}
+      MEASUREMENT_WINDOW_SECONDS: ${MEASUREMENT_WINDOW_SECONDS:-10}
+
+volumes:
+  jobs:
+  models:
+  event-models:
+  sound-models:
+  vocal-models:

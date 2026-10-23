@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img">
+  <title>Sonovect — Sound, structured.</title>
+  <desc>Sonovect presentation with the approved purple butterfly, dark-background variant. The logo is referenced unchanged from its supplied SVG file.</desc>
+  <rect width="1200" height="360" rx="24" fill="#0B1626"/>
+  <image href="butterfly-dark.svg" x="70" y="127.18" width="190" height="105.64" preserveAspectRatio="xMidYMid meet"/>
+  <text x="310" y="168" font-family="system-ui,sans-serif" font-size="78" font-weight="650" letter-spacing="-3" fill="#F4F7FC">Sonovect</text>
+  <text x="314" y="223" font-family="system-ui,sans-serif" font-size="30" fill="#A7B9FF">Sound, structured.</text>
+  <text x="314" y="276" font-family="system-ui,sans-serif" font-size="20" fill="#A9B8CD">Self-hosted ASR · Video soundtracks · Separate sound analysis</text>
+</svg>
