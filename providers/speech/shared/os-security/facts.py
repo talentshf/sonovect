@@ -41,6 +41,11 @@ def verify(value):
             raise RuntimeError('Runtime security source version mismatch: ' + source)
     if value['archive_tar_paths'] or value['systemd_homed_paths'] or value['setid_paths']:
         raise RuntimeError('Previously absent vulnerable component is present; review applicability')
+    profile = value['residual'].get('gettext_locale', {})
+    safe = {'C', 'C.UTF-8', 'C.utf8', 'POSIX'}
+    if (profile.get('lc_messages') not in safe or profile.get('lc_all') not in safe
+            or profile.get('language') not in safe or profile.get('ssh_server_present') is not False):
+        raise RuntimeError('Unqualified gettext language environment')
     for library in ('libacl.so.1', 'libmount.so.1', 'libtinfo.so.6', 'libncursesw.so.6'):
         ctypes.CDLL(library)
     audit = subprocess.check_output(['dpkg', '--audit'], text=True)

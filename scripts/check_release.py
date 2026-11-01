@@ -73,7 +73,7 @@ def validate(evidence, images, revision, version):
     return {'version': version, 'revision': revision, 'engineering_gate': 'passed',
             'publication': 'not_performed', 'roles': records,
             'component_sources': 'Optional component source and declaration records are informational and retained in the distribution.',
-            'limitations': 'Eight reviewed OS service-boundary IDs remain; Chinese emotion is experimental and measured quality has a limited scope.'}
+            'limitations': 'Nine reviewed OS service-boundary IDs remain; Chinese emotion is experimental and measured quality has a limited scope.'}
 
 
 def validate_configuration(config):

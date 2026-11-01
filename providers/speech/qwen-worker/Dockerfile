@@ -44,6 +44,7 @@ COPY --chmod=644 sonovect/assets.py ./sonovect_assets.py
 COPY --chmod=644 sonovect/model-catalog.json ./model-catalog.json
 RUN groupadd --gid 10001 sonovect && useradd --uid 10001 --gid 10001 --create-home sonovect && mkdir -p /models && chown -R 10001:10001 /home/sonovect /models
 FROM qwen-base AS asr-worker
+ENV LC_ALL=C.UTF-8 LANGUAGE=C.UTF-8
 COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 ARG VERSION=0.1.1
@@ -81,6 +82,7 @@ COPY --chmod=644 sonovect/model-catalog.json /opt/sonovect/providers/segmentatio
 COPY --chmod=644 sonovect/model-catalog.json /opt/sonovect/providers/asr/model-catalog.json
 RUN mkdir -p /data /models/segmentation /models/qwen && chown -R 10001:10001 /data /models
 RUN ["python", "-c", "import os; from pathlib import Path; root=Path('/opt/sonovect'); root.chmod(0o755); [(Path(d).chmod(0o755)) for d,_,_ in os.walk(root)]"]
+ENV LC_ALL=C.UTF-8 LANGUAGE=C.UTF-8
 COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001

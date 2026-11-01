@@ -945,6 +945,20 @@
         "type": "fixed-source"
       },
       "reason": "Keep zlib1.3.1 plus the narrow CRC fix: the vulnerable nonblocking gzip-buffer implementation was introduced later, in1.3.1.2. No full1.3.2 upgrade introducing it is used."
+    },
+    "CVE-2026-84243": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-84243",
+        "https://sourceware.org/bugzilla/show_bug.cgi?id=17142"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "gettext-locale-boundary"
+      },
+      "reason": "No fixed Debian source is listed. Maintained images force LC_ALL and LANGUAGE to C.UTF-8; actual runtime locale and absence of SSH/interpreters are checked. The file-job API does not accept environment variables or message catalogs. Operator locale overrides and arbitrary code are outside this supported profile. This limits the service exposure; it does not repair glibc."
     }
   }
 }

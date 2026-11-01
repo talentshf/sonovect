@@ -68,6 +68,7 @@ FROM runtime-base AS core
 USER root
 COPY --from=package-build /wheels/ /tmp/sonovect-wheels/
 RUN pip install --no-cache-dir --no-index --no-deps /tmp/sonovect-wheels/*.whl && rm -rf /tmp/sonovect-wheels
+ENV LC_ALL=C.UTF-8 LANGUAGE=C.UTF-8
 COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
@@ -83,6 +84,7 @@ FROM media-base AS media-worker
 USER root
 COPY --from=package-build /wheels/ /tmp/sonovect-wheels/
 RUN pip install --no-cache-dir --no-index --no-deps /tmp/sonovect-wheels/*.whl && rm -rf /tmp/sonovect-wheels
+ENV LC_ALL=C.UTF-8 LANGUAGE=C.UTF-8
 COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
@@ -97,6 +99,7 @@ FROM native-dependencies AS funasr-worker
 USER root
 COPY --from=package-build /wheels/ /tmp/sonovect-wheels/
 RUN pip install --no-cache-dir --no-index --no-deps /tmp/sonovect-wheels/*.whl && rm -rf /tmp/sonovect-wheels
+ENV LC_ALL=C.UTF-8 LANGUAGE=C.UTF-8
 COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
@@ -115,6 +118,7 @@ COPY --chmod=644 providers/speech/vocal-worker/*.py /app/
 COPY --chmod=644 providers/speech/shared/runtime_config.py providers/speech/shared/container_health.py providers/speech/shared/health_probe.py /app/
 COPY --chmod=644 sonovect/assets.py /app/sonovect_assets.py
 COPY --chmod=644 sonovect/model-catalog.json /app/model-catalog.json
+ENV LC_ALL=C.UTF-8 LANGUAGE=C.UTF-8
 COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
@@ -135,6 +139,7 @@ COPY --from=package-build /wheels/ /tmp/sonovect-wheels/
 RUN pip install --no-cache-dir --no-index --no-deps /tmp/sonovect-wheels/*.whl && rm -rf /tmp/sonovect-wheels
 COPY --chmod=644 providers/speech/measurement-worker/*.py /app/
 COPY --chmod=644 providers/speech/shared/runtime_config.py providers/speech/shared/container_health.py providers/speech/shared/health_probe.py /app/
+ENV LC_ALL=C.UTF-8 LANGUAGE=C.UTF-8
 COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
@@ -182,6 +187,7 @@ COPY --chmod=644 providers/speech/measurement-worker/*.py /opt/sonovect/provider
 COPY --chmod=644 providers/speech/shared/runtime_config.py providers/speech/shared/container_health.py providers/speech/shared/health_probe.py /opt/sonovect/providers/measurements/
 
 RUN ["python", "-c", "import os; from pathlib import Path; root=Path('/opt/sonovect'); root.chmod(0o755); [(Path(d).chmod(0o755)) for d,_,_ in os.walk(root)]"]
+ENV LC_ALL=C.UTF-8 LANGUAGE=C.UTF-8
 COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001

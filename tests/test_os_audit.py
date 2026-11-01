@@ -100,3 +100,17 @@ class OSAuditTests(unittest.TestCase):
         self.assertFalse(module.classify(audit,facts)['unresolved_lower_severity'])
         facts['residual']['commands']['ldd'] = ['/usr/bin/ldd']
         self.assertTrue(module.classify(audit,facts)['unresolved_lower_severity'])
+
+
+class GettextBoundaryTests(unittest.TestCase):
+    fixture = OSAuditTests.fixture
+    def test_locale_boundary_requires_all_actual_profile_fields(self):
+        audit,facts=self.fixture('CVE-2026-84243','glibc','2.43-7~sonovect13.1')
+        audit['Results'][0]['Vulnerabilities'][0]['Severity']='MEDIUM'
+        facts['residual']={'uid':10001,'effective_capabilities':'0000000000000000','no_new_privileges':'1',
+            'commands':{k:[] for k in ('sh','bash','dash','perl')},
+            'gettext_locale':{'lc_messages':'C','lc_all':'C.UTF-8','language':'C.UTF-8','ssh_server_present':False}}
+        self.assertFalse(module.classify(audit,facts)['unresolved_lower_severity'])
+        for key,value in [('lc_messages','en_US.UTF-8'),('lc_all','en_US.UTF-8'),('language','../catalog'),('ssh_server_present',True)]:
+            bad=copy.deepcopy(facts);bad['residual']['gettext_locale'][key]=value
+            self.assertTrue(module.classify(audit,bad)['unresolved_lower_severity'])

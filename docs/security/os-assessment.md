@@ -1,6 +1,6 @@
-# OS advisory assessment — 0.1.0
+# OS advisory assessment — 0.1.1
 
-This register records the exact maintained source-package versions, primary advisories and scoped dispositions for the v0.1.0 recipes. The CA package repair uses ca-certificates20250419+deb13u1. The63 medium/low/unknown IDs below retain their concrete assessment; raw matches remain visible. TEMP identifiers are Debian-local tracker entries, not assigned CVEs. Actual-image identity and scan evidence must be verified separately for a candidate; source applicability alone is not a completed image scan.
+This register records the exact maintained source-package versions, primary advisories and scoped dispositions for the maintained recipes (v0.1.0 baseline, refreshed for v0.1.1). The CA package repair uses ca-certificates20250419+deb13u1. The64 medium/low/unknown IDs below retain their concrete assessment; raw matches remain visible. TEMP identifiers are Debian-local tracker entries, not assigned CVEs. Actual-image identity and scan evidence must be verified separately for a candidate; source applicability alone is not a completed image scan.
 
 This assessment applies only to maintained Linux amd64 immutable service images, UID 10001, dropped capabilities, no-new-privileges and the documented file-job interface. It is not a whole-image zero-vulnerability assertion, a host assessment or permission to execute untrusted Python, ELF, SQL or regular expressions. Final per-role scan receipts and release qualification are linked from the [current release review](../release-readiness.md).
 
@@ -12,9 +12,9 @@ This assessment applies only to maintained Linux amd64 immutable service images,
 - `not-affected-platform-branch`: 1 unique IDs.
 - `not-affected-runtime-package`: 1 unique IDs.
 - `not-affected-version`: 1 unique IDs.
-- `reviewed-service-boundary`: 8 unique IDs.
+- `reviewed-service-boundary`: 9 unique IDs.
 
-Nineteen IDs have source repairs: 14 glibc fixes, two SQLite session fixes, one narrow zlib CRC fix and the previously fixed ACL/ncurses IDs. Thirty-three concern absent programs/modules. Three concern a different runtime component, platform branch or version. Eight remain explicitly assessed service-boundary limitations: seven disputed/unfixed glibc issues and corrupt SQLite database/SQL processing. Those eight are **not library fixes** and must be reconsidered if callers or trust boundaries expand. Raw advisories are retained.
+Nineteen IDs have source repairs: 14 glibc fixes, two SQLite session fixes, one narrow zlib CRC fix and the previously fixed ACL/ncurses IDs. Thirty-three concern absent programs/modules. Three concern a different runtime component, platform branch or version. Nine remain explicitly assessed service-boundary limitations: eight glibc issues including gettext language-environment traversal, and corrupt SQLite database/SQL processing. These nine are **not library fixes** and must be reconsidered if callers or trust boundaries expand. Raw advisories are retained.
 
 Removing shell, Perl, archive and account tools reduces unused code. The exact path/hash removal receipt is retained in each image, alongside package metadata and corresponding modified library sources. It does not remove the scanner's package records. Rebuild instead of mutating service images.
 
@@ -118,3 +118,13 @@ Reassess the actual callers and rerun image probes when adding regex/glob input,
 | [TEMP-0841856-B18BAF](https://security-tracker.debian.org/tracker/TEMP-0841856-B18BAF) | LOW / bash `5.2.37-2` | **affected-program-absent**. Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained. Evidence: `{"commands": ["bash"], "type": "absence"}`. |
 
 The machine-readable [version-bound policy](../../providers/speech/shared/os-security/advisory-policy.json) retains additional upstream links and exact proof predicates. Prior high/critical dispositions remain separate; absent affected code means not affected in this image, not that verification was skipped.
+
+## 2026-11-01 maintenance review
+
+The previous eight retained entries keep their source identities and semantic hashes. CVE-2026-84243 was newly published on 2026-10-30 and has no fixed Debian source listed at this review. The maintained image profile now fixes `LC_ALL=C.UTF-8` and `LANGUAGE=C.UTF-8`; the actual `LC_MESSAGES` locale must be C/C.UTF-8/POSIX. The image facts and audit gate reject a different profile, missing evidence or an SSH server. File-job input does not control environment variables, executable selection or gettext catalogs. This is a scoped mitigation, not a glibc fix; deployments overriding locales require renewed assessment. The refreshed baseline contains nine official entries; dated eight-entry reviews above remain historical.
+
+| Advisory | Runtime/source | Disposition |
+| --- | --- | --- |
+| [CVE-2026-84243](https://security-tracker.debian.org/tracker/CVE-2026-84243) | MEDIUM / glibc `2.43-7~sonovect13.1` | **reviewed-service-boundary** with `gettext-locale-boundary` evidence: fixed C locale, no SSH/interpreter entry points, nonroot/capability restrictions and no caller environment input. Raw matches remain visible. |
+
+The separately patched [Hydra advisory GHSA-wf6j-7hvr-gr93](https://github.com/advisories/GHSA-wf6j-7hvr-gr93) is resolved by pinning hydra-core 1.3.8 in affected role locks. Actual image inventory, dependency consistency and scans must verify the installation; this is not an exception to the Python vulnerability gate.

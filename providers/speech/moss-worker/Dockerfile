@@ -50,6 +50,7 @@ COPY --chmod=644 sonovect/assets.py ./sonovect_assets.py
 COPY --chmod=644 sonovect/model-catalog.json ./model-catalog.json
 RUN python smoke_runtime.py && pip check
 RUN groupadd --gid 10001 sonovect && useradd --uid 10001 --gid 10001 --create-home sonovect && mkdir -p /models && chown -R 10001:10001 /home/sonovect /models
+ENV LC_ALL=C.UTF-8 LANGUAGE=C.UTF-8
 COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 ARG VERSION=0.1.1

@@ -8,6 +8,6 @@ Inspect liveness/readiness, worker leases and task state separately. Health disc
 
 Defaults are24hour input and168hour result retention. Retention deletion does not promise physical erasure from SSDs, journals or backups. Logs should contain task IDs and bounded error codes, not credentials or private transcripts. A timeout continues under the same job ID; cancellation prevents publication, though active inference may finish internally.
 
-All services run unprivileged with dropped capabilities and no new privileges. Do not execute user uploads, caller SQL/regex or arbitrary plugins in maintained images. Rebuild immutable images to change dependencies; keep corresponding source/materials. [Security](../SECURITY.md) records the eight scoped library limitations and scan coverage.
+All services run unprivileged with dropped capabilities and no new privileges. Do not execute user uploads, caller SQL/regex or arbitrary plugins in maintained images. Rebuild immutable images to change dependencies; keep corresponding source/materials. [Security](../SECURITY.md) records the nine scoped library limitations and scan coverage.
 
 Use `sonovect ready --details` or the authenticated `/v1/diagnostics/readiness` endpoint to inspect component failures before changing services. Container health output includes safe failure codes. Follow the [readiness guide](readiness.md); a failure is diagnostic evidence, not authorization to retry jobs or restart shared infrastructure.

@@ -1,5 +1,6 @@
 """Bounded applicability evidence for distro source-package advisories."""
 import ctypes
+import locale
 import hashlib
 from pathlib import Path
 import platform
@@ -99,4 +100,7 @@ def collect():
             'dash_imports_fnmatch': bool(dash and 'fnmatch' in undefined_symbols(dash)),
             'dash_unicode_escape_supported': dash_unicode == b'A',
             'aligned_new': aligned_new_probe(), 'libraries': libraries,
-            'compiler_headers_present': Path('/usr/include/c++').exists()}
+            'compiler_headers_present': Path('/usr/include/c++').exists(),
+            'gettext_locale': {'lc_messages': locale.setlocale(locale.LC_MESSAGES),
+                'lc_all': os.getenv('LC_ALL'), 'language': os.getenv('LANGUAGE'),
+                'ssh_server_present': shutil.which('sshd') is not None}}

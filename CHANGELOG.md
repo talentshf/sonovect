@@ -2,6 +2,8 @@
 
 ## 0.1.1 — 2026-11-01
 
+- Update hydra-core to 1.3.8 for the current upstream advisory and qualify the new gettext locale limitation with fixed C locale and checked image evidence.
+
 - Add safe readiness failure codes and authenticated component diagnostics, including GPU device access failures, worker presence and optional-service warnings.
 - Preserve expected readiness failures in CLI, MCP and container checks; support older servers and retain existing 200/503 semantics.
 - Bound and parallelize provider discovery, cap responses, distinguish GPU probe failures and reap timed-out probe processes. Model inference and job recovery behavior are unchanged.
