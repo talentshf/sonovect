@@ -5,11 +5,74 @@
 
 [![Checks](https://github.com/talentshf/sonovect/actions/workflows/checks.yml/badge.svg)](https://github.com/talentshf/sonovect/actions/workflows/checks.yml) · [Apache-2.0](LICENSE) · Python 3.12+ · [v0.1.1 release notes](docs/release-v0.1.1.md)
 
-# Cloud-class speech recognition. Your own hardware.
+# Turn recordings and video soundtracks into text, subtitles and sound data
 
-**Sonovect v0.1.1 is a self-hosted ASR assembly platform for recordings and video soundtracks.** Receive transcripts, timestamps and optional anonymous speakers in FunASR-compatible JSON, plain text and SRT. Environmental sounds, experimental vocals and signal measurements are separate results. HTTP, CLI and MCP use the same durable job workflow.
+**Sonovect v0.1.1 is a self-hosted transcription and sound-analysis service.** Upload files, choose the processing you need and retrieve results by job ID. Speech, acoustic analysis and job status are separate outputs for people, applications and assistants.
 
-Run on your CPU or NVIDIA GPU and control media, results and retention. Once model assets are prepared, recognition runs locally without a cloud ASR service. In our same-audio comparison, local Qwen1.7B matched the tested cloud services on English and made fewer character errors in the Mandarin meeting:
+## What it does
+
+| Function | What you get | Per-job default |
+| --- | --- | --- |
+| Speech transcription | Recognized text, with optional language and term hints | On |
+| Timing and subtitles | Available word and sentence timing; plain text and SRT subtitles | With transcription, where the model provides evidence |
+| Speaker separation | Anonymous speaker IDs within each recording | On; can be disabled |
+| Environmental sounds | Closed-vocabulary labels, analysis windows and available scores | Off; explicitly requested |
+| Experimental vocals | Emotion labels or vocal descriptions from the selected backend | Off; explicitly requested |
+| Pitch and energy | Pitch in Hz and relative energy in dBFS, with windows and availability states | Off; explicitly requested |
+
+**Jobs default to speech only; the three optional analysis switches are independent.** The operator selects available capabilities at deployment; callers select which ones to run per job. AST classifies environmental sounds. Vocals use either emotion2vec emotions or MOSS descriptions. Pitch and energy need no emotion model.
+
+## From file to result
+
+```mermaid
+flowchart TD
+    A["Audio or video files + job options"] --> B["Validate uploads and create a job ID"]
+    B --> C["Queue processing, extract audio track and decode"]
+    C --> D["Transcribe speech<br/>Align timing and anonymous speakers"]
+    C --> E["Optional analysis<br/>Events, vocals, pitch and energy"]
+    D --> F["Speech results<br/>Structured data, text, subtitles"]
+    E --> G["Separate acoustic results<br/>Stage states and provenance"]
+    F --> H["Read by the original job ID<br/>or export with hash verification"]
+    G --> H
+```
+
+Inputs include WAV, FLAC, MP3, M4A/AAC, OGG/Opus and AIFF audio, plus MP4, MOV, MKV, WebM and AVI video. Video processing uses only the selected audio track. An upstream tool must download web links to files first. Content probing determines format; codec support depends on the media worker.
+
+A complete export contains three files:
+
+- `result.json`: speech text, available timestamps, sentences and anonymous speakers in FunASR-compatible JSON.
+- `analysis.json`: separate events, vocals and numerical measurements, with stage states and model or algorithm identities. Sound tags do not enter transcript text.
+- `manifest.json`: output metadata and hashes for checking export integrity. Read progress and errors from job status separately.
+
+Text, subtitles and structured speech are views of the same recognition; reading and exporting do not rerun models. Each source keeps its own timeline. SRT requires one successful source with sentence timing; missing timing or speaker evidence is omitted. See [result format](#result-format) below and the full [output contract](docs/results.md).
+
+## Product characteristics
+
+| Characteristic | What it means in use |
+| --- | --- |
+| Run on your own hardware | Choose CPU or NVIDIA GPU; after selected assets are prepared, run recognition locally and control media, results and retention |
+| Combine only the capabilities you need | Prepare selected models and run requested stages; models are chosen at deployment rather than per job |
+| Track jobs and retain successful work | Receive a durable job ID; check status, cancel or explicitly retry. Optional-stage failures retain valid speech and successful siblings |
+| Separate, verifiable outputs | Keep speech apart from sound analysis, with stage states and provenance; export into a new directory and verify hashes |
+| Multiple entry points, one workflow | HTTP API, CLI and MCP use the same service; discover capabilities and use readiness diagnostics to identify failed components |
+
+Defaults: **16 files per job, 256 MiB aggregate upload and two decoded hours per source**. Channels downmix to mono rather than speaker identities. After terminal state, inputs default to **24 hours** of retention and results to **7 days**, configurable.
+
+## Where it fits
+
+| Scenario | What Sonovect provides | How to use the output |
+| --- | --- | --- |
+| Meetings, interviews and recorded lessons | Transcripts, anonymous speakers and available timing | Check against the audio and quote sources; a downstream assistant prepares summaries, minutes and action items |
+| Video, podcasts and subtitle preparation | Text and exportable subtitles from a selected audio track | Edit transcripts and subtitles; another tool handles video frames |
+| Environmental-audio collections | Sound labels and scores over analysis windows | Build a material index and review predictions against the recording |
+| Voice research and experiments | Pitch and relative energy over speech intervals, plus optional experimental vocal outputs | Compare signal features while retaining methods, windows and experimental provenance |
+| Assistants and automated workflows | Queryable file jobs, structured results and artifact manifests | Collect or download files upstream, process sound here and organize or ask questions about content downstream |
+
+This is a file-job service, with no browser UI or live streaming endpoint. Environmental labels can have false positives and misses, and analysis windows are not exact event boundaries. Vocal emotions and descriptions remain experimental and require review. Speaker IDs are recording-local; predictions and measurements do not establish psychological state, identity or health. See [benchmarks and limitations](docs/quality.md).
+
+## Transcription quality reference
+
+Reference results from the existing same-audio comparison:
 
 | Same audio, measured 2026-10-21; fewer errors is better | Local Qwen1.7B | Bailian Fun-ASR | Bailian Qwen3-ASR |
 | --- | ---: | ---: | ---: |
@@ -17,8 +80,6 @@ Run on your CPU or NVIDIA GPU and control media, results and retention. Once mod
 | 12 English clips, 241 reference words | **0 word errors** | 1 word error | **0 word errors** |
 
 All three received identical mono audio and the same scoring rules. Local hardware was an RTX3090 / 24GiB. These are reference results for the measured material; see [benchmarks](docs/quality.md) for configuration, non-speech behavior and reproduction. Events and experimental emotions are evaluated separately.
-
-Select speech, CPU AST events, emotion2vec/MOSS vocals and weight-free pitch/energy independently. **Download only selected assets; run only requested stages.** Both vocal backends remain optional experiments. See [publication status](PUBLICATION.md) for distribution availability.
 
 ## Deploy in 2–3 containers
 
@@ -32,16 +93,6 @@ Both speech routes use **two base containers**: the job API/queue and the speech
 | Speech + CPU analysis + MOSS | 4 |
 
 The default `--layout compact` keeps model processes isolated inside these units; only selected analysis processes start and weights load on request. `--layout distributed` retains independent service scaling. Setup prints the exact recipe, container count, model identities and download size before preparation.
-
-## Inputs and outputs
-
-| Input | Choices | Output |
-| --- | --- | --- |
-| WAV, FLAC, MP3, M4A/AAC, OGG/Opus, AIFF | Language/term hints, anonymous speakers | FunASR speech JSON, text, SRT |
-| MP4, MOV, MKV, WebM, AVI | Select an audio track; no visual/frame analysis | Speech plus independent sound analysis |
-| Speech, music and background sounds | Independent events, vocals and measurements | Separate `analysis.json`, stage status and provenance |
-
-Content probing determines format; codec support depends on the media worker. Defaults: 16 files, 256 MiB aggregate upload, two decoded hours per source. Channels downmix to mono, not speaker identities. Missing timing or speaker evidence is omitted.
 
 ## Choose a route
 
@@ -80,9 +131,9 @@ sonovect analysis JOB_ID
 sonovect export JOB_ID new-result-directory
 ```
 
-Queries and exports reuse existing results. Inputs default to 24 hours and results 7 days after terminal state, configurable. Successful speech and sibling stages survive optional failures. Cancellation, explicit retry and idempotency are documented in [usage](docs/usage.md). This is a file-job service, with no browser UI or live streaming endpoint.
+See [usage](docs/usage.md) for job states, cancellation, explicit retry and admission deduplication. Use `sonovect capabilities` and `sonovect ready --details` for capability discovery and readiness diagnostics; readiness checks do not run inference.
 
-## Speech stays separate
+## Result format
 
 `/v1/jobs/{id}/result` returns a source list, for example:
 
