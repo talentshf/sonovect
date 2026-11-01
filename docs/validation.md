@@ -1,6 +1,6 @@
 # Validation
 
-This file describes Sonovect v0.1.0 only. The supported release scope is in [release scope](release-readiness.md). Tests verify public contracts, independent optional stages, strict inputs, durable jobs, cancellation/retry, media clocks, MCP/CLI, selected assets, security predicates and release packaging.
+This file describes Sonovect v0.1.1 only. The supported release scope is in [release scope](release-readiness.md). Tests verify public contracts, independent optional stages, strict inputs, durable jobs, cancellation/retry, media clocks, MCP/CLI, selected assets, security predicates and release packaging.
 
 Run core and provider suites in separate Python processes because their module names may overlap:
 

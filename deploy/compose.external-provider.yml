@@ -2,7 +2,7 @@
 name: sonovect
 
 x-core: &core
-  image: ${SONOVECT_IMAGE:-sonovect:0.1.0}
+  image: ${SONOVECT_IMAGE:-sonovect:0.1.1}
   build:
     context: ..
     target: core
@@ -29,13 +29,13 @@ services:
     ports:
       - '${SONOVECT_BIND:-127.0.0.1}:${SONOVECT_PORT:-8096}:8096'
     healthcheck:
-      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8096/ready', timeout=8)"]
+      test: [CMD, sonovect-health, api]
       interval: 20s
       timeout: 10s
       retries: 3
   worker:
     <<: *core
-    image: ${SONOVECT_WORKER_IMAGE:-sonovect-worker:0.1.0}
+    image: ${SONOVECT_WORKER_IMAGE:-sonovect-worker:0.1.1}
     build: {context: .., target: media-worker}
     command: [sonovect-worker]
     stop_grace_period: 90s

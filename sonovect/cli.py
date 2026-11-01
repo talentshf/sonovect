@@ -42,7 +42,8 @@ def main(argv=None):
         if name == "wait":
             sub.add_argument("--timeout", type=float, default=7200)
     commands.add_parser("capabilities")
-    commands.add_parser("ready", help="Check service/worker readiness without loading models")
+    ready = commands.add_parser("ready", help="Check service/worker readiness without loading models")
+    ready.add_argument("--details", action="store_true", help="Include authenticated component diagnostics")
     args = parser.parse_args(argv)
     client = None
     try:
@@ -62,8 +63,10 @@ def main(argv=None):
             value = client.export(args.job_id, args.directory)
         elif args.command in {"cancel", "retry"}:
             value = client.request("POST", f"/v1/jobs/{args.job_id}/{args.command}").json()
-        elif args.command in {"capabilities", "ready"}:
-            value = client.request("GET", "/v1/capabilities" if args.command == "capabilities" else "/ready").json()
+        elif args.command == "ready":
+            value = client.readiness(details=args.details)
+        elif args.command == "capabilities":
+            value = client.request("GET", "/v1/capabilities").json()
         else:
             response = client.request("GET", f"/v1/jobs/{args.job_id}/{args.command}",
                                       params={"format": args.format} if args.command == "result" else {})
@@ -72,6 +75,8 @@ def main(argv=None):
                 return 0
             value = response.json()
         print(json.dumps(value, ensure_ascii=False, indent=2))
+        if args.command == "ready":
+            return 0 if value["status"] == "ready" else 1
         return 2 if isinstance(value, dict) and value.get("status") in {"partial", "failed", "cancelled", "expired"} else 0
     except Exception as error:
         # Validation errors can include paths and submitted values.

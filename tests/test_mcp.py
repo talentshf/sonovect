@@ -27,7 +27,11 @@ class Handler(BaseHTTPRequestHandler):
             value = ([{"key": "audio_0000", "text": "Hello", "timestamp": [[0, 500]]}]
                      if "/result" in self.path else {"api_version": "v1", "backend": "funasr"})
             content = json.dumps(value).encode()
-        self.send_response(200)
+        if self.path == '/ready':
+            from sonovect.readiness import SCOPE
+            content = json.dumps({'status':'not_ready','scope':SCOPE,'code':'gpu_device_access_denied',
+                                  'component':'speech.asr','available_workers':1}).encode()
+        self.send_response(503 if self.path == '/ready' else 200)
         self.send_header("Content-Type", "application/json")
         self.end_headers()
         self.wfile.write(content)
@@ -49,7 +53,11 @@ class MCPTests(unittest.TestCase):
                     self.assertEqual(info.server_info.name, "sonovect")
                     listing = await session.list_tools()
                     names = {tool.name for tool in listing.tools}
-                    self.assertEqual(names, {"sonovect_capabilities", "sonovect_submit", "sonovect_status", "sonovect_result", "sonovect_cancel", "sonovect_retry"})
+                    self.assertEqual(names, {"sonovect_ready", "sonovect_capabilities", "sonovect_submit", "sonovect_status", "sonovect_result", "sonovect_cancel", "sonovect_retry"})
+                    readiness = await session.call_tool("sonovect_ready", {})
+                    self.assertFalse(readiness.is_error)
+                    self.assertEqual(readiness.structured_content["code"], "gpu_device_access_denied")
+                    self.assertEqual(readiness.structured_content["status"], "not_ready")
                     for tool in listing.tools:
                         self.assertIsNotNone(tool.output_schema)
                     result = await session.call_tool("sonovect_result", {"job_id": "a" * 32})

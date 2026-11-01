@@ -3,7 +3,7 @@
   "info": {
     "title": "Sonovect",
     "description": "Self-hosted ASR for audio and video soundtracks, FunASR speech results and separate sound analysis.",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "paths": {
     "/health": {
@@ -31,11 +31,56 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/Summary"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Summary"
+                }
               }
             }
           }
         }
+      }
+    },
+    "/v1/diagnostics/readiness": {
+      "get": {
+        "summary": "Readiness Details",
+        "operationId": "readiness_details_v1_diagnostics_readiness_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Report"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Report"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/v1/capabilities": {
@@ -551,6 +596,112 @@
         ],
         "title": "Body_submit_v1_jobs_post"
       },
+      "Check": {
+        "properties": {
+          "component": {
+            "type": "string",
+            "enum": [
+              "analysis.events",
+              "analysis.measurements",
+              "analysis.vocal",
+              "queue.database",
+              "queue.worker",
+              "service",
+              "speech.asr",
+              "speech.configuration",
+              "speech.provider",
+              "speech.segmentation"
+            ],
+            "title": "Component"
+          },
+          "required": {
+            "type": "boolean",
+            "title": "Required"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "failed",
+              "skipped"
+            ],
+            "title": "Status"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "database_busy",
+                  "database_unavailable",
+                  "decoder_unavailable",
+                  "dependency_failed",
+                  "diagnostic_internal_error",
+                  "gpu_device_access_denied",
+                  "gpu_device_missing",
+                  "gpu_driver_library_mismatch",
+                  "gpu_nvml_unavailable",
+                  "gpu_probe_failed",
+                  "gpu_probe_invalid_response",
+                  "gpu_probe_timeout",
+                  "gpu_probe_tool_missing",
+                  "model_load_failed",
+                  "not_applicable",
+                  "not_configured",
+                  "probe_timeout",
+                  "provider_configuration_mismatch",
+                  "provider_degraded",
+                  "provider_http_error",
+                  "provider_invalid_response",
+                  "provider_timeout",
+                  "provider_unreachable",
+                  "ready",
+                  "service_not_ready",
+                  "worker_absent",
+                  "worker_backend_mismatch",
+                  "worker_stale",
+                  "worker_unavailable",
+                  "worker_version_mismatch"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "action": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "check_container_gpu_access",
+                  "check_worker_presence",
+                  "check_queue_storage"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Action"
+          },
+          "elapsed_ms": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Elapsed Ms",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "component",
+          "required",
+          "status"
+        ],
+        "title": "Check"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -563,6 +714,69 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "Issue": {
+        "properties": {
+          "component": {
+            "type": "string",
+            "enum": [
+              "analysis.events",
+              "analysis.measurements",
+              "analysis.vocal",
+              "queue.database",
+              "queue.worker",
+              "service",
+              "speech.asr",
+              "speech.configuration",
+              "speech.provider",
+              "speech.segmentation"
+            ],
+            "title": "Component"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "database_busy",
+              "database_unavailable",
+              "decoder_unavailable",
+              "dependency_failed",
+              "diagnostic_internal_error",
+              "gpu_device_access_denied",
+              "gpu_device_missing",
+              "gpu_driver_library_mismatch",
+              "gpu_nvml_unavailable",
+              "gpu_probe_failed",
+              "gpu_probe_invalid_response",
+              "gpu_probe_timeout",
+              "gpu_probe_tool_missing",
+              "model_load_failed",
+              "not_applicable",
+              "not_configured",
+              "probe_timeout",
+              "provider_configuration_mismatch",
+              "provider_degraded",
+              "provider_http_error",
+              "provider_invalid_response",
+              "provider_timeout",
+              "provider_unreachable",
+              "ready",
+              "service_not_ready",
+              "worker_absent",
+              "worker_backend_mismatch",
+              "worker_stale",
+              "worker_unavailable",
+              "worker_version_mismatch"
+            ],
+            "title": "Code"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "component",
+          "code"
+        ],
+        "title": "Issue"
       },
       "ModelIdentity": {
         "properties": {
@@ -697,6 +911,145 @@
         "type": "object",
         "title": "Quality"
       },
+      "Report": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "not_ready"
+            ],
+            "title": "Status"
+          },
+          "scope": {
+            "type": "string",
+            "const": "queue-worker-and-backend-discovery",
+            "title": "Scope",
+            "default": "queue-worker-and-backend-discovery"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "database_busy",
+              "database_unavailable",
+              "decoder_unavailable",
+              "dependency_failed",
+              "diagnostic_internal_error",
+              "gpu_device_access_denied",
+              "gpu_device_missing",
+              "gpu_driver_library_mismatch",
+              "gpu_nvml_unavailable",
+              "gpu_probe_failed",
+              "gpu_probe_invalid_response",
+              "gpu_probe_timeout",
+              "gpu_probe_tool_missing",
+              "model_load_failed",
+              "not_applicable",
+              "not_configured",
+              "probe_timeout",
+              "provider_configuration_mismatch",
+              "provider_degraded",
+              "provider_http_error",
+              "provider_invalid_response",
+              "provider_timeout",
+              "provider_unreachable",
+              "ready",
+              "service_not_ready",
+              "worker_absent",
+              "worker_backend_mismatch",
+              "worker_stale",
+              "worker_unavailable",
+              "worker_version_mismatch"
+            ],
+            "title": "Code"
+          },
+          "component": {
+            "type": "string",
+            "enum": [
+              "analysis.events",
+              "analysis.measurements",
+              "analysis.vocal",
+              "queue.database",
+              "queue.worker",
+              "service",
+              "speech.asr",
+              "speech.configuration",
+              "speech.provider",
+              "speech.segmentation"
+            ],
+            "title": "Component"
+          },
+          "available_workers": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Available Workers"
+          },
+          "model_inference_verified": {
+            "type": "boolean",
+            "const": false,
+            "title": "Model Inference Verified",
+            "default": false
+          },
+          "schema": {
+            "type": "string",
+            "const": "sonovect.readiness/v1",
+            "title": "Schema",
+            "default": "sonovect.readiness/v1"
+          },
+          "observed_at": {
+            "type": "string",
+            "maxLength": 40,
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T[0-9:.+\\-]+Z?$",
+            "title": "Observed At"
+          },
+          "cache_age_ms": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Cache Age Ms",
+            "default": 0
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/Check"
+            },
+            "type": "array",
+            "title": "Checks"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/Issue"
+            },
+            "type": "array",
+            "title": "Errors"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/Issue"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "code",
+          "component",
+          "observed_at",
+          "checks",
+          "errors",
+          "warnings"
+        ],
+        "title": "Report"
+      },
       "Sentence": {
         "properties": {
           "text": {
@@ -760,6 +1113,102 @@
           "end"
         ],
         "title": "Sentence"
+      },
+      "Summary": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "not_ready"
+            ],
+            "title": "Status"
+          },
+          "scope": {
+            "type": "string",
+            "const": "queue-worker-and-backend-discovery",
+            "title": "Scope",
+            "default": "queue-worker-and-backend-discovery"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "database_busy",
+              "database_unavailable",
+              "decoder_unavailable",
+              "dependency_failed",
+              "diagnostic_internal_error",
+              "gpu_device_access_denied",
+              "gpu_device_missing",
+              "gpu_driver_library_mismatch",
+              "gpu_nvml_unavailable",
+              "gpu_probe_failed",
+              "gpu_probe_invalid_response",
+              "gpu_probe_timeout",
+              "gpu_probe_tool_missing",
+              "model_load_failed",
+              "not_applicable",
+              "not_configured",
+              "probe_timeout",
+              "provider_configuration_mismatch",
+              "provider_degraded",
+              "provider_http_error",
+              "provider_invalid_response",
+              "provider_timeout",
+              "provider_unreachable",
+              "ready",
+              "service_not_ready",
+              "worker_absent",
+              "worker_backend_mismatch",
+              "worker_stale",
+              "worker_unavailable",
+              "worker_version_mismatch"
+            ],
+            "title": "Code"
+          },
+          "component": {
+            "type": "string",
+            "enum": [
+              "analysis.events",
+              "analysis.measurements",
+              "analysis.vocal",
+              "queue.database",
+              "queue.worker",
+              "service",
+              "speech.asr",
+              "speech.configuration",
+              "speech.provider",
+              "speech.segmentation"
+            ],
+            "title": "Component"
+          },
+          "available_workers": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Available Workers"
+          },
+          "model_inference_verified": {
+            "type": "boolean",
+            "const": false,
+            "title": "Model Inference Verified",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "code",
+          "component"
+        ],
+        "title": "Summary"
       },
       "Transcript": {
         "properties": {

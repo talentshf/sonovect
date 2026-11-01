@@ -39,16 +39,16 @@ x-environment: &environment
 services:
   api:
     <<: *runtime
-    image: sonovect:${SONOVECT_VERSION:-0.1.0}
-    build: {context: .., target: core, args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
+    image: sonovect:${SONOVECT_VERSION:-0.1.1}
+    build: {context: .., target: core, args: {VERSION: '${SONOVECT_VERSION:-0.1.1}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
     environment: *environment
     volumes: [jobs:/data]
     ports: ['${SONOVECT_BIND:-127.0.0.1}:${SONOVECT_PORT:-8096}:8096']
     depends_on: {worker: {condition: service_healthy}}
   worker:
     <<: *runtime
-    image: sonovect-funasr:${SONOVECT_VERSION:-0.1.0}
-    build: {context: .., target: funasr-worker, args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
+    image: sonovect-funasr:${SONOVECT_VERSION:-0.1.1}
+    build: {context: .., target: funasr-worker, args: {VERSION: '${SONOVECT_VERSION:-0.1.1}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
     environment:
       <<: *environment
       MODELSCOPE_CACHE: /models/modelscope
@@ -59,8 +59,8 @@ services:
   speech-events:
     <<: *runtime
     profiles: [events]
-    image: sonovect-events:${SONOVECT_VERSION:-0.1.0}
-    build: {context: .., dockerfile: providers/speech/event-worker/Dockerfile, args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
+    image: sonovect-events:${SONOVECT_VERSION:-0.1.1}
+    build: {context: .., dockerfile: providers/speech/event-worker/Dockerfile, args: {VERSION: '${SONOVECT_VERSION:-0.1.1}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
     environment:
       SONOVECT_MODELS_OFFLINE: ${SONOVECT_MODELS_OFFLINE:-1}
       SOUND_EVENT_MODEL_ROOT: ${SOUND_EVENT_MODEL_ROOT:-}
@@ -77,11 +77,11 @@ services:
           devices: [{driver: nvidia, count: 1, capabilities: [gpu]}]
     shm_size: 4gb
     profiles: [voice]
-    image: sonovect-sound:${SONOVECT_VERSION:-0.1.0}
+    image: sonovect-sound:${SONOVECT_VERSION:-0.1.1}
     build:
       context: ..
       dockerfile: providers/speech/moss-worker/Dockerfile
-      args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}', MOSS_AUDIO_COMMIT: 5cbb1d823937cd5b5de3d8fa4d3a7253ebd3b883}
+      args: {VERSION: '${SONOVECT_VERSION:-0.1.1}', REVISION: '${SONOVECT_REVISION:-uncommitted}', MOSS_AUDIO_COMMIT: 5cbb1d823937cd5b5de3d8fa4d3a7253ebd3b883}
     environment:
       MOSS_MODEL_ROOT: ${MOSS_MODEL_ROOT:-}
       SONOVECT_MODELS_OFFLINE: ${SONOVECT_MODELS_OFFLINE:-1}
@@ -103,8 +103,8 @@ services:
   speech-vocal:
     <<: *runtime
     profiles: [vocal-cpu]
-    image: sonovect-vocal:${SONOVECT_VERSION:-0.1.0}
-    build: {context: .., target: vocal-worker, args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
+    image: sonovect-vocal:${SONOVECT_VERSION:-0.1.1}
+    build: {context: .., target: vocal-worker, args: {VERSION: '${SONOVECT_VERSION:-0.1.1}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
     cpus: 2
     mem_limit: 6g
     environment:
@@ -117,8 +117,8 @@ services:
   speech-measurements:
     <<: *runtime
     profiles: [measurements]
-    image: sonovect-measurements:${SONOVECT_VERSION:-0.1.0}
-    build: {context: .., target: measurements-worker, args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
+    image: sonovect-measurements:${SONOVECT_VERSION:-0.1.1}
+    build: {context: .., target: measurements-worker, args: {VERSION: '${SONOVECT_VERSION:-0.1.1}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
     cpus: ${MEASUREMENTS_CPU_LIMIT:-2}
     mem_limit: ${MEASUREMENTS_MEMORY_LIMIT:-2g}
     pids_limit: 256

@@ -358,13 +358,43 @@ async def _pipeline(parts: list[AudioPart], language: str, use_itn: bool, full: 
 
 
 async def _probe(url: str) -> dict[str, Any]:
+    from health_probe import probe
+    return await probe(url)
+
+
+_health_task = None
+
+
+async def _discover():
+    selected = {"segmentation": SEGMENTATION_URL, "qwen3_asr": QWEN_URL}
+    if VOICE_ENABLED: selected["vocal"] = MOSS_URL
+    if SOUND_ENABLED: selected["events"] = EVENTS_URL
+    if MEASUREMENTS_ENABLED: selected["measurements"] = MEASUREMENTS_URL
+    tasks = {name: asyncio.create_task(_probe(url)) for name, url in selected.items()}
     try:
-        async with httpx.AsyncClient(timeout=4, trust_env=False) as client:
-            response = await client.get(f"{url}/health")
-        response.raise_for_status()
-        return {"reachable": True, "payload": response.json()}
-    except Exception as exc:
-        return {"reachable": False, "error": str(exc)}
+        done, pending = await asyncio.wait(tasks.values(), timeout=4.5)
+        for task in pending: task.cancel()
+        await asyncio.gather(*pending, return_exceptions=True)
+        rows = {}
+        for name, task in tasks.items():
+            if task in pending:
+                rows[name] = {"reachable": False, "error": "provider_timeout"}
+            elif task.exception():
+                rows[name] = {"reachable": False, "error": "provider_invalid_response"}
+            else:
+                rows[name] = task.result()
+        return rows
+    finally:
+        for task in tasks.values():
+            if not task.done(): task.cancel()
+        await asyncio.gather(*tasks.values(), return_exceptions=True)
+
+
+async def _discovery():
+    global _health_task
+    if _health_task is None or _health_task.done():
+        _health_task = asyncio.create_task(_discover())
+    return await asyncio.shield(_health_task)
 
 
 @app.get("/live")
@@ -374,10 +404,11 @@ async def live() -> dict[str, str]:
 
 @app.get("/health")
 async def health() -> dict[str, Any]:
-    segmentation, qwen = await asyncio.gather(_probe(SEGMENTATION_URL), _probe(QWEN_URL))
-    moss = await _probe(MOSS_URL) if VOICE_ENABLED else {"enabled": False, "reachable": False}
-    events = await _probe(EVENTS_URL) if SOUND_ENABLED else {"enabled": False, "reachable": False}
-    measurements = await _probe(MEASUREMENTS_URL) if MEASUREMENTS_ENABLED else {"enabled": False, "reachable": False}
+    discovery = await _discovery()
+    disabled = {"enabled": False, "reachable": False}
+    segmentation, qwen = discovery["segmentation"], discovery["qwen3_asr"]
+    moss, events = discovery.get("vocal", disabled), discovery.get("events", disabled)
+    measurements = discovery.get("measurements", disabled)
     required = (segmentation, qwen)
     ready = all(item["reachable"] and item.get("payload", {}).get("status") == "ok" for item in required)
     return {
@@ -393,10 +424,11 @@ async def health() -> dict[str, Any]:
 
 @app.get("/models")
 async def models() -> dict[str, Any]:
-    segmentation, asr = await asyncio.gather(_probe(SEGMENTATION_URL), _probe(QWEN_URL))
-    acoustic = await _probe(MOSS_URL) if VOICE_ENABLED else {"reachable": False}
-    events = await _probe(EVENTS_URL) if SOUND_ENABLED else {"reachable": False}
-    measurement = await _probe(MEASUREMENTS_URL) if MEASUREMENTS_ENABLED else {"reachable": False}
+    discovery = await _discovery()
+    disabled = {"enabled": False, "reachable": False}
+    segmentation, asr = discovery["segmentation"], discovery["qwen3_asr"]
+    acoustic, events = discovery.get("vocal", disabled), discovery.get("events", disabled)
+    measurement = discovery.get("measurements", disabled)
     n = measurement.get("payload", {})
     e = events.get("payload", {})
     s, a, m = (item.get("payload", {}) for item in (segmentation, asr, acoustic))

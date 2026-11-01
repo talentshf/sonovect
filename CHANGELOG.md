@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.1 — 2026-11-01
+
+- Add safe readiness failure codes and authenticated component diagnostics, including GPU device access failures, worker presence and optional-service warnings.
+- Preserve expected readiness failures in CLI, MCP and container checks; support older servers and retain existing 200/503 semantics.
+- Bound and parallelize provider discovery, cap responses, distinguish GPU probe failures and reap timed-out probe processes. Model inference and job recovery behavior are unchanged.
+
+
 ## 0.1.0
 
 First Sonovect release candidate.

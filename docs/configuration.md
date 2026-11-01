@@ -193,3 +193,7 @@ MOSS logs the exception type and a formatted stack on runtime failure, and repor
 Transient SQLite writer contention is retried by the worker instead of stopping the selected runtime. Idle queue/status polling avoids unnecessary writer transactions; expiry and lease decisions are rechecked under the write lock. Busy retries wait at least100ms; normal idle polling keeps `SONOVECT_POLL_SECONDS`. Permanent storage errors still stop the worker. Input/result retention, cancellation and same-job retry keep their existing deadlines.
 
 The Mandarin supplement does not qualify stable emotion recognition: the default FireRed/base path reaches 45% strict accuracy on 480 acted test clips and emits emotions on 14/100 natural non-speech controls. Keep `--voice none` as the dependable starting point and use independent measurements when needed. See [quality](quality.md) before enabling experiments; model size or shorter windows alone do not guarantee improvement.
+
+## Readiness diagnostics
+
+`sonovect ready --details` uses the existing service token to include component checks. `sonovect ready` keeps its JSON summary and exits 1 for an expected not-ready result. No new environment variable or credential is required. The 6-second readiness deadline, 250-millisecond diagnostic database wait, 2-second API report cache and health client's 8-second wait are bounded independently of inference/job timeouts. See [readiness](readiness.md).

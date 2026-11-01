@@ -14,12 +14,12 @@ services:
       options:
         max-size: 10m
         max-file: '3'
-    image: sonovect:${SONOVECT_VERSION:-0.1.0}
+    image: sonovect:${SONOVECT_VERSION:-0.1.1}
     build:
       context: ..
       target: core
       args:
-        VERSION: ${SONOVECT_VERSION:-0.1.0}
+        VERSION: ${SONOVECT_VERSION:-0.1.1}
         REVISION: ${SONOVECT_REVISION:-uncommitted}
     environment:
       SONOVECT_TOKEN: ${SONOVECT_TOKEN:?Set a non-placeholder token}
@@ -64,13 +64,13 @@ services:
       options:
         max-size: 10m
         max-file: '3'
-    image: sonovect-qwen:${SONOVECT_VERSION:-0.1.0}
+    image: sonovect-qwen:${SONOVECT_VERSION:-0.1.1}
     build:
       context: ..
       dockerfile: providers/speech/qwen-worker/Dockerfile
       target: local-worker
       args:
-        VERSION: ${SONOVECT_VERSION:-0.1.0}
+        VERSION: ${SONOVECT_VERSION:-0.1.1}
         REVISION: ${SONOVECT_REVISION:-uncommitted}
     environment:
       SONOVECT_TOKEN: ${SONOVECT_TOKEN:?Set a non-placeholder token}
@@ -192,12 +192,12 @@ services:
     mem_limit: ${ANALYSIS_MEMORY_LIMIT:-6g}
     profiles:
     - analysis
-    image: ${SONOVECT_ANALYSIS_IMAGE:-sonovect-analysis}:${SONOVECT_VERSION:-0.1.0}
+    image: ${SONOVECT_ANALYSIS_IMAGE:-sonovect-analysis}:${SONOVECT_VERSION:-0.1.1}
     build:
       context: ..
       target: ${SONOVECT_ANALYSIS_TARGET:-analysis-worker}
       args:
-        VERSION: ${SONOVECT_VERSION:-0.1.0}
+        VERSION: ${SONOVECT_VERSION:-0.1.1}
         REVISION: ${SONOVECT_REVISION:-uncommitted}
     command:
     - sonovect-runtime
@@ -247,12 +247,12 @@ services:
             - gpu
     profiles:
     - voice
-    image: sonovect-sound:${SONOVECT_VERSION:-0.1.0}
+    image: sonovect-sound:${SONOVECT_VERSION:-0.1.1}
     build:
       context: ..
       dockerfile: providers/speech/moss-worker/Dockerfile
       args:
-        VERSION: ${SONOVECT_VERSION:-0.1.0}
+        VERSION: ${SONOVECT_VERSION:-0.1.1}
         REVISION: ${SONOVECT_REVISION:-uncommitted}
         MOSS_AUDIO_COMMIT: 5cbb1d823937cd5b5de3d8fa4d3a7253ebd3b883
     environment:

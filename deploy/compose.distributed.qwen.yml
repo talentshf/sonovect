@@ -13,8 +13,8 @@ x-runtime: &runtime
 
 x-core: &core
   <<: *runtime
-  image: sonovect:${SONOVECT_VERSION:-0.1.0}
-  build: {context: .., target: core, args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
+  image: sonovect:${SONOVECT_VERSION:-0.1.1}
+  build: {context: .., target: core, args: {VERSION: '${SONOVECT_VERSION:-0.1.1}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
   environment:
     SONOVECT_TOKEN: ${SONOVECT_TOKEN:?Set a non-placeholder token}
     SONOVECT_DATA_DIR: /data
@@ -56,8 +56,8 @@ services:
     depends_on: {worker: {condition: service_healthy}, speech-provider: {condition: service_healthy}}
   worker:
     <<: *core
-    image: sonovect-worker:${SONOVECT_VERSION:-0.1.0}
-    build: {context: .., target: media-worker, args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
+    image: sonovect-worker:${SONOVECT_VERSION:-0.1.1}
+    build: {context: .., target: media-worker, args: {VERSION: '${SONOVECT_VERSION:-0.1.1}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
     command: [sonovect-worker]
     healthcheck:
       test: [CMD, sonovect-health, worker]
@@ -68,8 +68,8 @@ services:
     depends_on: {speech-provider: {condition: service_healthy}}
   speech-provider:
     <<: *runtime
-    image: sonovect-provider:${SONOVECT_VERSION:-0.1.0}
-    build: {context: .., dockerfile: providers/speech/api/Dockerfile, args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
+    image: sonovect-provider:${SONOVECT_VERSION:-0.1.1}
+    build: {context: .., dockerfile: providers/speech/api/Dockerfile, args: {VERSION: '${SONOVECT_VERSION:-0.1.1}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
     environment:
       MIN_TEXT_DENSITY_PER_SPEECH_SECOND: ${MIN_TEXT_DENSITY_PER_SPEECH_SECOND:-0.2}
       SEGMENT_PADDING_MS: ${SEGMENT_PADDING_MS:-1000}
@@ -97,8 +97,8 @@ services:
       speech-asr: {condition: service_healthy}
   speech-segmentation:
     <<: *runtime
-    image: sonovect-segmentation:${SONOVECT_VERSION:-0.1.0}
-    build: {context: .., dockerfile: providers/speech/segmentation-worker/Dockerfile, args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
+    image: sonovect-segmentation:${SONOVECT_VERSION:-0.1.1}
+    build: {context: .., dockerfile: providers/speech/segmentation-worker/Dockerfile, args: {VERSION: '${SONOVECT_VERSION:-0.1.1}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
     environment:
       FIRERED_VAD_ROOT: ${FIRERED_VAD_ROOT:-}
       MODELSCOPE_CACHE: ${MODELSCOPE_CACHE:-/models}
@@ -115,8 +115,8 @@ services:
     volumes: [segmentation-models:/models]
   speech-asr:
     <<: *gpu
-    image: sonovect-asr:${SONOVECT_VERSION:-0.1.0}
-    build: {context: .., dockerfile: providers/speech/qwen-worker/Dockerfile, target: asr-worker, args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
+    image: sonovect-asr:${SONOVECT_VERSION:-0.1.1}
+    build: {context: .., dockerfile: providers/speech/qwen-worker/Dockerfile, target: asr-worker, args: {VERSION: '${SONOVECT_VERSION:-0.1.1}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
     environment:
       SONOVECT_MODELS_OFFLINE: ${SONOVECT_MODELS_OFFLINE:-1}
       GPU_RESERVE_MIB: ${GPU_RESERVE_MIB:-1024}
@@ -140,8 +140,8 @@ services:
   speech-events:
     <<: *runtime
     profiles: [events]
-    image: sonovect-events:${SONOVECT_VERSION:-0.1.0}
-    build: {context: .., dockerfile: providers/speech/event-worker/Dockerfile, args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
+    image: sonovect-events:${SONOVECT_VERSION:-0.1.1}
+    build: {context: .., dockerfile: providers/speech/event-worker/Dockerfile, args: {VERSION: '${SONOVECT_VERSION:-0.1.1}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
     environment:
       SONOVECT_MODELS_OFFLINE: ${SONOVECT_MODELS_OFFLINE:-1}
       SOUND_EVENT_MODEL_ROOT: ${SOUND_EVENT_MODEL_ROOT:-}
@@ -153,11 +153,11 @@ services:
   speech-sound:
     <<: *gpu
     profiles: [voice]
-    image: sonovect-sound:${SONOVECT_VERSION:-0.1.0}
+    image: sonovect-sound:${SONOVECT_VERSION:-0.1.1}
     build:
       context: ..
       dockerfile: providers/speech/moss-worker/Dockerfile
-      args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}', MOSS_AUDIO_COMMIT: 5cbb1d823937cd5b5de3d8fa4d3a7253ebd3b883}
+      args: {VERSION: '${SONOVECT_VERSION:-0.1.1}', REVISION: '${SONOVECT_REVISION:-uncommitted}', MOSS_AUDIO_COMMIT: 5cbb1d823937cd5b5de3d8fa4d3a7253ebd3b883}
     environment:
       MOSS_MODEL_ROOT: ${MOSS_MODEL_ROOT:-}
       SONOVECT_MODELS_OFFLINE: ${SONOVECT_MODELS_OFFLINE:-1}
@@ -179,8 +179,8 @@ services:
   speech-vocal:
     <<: *runtime
     profiles: [vocal-cpu]
-    image: sonovect-vocal:${SONOVECT_VERSION:-0.1.0}
-    build: {context: .., target: vocal-worker, args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
+    image: sonovect-vocal:${SONOVECT_VERSION:-0.1.1}
+    build: {context: .., target: vocal-worker, args: {VERSION: '${SONOVECT_VERSION:-0.1.1}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
     cpus: 2
     mem_limit: 6g
     environment:
@@ -193,8 +193,8 @@ services:
   speech-measurements:
     <<: *runtime
     profiles: [measurements]
-    image: sonovect-measurements:${SONOVECT_VERSION:-0.1.0}
-    build: {context: .., target: measurements-worker, args: {VERSION: '${SONOVECT_VERSION:-0.1.0}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
+    image: sonovect-measurements:${SONOVECT_VERSION:-0.1.1}
+    build: {context: .., target: measurements-worker, args: {VERSION: '${SONOVECT_VERSION:-0.1.1}', REVISION: '${SONOVECT_REVISION:-uncommitted}'}}
     cpus: ${MEASUREMENTS_CPU_LIMIT:-2}
     mem_limit: ${MEASUREMENTS_MEMORY_LIMIT:-2g}
     pids_limit: 256

@@ -3,11 +3,11 @@
 
 [English](README.md) · [完整配置](docs/configuration.zh-CN.md) · [部署](deploy/README.md) · [测试参考](docs/quality.zh-CN.md) · [智能体接入](docs/agent-setup.zh-CN.md) · [交流讨论](https://github.com/talentshf/sonovect/discussions) · [参与贡献](CONTRIBUTING.md#中文)
 
-[![Checks](https://github.com/talentshf/sonovect/actions/workflows/checks.yml/badge.svg)](https://github.com/talentshf/sonovect/actions/workflows/checks.yml) · [Apache-2.0](LICENSE) · Python 3.12+ · [v0.1.0 发行介绍](docs/release-v0.1.0.md)
+[![Checks](https://github.com/talentshf/sonovect/actions/workflows/checks.yml/badge.svg)](https://github.com/talentshf/sonovect/actions/workflows/checks.yml) · [Apache-2.0](LICENSE) · Python 3.12+ · [v0.1.1 发行介绍](docs/release-v0.1.1.md)
 
 # 用自己的硬件，部署可媲美云端的语音识别服务
 
-**Sonovect v0.1.0 是本地部署的 ASR（自动语音识别）组装平台。** 把录音或视频音轨转换为文字、时间戳和可选的匿名说话人，提供 FunASR 结构结果、纯文本和 SRT（字幕）；环境音、人声及数值测量独立输出。通过 HTTP（网络接口）、CLI（命令行）或 MCP（模型上下文协议）接入同一任务流程。
+**Sonovect v0.1.1 是本地部署的 ASR（自动语音识别）组装平台。** 把录音或视频音轨转换为文字、时间戳和可选的匿名说话人，提供 FunASR 结构结果、纯文本和 SRT（字幕）；环境音、人声及数值测量独立输出。通过 HTTP（网络接口）、CLI（命令行）或 MCP（模型上下文协议）接入同一任务流程。
 
 用自己的 CPU（处理器）或 NVIDIA GPU（图形处理器）运行模型，掌握录音、结果与保留期限。准备好权重后，识别在本地完成，无需云端 ASR。已有同素材对照中，本地 Qwen1.7B 的转写质量与所测云端服务相当，中文会议的字符错误更少：
 

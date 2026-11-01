@@ -3,11 +3,11 @@
 
 [中文](README.zh-CN.md) · [Configuration](docs/configuration.md) · [Deploy](deploy/README.md) · [Benchmarks](docs/quality.md) · [Agent setup](docs/agent-setup.md) · [Discussions](https://github.com/talentshf/sonovect/discussions) · [Contribute](CONTRIBUTING.md)
 
-[![Checks](https://github.com/talentshf/sonovect/actions/workflows/checks.yml/badge.svg)](https://github.com/talentshf/sonovect/actions/workflows/checks.yml) · [Apache-2.0](LICENSE) · Python 3.12+ · [v0.1.0 release notes](docs/release-v0.1.0.md)
+[![Checks](https://github.com/talentshf/sonovect/actions/workflows/checks.yml/badge.svg)](https://github.com/talentshf/sonovect/actions/workflows/checks.yml) · [Apache-2.0](LICENSE) · Python 3.12+ · [v0.1.1 release notes](docs/release-v0.1.1.md)
 
 # Cloud-class speech recognition. Your own hardware.
 
-**Sonovect v0.1.0 is a self-hosted ASR assembly platform for recordings and video soundtracks.** Receive transcripts, timestamps and optional anonymous speakers in FunASR-compatible JSON, plain text and SRT. Environmental sounds, experimental vocals and signal measurements are separate results. HTTP, CLI and MCP use the same durable job workflow.
+**Sonovect v0.1.1 is a self-hosted ASR assembly platform for recordings and video soundtracks.** Receive transcripts, timestamps and optional anonymous speakers in FunASR-compatible JSON, plain text and SRT. Environmental sounds, experimental vocals and signal measurements are separate results. HTTP, CLI and MCP use the same durable job workflow.
 
 Run on your CPU or NVIDIA GPU and control media, results and retention. Once model assets are prepared, recognition runs locally without a cloud ASR service. In our same-audio comparison, local Qwen1.7B matched the tested cloud services on English and made fewer character errors in the Mandarin meeting:
 

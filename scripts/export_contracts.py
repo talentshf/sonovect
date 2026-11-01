@@ -8,6 +8,7 @@ from sonovect.api import create_app
 from sonovect.capabilities import describe
 from sonovect.config import Settings
 from sonovect.models import Analysis, Options, Transcript
+from sonovect.readiness import Report, Summary
 
 
 def generate(directory):
@@ -16,7 +17,9 @@ def generate(directory):
     with TemporaryDirectory() as temporary:
         app = create_app(Settings(data_dir=Path(temporary), token="schema-generation-only"))
         values = {"openapi-v1.json": app.openapi(), "job-options.schema.json": Options.model_json_schema(),
-                  "capabilities.example.json": describe(app.state.settings)}
+                  "capabilities.example.json": describe(app.state.settings),
+                  "readiness.schema.json": Report.model_json_schema(by_alias=True),
+                  "readiness-summary.schema.json": Summary.model_json_schema()}
     for name, model in (("funasr-result", Transcript), ("audio-analysis", Analysis)):
         schema = model.model_json_schema()
         values[name + ".schema.json"] = {

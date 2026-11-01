@@ -55,3 +55,7 @@ sonovect export JOB_ID new-result-directory
 数值带算法、窗口、单位和可用状态。音高为 Hz（赫兹），能量为 dBFS（相对数字满幅分贝），不代表校准响度、人物身份、健康或真实情绪。无语音、证据不足可能没有数值或观察；空结果不证明现场没有声音。
 
 通过能力查询读取部署情况，包括 `execution.layout`。紧凑部署使用两个基础容器，CPU附加分析和MOSS分别按需选用；容器分组不改变任务开关、结果层次或重试语义。能力缺失时说明所需的部署选项，不在提交媒体任务时自行启动服务或下载模型。
+
+## 就绪与故障诊断
+
+开始处理前可调用只读 `sonovect_ready`，或 `sonovect ready`；需要组件详情时使用 `details=true`，命令行对应 `sonovect ready --details`。复用现有令牌，无需扩大可读文件目录。报告 `status=not_ready` 是已获取的诊断结果，依据 `code`（错误码）、`component`（故障组件）、`errors`（必要失败）和 `warnings`（可选警告）说明原因；不能据此自动重提任务、重启容器或修改宿主。就绪探测不加载模型，`model_inference_verified=false` 不代表本次已有任务失败。旧服务不支持详情时会返回 `details_supported=false`，只能解释实际提供的信息。

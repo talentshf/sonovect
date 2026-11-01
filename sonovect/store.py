@@ -29,6 +29,14 @@ class StoreBusy(RuntimeError):
     """A transient SQLite writer conflict; the transaction has been rolled back."""
 
 
+def harden_connection(con):
+    con.setconfig(sqlite3.SQLITE_DBCONFIG_DEFENSIVE, True)
+    con.setconfig(sqlite3.SQLITE_DBCONFIG_TRUSTED_SCHEMA, False)
+    con.setconfig(sqlite3.SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION, False)
+    con.setlimit(sqlite3.SQLITE_LIMIT_ATTACHED, 0)
+    con.execute("PRAGMA cell_size_check=ON")
+
+
 class Store:
     def __init__(self, settings):
         self.settings = settings
@@ -60,11 +68,7 @@ class Store:
             # extensions. Enforce that boundary on every connection, including
             # reopened workers; parameter binding alone does not harden a
             # corrupted on-disk schema. This does not repair SQLite itself.
-            con.setconfig(sqlite3.SQLITE_DBCONFIG_DEFENSIVE, True)
-            con.setconfig(sqlite3.SQLITE_DBCONFIG_TRUSTED_SCHEMA, False)
-            con.setconfig(sqlite3.SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION, False)
-            con.setlimit(sqlite3.SQLITE_LIMIT_ATTACHED, 0)
-            con.execute("PRAGMA cell_size_check=ON")
+            harden_connection(con)
             with con:
                 yield con
         except sqlite3.OperationalError as error:
@@ -74,6 +78,36 @@ class Store:
             raise
         finally:
             con.close()
+
+    @staticmethod
+    def worker_snapshot(settings, version, owner=None):
+        """Read existing presence without constructing/mutating a Store."""
+        uri = (settings.data_dir.resolve() / "jobs-v1.sqlite3").as_uri() + "?mode=ro"
+        with closing(sqlite3.connect(uri, uri=True, timeout=.25)) as con:
+            try:
+                harden_connection(con)
+                con.execute("PRAGMA query_only=ON")
+                cutoff = time.time() - settings.worker_stale_seconds
+                row = con.execute("""SELECT count(*),
+                    coalesce(sum(backend=?),0),
+                    coalesce(sum(backend=? AND version=?),0),
+                    coalesce(sum(backend=? AND version=? AND seen>?),0),
+                    coalesce(sum(backend=? AND version=? AND seen>? AND available=1),0)
+                    FROM workers WHERE (? IS NULL OR id=?)""",
+                    (settings.backend, settings.backend, version, settings.backend, version,
+                     cutoff, settings.backend, version, cutoff, owner, owner)).fetchone()
+                code = None
+                for count, failure in zip(row, ("worker_absent", "worker_backend_mismatch",
+                        "worker_version_mismatch", "worker_stale", "worker_unavailable")):
+                    if not count:
+                        code = failure
+                        break
+                return {"available_workers": row[4], "code": code}
+            except sqlite3.OperationalError as error:
+                code = getattr(error, "sqlite_errorcode", None)
+                if isinstance(code, int) and code & 255 in {sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED}:
+                    raise StoreBusy("database_busy") from None
+                raise
 
     def worker_seen(self, owner, backend, version, available):
         now = time.time()

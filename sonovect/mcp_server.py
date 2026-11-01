@@ -19,6 +19,11 @@ def create_server(client=None):
     write = ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=False, openWorldHint=False)
 
     @server.tool(annotations=read)
+    def sonovect_ready(details: StrictBool = False) -> dict[str, Any]:
+        """Read readiness and bounded failure codes without loading models or retrying jobs."""
+        return service.readiness(details=details)
+
+    @server.tool(annotations=read)
     def sonovect_capabilities() -> dict[str, Any]:
         """Read supported models, limits and optional acoustic analysis availability."""
         return service.request("GET", "/v1/capabilities").json()

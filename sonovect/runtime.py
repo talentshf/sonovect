@@ -6,6 +6,7 @@ An unexpected child exit stops the unit, so Compose can restart it without
 leaving an apparently healthy orphan queue worker.
 """
 import argparse
+import asyncio
 from dataclasses import dataclass
 import json
 import logging
@@ -81,6 +82,24 @@ def healthy(port):
         return False
 
 
+async def runtime_report(role):
+    from .readiness import check, fetch_health, report, upstream_code
+    names = {"provider": "speech.provider", "asr": "speech.asr", "segmentation": "speech.segmentation",
+             "events": "analysis.events", "vocal": "analysis.vocal", "measurements": "analysis.measurements"}
+    async def one(spec):
+        value, code = await fetch_health(f"http://127.0.0.1:{spec.port}")
+        if not code:
+            code = upstream_code({"reachable": True, "payload": value})
+        return check(names[spec.name], code=code)
+    specs = processes(role)
+    checks = await asyncio.gather(*(one(spec) for spec in specs))
+    if role == "qwen":
+        from .health import worker_report
+        value = await asyncio.to_thread(worker_report)
+        checks.append(check(value["component"], code=None if value["status"] == "ready" else value["code"]))
+    return report(checks).model_dump(by_alias=True)
+
+
 def terminate(children, grace=60):
     # Ask the queue worker to finish first; helpers remain alive during drain.
     for _, child in reversed(children):
@@ -125,12 +144,12 @@ def main(argv=None):
     parser.add_argument("--check", action="store_true", help="Probe all selected processes without loading models")
     args = parser.parse_args(argv)
     if args.check:
-        if not all(healthy(s.port) for s in processes(args.role)):
-            return 1
-        if args.role == "qwen":
-            from .health import main as worker_health
-            return worker_health(["worker"])
-        return 0
+        try:
+            value = asyncio.run(runtime_report(args.role))
+        except Exception:
+            value = {"status": "not_ready", "component": "service", "code": "diagnostic_internal_error"}
+        print(json.dumps(value))
+        return 0 if value["status"] == "ready" else 1
     logging.basicConfig(level=logging.INFO)
     stopping = threading.Event()
     for sig in (signal.SIGINT, signal.SIGTERM):

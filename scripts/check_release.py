@@ -113,7 +113,7 @@ def main():
     parser.add_argument('--evidence', type=Path)
     parser.add_argument('--images', type=Path)
     parser.add_argument('--revision')
-    parser.add_argument('--version', default='0.1.0')
+    parser.add_argument('--version', default='0.1.1')
     parser.add_argument('--output', type=Path)
     parser.add_argument('--compose-config', type=Path, help='Resolved standard Compose JSON; environment values are never printed')
     args = parser.parse_args()

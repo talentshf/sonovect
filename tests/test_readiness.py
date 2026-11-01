@@ -15,7 +15,9 @@ class ReadinessTests(unittest.TestCase):
         with TemporaryDirectory() as raw:
             settings = Settings(data_dir=Path(raw), token="test-secret", backend="funasr")
             store = Store(settings)
-            with TestClient(create_app(settings)) as api:
+            app = create_app(settings)
+            app.state.readiness.cache_seconds = 0
+            with TestClient(app) as api:
                 self.assertEqual(api.get("/ready").status_code,503)
                 store.worker_seen("one","speech",__version__,True)
                 store.worker_seen("two","funasr","older",True)

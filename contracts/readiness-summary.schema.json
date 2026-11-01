@@ -1,0 +1,97 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "status": {
+      "enum": [
+        "ready",
+        "not_ready"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "scope": {
+      "const": "queue-worker-and-backend-discovery",
+      "default": "queue-worker-and-backend-discovery",
+      "title": "Scope",
+      "type": "string"
+    },
+    "code": {
+      "enum": [
+        "database_busy",
+        "database_unavailable",
+        "decoder_unavailable",
+        "dependency_failed",
+        "diagnostic_internal_error",
+        "gpu_device_access_denied",
+        "gpu_device_missing",
+        "gpu_driver_library_mismatch",
+        "gpu_nvml_unavailable",
+        "gpu_probe_failed",
+        "gpu_probe_invalid_response",
+        "gpu_probe_timeout",
+        "gpu_probe_tool_missing",
+        "model_load_failed",
+        "not_applicable",
+        "not_configured",
+        "probe_timeout",
+        "provider_configuration_mismatch",
+        "provider_degraded",
+        "provider_http_error",
+        "provider_invalid_response",
+        "provider_timeout",
+        "provider_unreachable",
+        "ready",
+        "service_not_ready",
+        "worker_absent",
+        "worker_backend_mismatch",
+        "worker_stale",
+        "worker_unavailable",
+        "worker_version_mismatch"
+      ],
+      "title": "Code",
+      "type": "string"
+    },
+    "component": {
+      "enum": [
+        "analysis.events",
+        "analysis.measurements",
+        "analysis.vocal",
+        "queue.database",
+        "queue.worker",
+        "service",
+        "speech.asr",
+        "speech.configuration",
+        "speech.provider",
+        "speech.segmentation"
+      ],
+      "title": "Component",
+      "type": "string"
+    },
+    "available_workers": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Available Workers"
+    },
+    "model_inference_verified": {
+      "const": false,
+      "default": false,
+      "title": "Model Inference Verified",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "status",
+    "code",
+    "component"
+  ],
+  "title": "Summary",
+  "type": "object"
+}

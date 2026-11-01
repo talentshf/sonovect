@@ -1,6 +1,6 @@
 # Release scope
 
-Sonovect maintains one v0.1.0 product, one `/v1` task API and one `audio-analysis-v1` contract. Public distribution status is recorded in [PUBLICATION.md](../PUBLICATION.md).
+Sonovect maintains one v0.1.1 product, one `/v1` task API and one `audio-analysis-v1` contract. Public distribution status is recorded in [PUBLICATION.md](../PUBLICATION.md).
 
 | Area | Maintained reference |
 | --- | --- |

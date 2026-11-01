@@ -14,6 +14,7 @@ import wave
 
 from fastapi.testclient import TestClient
 import httpx
+from sonovect import __version__
 from sonovect.api import create_app
 from sonovect.cli import main
 from sonovect.client import Client
@@ -53,7 +54,7 @@ class CLIWorkflowTests(unittest.TestCase):
                     self.assertEqual(code, 0, err.getvalue())
                     return out.getvalue()
 
-                self.assertEqual(json.loads(invoke("capabilities"))["version"], "0.1.0")
+                self.assertEqual(json.loads(invoke("capabilities"))["version"], __version__)
                 job = json.loads(invoke("submit", str(audio), "--idempotency-key", "cli-flow"))
                 self.assertEqual(job["status"], "queued")
                 self.assertTrue(worker.run_once())

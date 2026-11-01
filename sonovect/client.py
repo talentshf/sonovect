@@ -35,6 +35,58 @@ class Client:
             raise RuntimeError(f"HTTP {response.status_code}: {code}")
         return response
 
+    def readiness(self, details=False):
+        """Only a validated readiness 503 is a report rather than a request error."""
+        from .readiness import CODES, COMPONENTS, SCOPE, Report, Summary
+        path = "/v1/diagnostics/readiness" if details else "/ready"
+        def read(path):
+            with self.http.stream("GET", path, timeout=8, follow_redirects=False) as response:
+                status = response.status_code
+                if status == 404 and details:
+                    return status, None
+                if status not in {200, 503}:
+                    raise ValueError("invalid_readiness_response")
+                body = bytearray()
+                for chunk in response.iter_bytes():
+                    body.extend(chunk)
+                    if len(body) > 32 * 1024:
+                        raise ValueError("invalid_readiness_response")
+            return status, json.loads(body)
+        try:
+            status, value = read(path)
+            unsupported = details and status == 404
+            if unsupported:
+                status, value = read("/ready")
+            if status not in {200, 503}:
+                raise ValueError("invalid_readiness_response")
+            expected = "ready" if status == 200 else "not_ready"
+            if not isinstance(value, dict) or value.get("scope") != SCOPE or value.get("status") != expected:
+                raise ValueError("invalid_readiness_response")
+            # Older servers had no code, component or failure worker count.
+            value.setdefault("code", "ready" if expected == "ready" else "service_not_ready")
+            value.setdefault("component", "service")
+            value.setdefault("available_workers", None)
+            value.setdefault("model_inference_verified", False)
+            if value["code"] not in CODES or value["component"] not in COMPONENTS:
+                raise ValueError("invalid_readiness_response")
+            if details and not unsupported:
+                value = Report.model_validate(value).model_dump(by_alias=True)
+                for row in value["checks"] + value["errors"] + value["warnings"]:
+                    if row["component"] not in COMPONENTS or (row.get("code") and row["code"] not in CODES):
+                        raise ValueError("invalid_readiness_response")
+                for row in value["checks"]:
+                    if row.get("action") not in {None, "check_container_gpu_access", "check_worker_presence", "check_queue_storage"}:
+                        raise ValueError("invalid_readiness_response")
+            else:
+                value = Summary.model_validate(value).model_dump()
+            if unsupported:
+                value["details_supported"] = False
+            return value
+        except httpx.HTTPError:
+            raise RuntimeError("readiness_request_failed") from None
+        except (ValueError, TypeError, KeyError):
+            raise RuntimeError("invalid_readiness_response") from None
+
     def submit(self, paths, options=None, idempotency_key=None):
         selected = options or Options()
         if not paths:

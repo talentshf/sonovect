@@ -4,6 +4,7 @@ import hmac
 import json
 import os
 import tempfile
+from contextlib import asynccontextmanager
 from typing import Annotated, Literal
 
 import httpx
@@ -21,15 +22,23 @@ from .models import Options, Transcript, Analysis
 from .limits import BodyLimit, BearerGate
 from .results import as_srt, as_text
 from .store import Conflict, Store, encoded
+from .readiness import Readiness, Report, Summary, summary
 
 
 def create_app(settings=None):
     settings = settings or Settings.from_env()
     store = Store(settings)
+    readiness = Readiness(settings)
+    @asynccontextmanager
+    async def lifespan(app):
+        yield
+        await readiness.close()
     app = FastAPI(title="Sonovect", version=__version__,
+                  lifespan=lifespan,
                   description="Self-hosted ASR for audio and video soundtracks, FunASR speech results and separate sound analysis.")
     app.state.store = store
     app.state.settings = settings
+    app.state.readiness = readiness
     app.add_middleware(BodyLimit, maximum=settings.max_upload_bytes + settings.max_files * 8192 + 20000)
 
     # Last added user middleware runs first: reject before body limits or parsing.
@@ -63,32 +72,15 @@ def create_app(settings=None):
     def health():
         return {"status": "ok", "version": __version__}
 
-    @app.get("/ready")
-    def ready():
-        try:
-            with store.connect() as con:
-                con.execute("SELECT 1").fetchone()
-            workers = store.available_workers(__version__)
-            if not workers:
-                raise ValueError("worker_unavailable")
-            if settings.backend == "speech":
-                with httpx.Client(timeout=5, trust_env=False) as client:
-                    response = client.get(settings.provider_url + "/health")
-                    response.raise_for_status()
-                    discovery = response.json()
-                    if discovery.get("status") not in {"ok", "ready", "healthy"}:
-                        raise ValueError("provider_unready")
-                    if "sound_analysis" in discovery and discovery["sound_analysis"] != settings.sound_enabled:
-                        raise ValueError("provider_capability_configuration_mismatch")
-                    if discovery.get("voice_analysis", False) != settings.voice_enabled:
-                        raise ValueError("provider_voice_configuration_mismatch")
-                    if discovery.get("voice_measurements", False) != settings.measurements_enabled:
-                        raise ValueError("provider_measurements_configuration_mismatch")
-                    if settings.voice_enabled and discovery.get("voice_backend", "moss") != settings.voice_backend:
-                        raise ValueError("provider_voice_backend_mismatch")
-            return {"status": "ready", "scope": "queue-worker-and-backend-discovery", "available_workers": workers, "model_inference_verified": False}
-        except Exception:
-            return JSONResponse({"status": "not_ready", "scope": "queue-worker-and-backend-discovery"}, status_code=503)
+    @app.get("/ready", response_model=Summary, responses={503: {"model": Summary}})
+    async def ready():
+        value = await readiness.get()
+        return JSONResponse(summary(value), status_code=200 if value["status"] == "ready" else 503)
+
+    @router.get("/diagnostics/readiness", response_model=Report, responses={503: {"model": Report}})
+    async def readiness_details():
+        value = await readiness.get()
+        return JSONResponse(value, status_code=200 if value["status"] == "ready" else 503)
 
     @router.get("/capabilities")
     def capabilities():

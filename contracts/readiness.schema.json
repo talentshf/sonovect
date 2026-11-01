@@ -1,0 +1,313 @@
+{
+  "$defs": {
+    "Check": {
+      "additionalProperties": false,
+      "properties": {
+        "component": {
+          "enum": [
+            "analysis.events",
+            "analysis.measurements",
+            "analysis.vocal",
+            "queue.database",
+            "queue.worker",
+            "service",
+            "speech.asr",
+            "speech.configuration",
+            "speech.provider",
+            "speech.segmentation"
+          ],
+          "title": "Component",
+          "type": "string"
+        },
+        "required": {
+          "title": "Required",
+          "type": "boolean"
+        },
+        "status": {
+          "enum": [
+            "ok",
+            "failed",
+            "skipped"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "code": {
+          "anyOf": [
+            {
+              "enum": [
+                "database_busy",
+                "database_unavailable",
+                "decoder_unavailable",
+                "dependency_failed",
+                "diagnostic_internal_error",
+                "gpu_device_access_denied",
+                "gpu_device_missing",
+                "gpu_driver_library_mismatch",
+                "gpu_nvml_unavailable",
+                "gpu_probe_failed",
+                "gpu_probe_invalid_response",
+                "gpu_probe_timeout",
+                "gpu_probe_tool_missing",
+                "model_load_failed",
+                "not_applicable",
+                "not_configured",
+                "probe_timeout",
+                "provider_configuration_mismatch",
+                "provider_degraded",
+                "provider_http_error",
+                "provider_invalid_response",
+                "provider_timeout",
+                "provider_unreachable",
+                "ready",
+                "service_not_ready",
+                "worker_absent",
+                "worker_backend_mismatch",
+                "worker_stale",
+                "worker_unavailable",
+                "worker_version_mismatch"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Code"
+        },
+        "action": {
+          "anyOf": [
+            {
+              "enum": [
+                "check_container_gpu_access",
+                "check_worker_presence",
+                "check_queue_storage"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Action"
+        },
+        "elapsed_ms": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Elapsed Ms",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "component",
+        "required",
+        "status"
+      ],
+      "title": "Check",
+      "type": "object"
+    },
+    "Issue": {
+      "additionalProperties": false,
+      "properties": {
+        "component": {
+          "enum": [
+            "analysis.events",
+            "analysis.measurements",
+            "analysis.vocal",
+            "queue.database",
+            "queue.worker",
+            "service",
+            "speech.asr",
+            "speech.configuration",
+            "speech.provider",
+            "speech.segmentation"
+          ],
+          "title": "Component",
+          "type": "string"
+        },
+        "code": {
+          "enum": [
+            "database_busy",
+            "database_unavailable",
+            "decoder_unavailable",
+            "dependency_failed",
+            "diagnostic_internal_error",
+            "gpu_device_access_denied",
+            "gpu_device_missing",
+            "gpu_driver_library_mismatch",
+            "gpu_nvml_unavailable",
+            "gpu_probe_failed",
+            "gpu_probe_invalid_response",
+            "gpu_probe_timeout",
+            "gpu_probe_tool_missing",
+            "model_load_failed",
+            "not_applicable",
+            "not_configured",
+            "probe_timeout",
+            "provider_configuration_mismatch",
+            "provider_degraded",
+            "provider_http_error",
+            "provider_invalid_response",
+            "provider_timeout",
+            "provider_unreachable",
+            "ready",
+            "service_not_ready",
+            "worker_absent",
+            "worker_backend_mismatch",
+            "worker_stale",
+            "worker_unavailable",
+            "worker_version_mismatch"
+          ],
+          "title": "Code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "component",
+        "code"
+      ],
+      "title": "Issue",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "status": {
+      "enum": [
+        "ready",
+        "not_ready"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "scope": {
+      "const": "queue-worker-and-backend-discovery",
+      "default": "queue-worker-and-backend-discovery",
+      "title": "Scope",
+      "type": "string"
+    },
+    "code": {
+      "enum": [
+        "database_busy",
+        "database_unavailable",
+        "decoder_unavailable",
+        "dependency_failed",
+        "diagnostic_internal_error",
+        "gpu_device_access_denied",
+        "gpu_device_missing",
+        "gpu_driver_library_mismatch",
+        "gpu_nvml_unavailable",
+        "gpu_probe_failed",
+        "gpu_probe_invalid_response",
+        "gpu_probe_timeout",
+        "gpu_probe_tool_missing",
+        "model_load_failed",
+        "not_applicable",
+        "not_configured",
+        "probe_timeout",
+        "provider_configuration_mismatch",
+        "provider_degraded",
+        "provider_http_error",
+        "provider_invalid_response",
+        "provider_timeout",
+        "provider_unreachable",
+        "ready",
+        "service_not_ready",
+        "worker_absent",
+        "worker_backend_mismatch",
+        "worker_stale",
+        "worker_unavailable",
+        "worker_version_mismatch"
+      ],
+      "title": "Code",
+      "type": "string"
+    },
+    "component": {
+      "enum": [
+        "analysis.events",
+        "analysis.measurements",
+        "analysis.vocal",
+        "queue.database",
+        "queue.worker",
+        "service",
+        "speech.asr",
+        "speech.configuration",
+        "speech.provider",
+        "speech.segmentation"
+      ],
+      "title": "Component",
+      "type": "string"
+    },
+    "available_workers": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Available Workers"
+    },
+    "model_inference_verified": {
+      "const": false,
+      "default": false,
+      "title": "Model Inference Verified",
+      "type": "boolean"
+    },
+    "schema": {
+      "const": "sonovect.readiness/v1",
+      "default": "sonovect.readiness/v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "observed_at": {
+      "maxLength": 40,
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T[0-9:.+\\-]+Z?$",
+      "title": "Observed At",
+      "type": "string"
+    },
+    "cache_age_ms": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Cache Age Ms",
+      "type": "integer"
+    },
+    "checks": {
+      "items": {
+        "$ref": "#/$defs/Check"
+      },
+      "title": "Checks",
+      "type": "array"
+    },
+    "errors": {
+      "items": {
+        "$ref": "#/$defs/Issue"
+      },
+      "title": "Errors",
+      "type": "array"
+    },
+    "warnings": {
+      "items": {
+        "$ref": "#/$defs/Issue"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "status",
+    "code",
+    "component",
+    "observed_at",
+    "checks",
+    "errors",
+    "warnings"
+  ],
+  "title": "Report",
+  "type": "object"
+}
