@@ -1,6 +1,6 @@
 # 使用与结果读取
 
-Sonovect v0.1.0。先配置服务入口 `SONOVECT_URL`，认证二选一：令牌环境变量或仅含令牌的 `SONOVECT_TOKEN_FILE`；客户端不自动读取部署配置。先用 `sonovect capabilities` 检查能力。
+Sonovect v0.1.1。先配置服务入口 `SONOVECT_URL`，认证二选一：令牌环境变量或仅含令牌的 `SONOVECT_TOKEN_FILE`；客户端不自动读取部署配置。先用 `sonovect capabilities` 检查能力。
 
 | 选项 | 默认 | 作用 |
 | --- | --- | --- |

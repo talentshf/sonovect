@@ -1,8 +1,8 @@
 # Releases / 发行
 
-Sonovect is open source under Apache-2.0. Get **v0.1.0** from the [GitHub release](https://github.com/talentshf/sonovect/releases/tag/v0.1.0), or clone the [repository](https://github.com/talentshf/sonovect). The release provides source, a clean Git bundle, the Python client, a source distribution and the standalone agent skill. Verify downloaded files with the attached `SHA256SUMS`.
+Sonovect is open source under Apache-2.0. Get **v0.1.1** from the [GitHub release](https://github.com/talentshf/sonovect/releases/tag/v0.1.1), or clone the [repository](https://github.com/talentshf/sonovect). The release provides source, a clean Git bundle, the Python client, a source distribution and the standalone agent skill. Verify downloaded files with the attached `SHA256SUMS`.
 
-Sonovect 已按 Apache-2.0 开源。通过 [v0.1.0 发行页](https://github.com/talentshf/sonovect/releases/tag/v0.1.0)下载源码、干净 Git（版本管理）历史包、Python 客户端、源码安装包及独立智能体技能；附件使用 `SHA256SUMS` 校验。也可以直接克隆项目仓库。
+Sonovect 已按 Apache-2.0 开源。通过 [v0.1.1 发行页](https://github.com/talentshf/sonovect/releases/tag/v0.1.1)下载源码、干净 Git（版本管理）历史包、Python 客户端、源码安装包及独立智能体技能；附件使用 `SHA256SUMS` 校验。也可以直接克隆项目仓库。
 
 Container recipes build locally. Model weights are downloaded separately according to your selections; this release does not distribute prebuilt registry images or publish a package to PyPI. Follow [deployment](deploy/README.md) and [agent setup](docs/agent-setup.md).
 
@@ -20,4 +20,6 @@ The product tree includes supported contracts, deployment recipes, dated referen
 
 当前产品、接口、部署说明、测试参考和技能随源码维护。私有管理记录、旧开发历史、凭据、媒体和权重不进入发行。中文情绪继续实验，各模型来源和上游声明按实保留。
 
-[Release notes / 发行介绍](docs/release-v0.1.0.md) · [Scope / 发行范围](docs/release-readiness.md) · [Quality / 测试参考](docs/quality.md) · [Component sources / 组件来源](docs/model-licenses.md)
+[Release notes / 发行介绍](docs/release-v0.1.1.md) · [Scope / 发行范围](docs/release-readiness.md) · [Quality / 测试参考](docs/quality.md) · [Component sources / 组件来源](docs/model-licenses.md)
+
+The original [v0.1.0 release](https://github.com/talentshf/sonovect/releases/tag/v0.1.0) and its tag remain unchanged.

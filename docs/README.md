@@ -1,6 +1,6 @@
 # Documentation
 
-Sonovect v0.1.0 has one maintained product version and one analysis contract.
+Sonovect v0.1.1 has one maintained product version and one analysis contract.
 
 | Need | Reference |
 | --- | --- |
@@ -19,4 +19,4 @@ Sonovect v0.1.0 has one maintained product version and one analysis contract.
 
 Private planning, retired development versions and raw acceptance materials are maintained outside this product repository. No machine-specific credentials, source locations or business workflows are required by the product or its skill.
 
-[Product introduction / 产品介绍](positioning.md) · [v0.1.0 release notes / 发行介绍](release-v0.1.0.md)
+[Product introduction / 产品介绍](positioning.md) · [v0.1.1 release notes / 发行介绍](release-v0.1.1.md)

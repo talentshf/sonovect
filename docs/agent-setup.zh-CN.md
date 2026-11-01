@@ -2,7 +2,7 @@
 
 [English](agent-setup.md) · [MCP工具参考](mcp.md)
 
-服务端运行模型；智能体所在机器安装轻量客户端连接服务；skill（技能）指导智能体如何调用。客户端需要 Python3.12+，无需显卡或模型权重。Sonovect v0.1.0 提供标准 MCP（模型上下文协议）服务和可独立安装的技能目录／压缩包，当前没有特定插件市场的一键安装包。
+服务端运行模型；智能体所在机器安装轻量客户端连接服务；skill（技能）指导智能体如何调用。客户端需要 Python3.12+，无需显卡或模型权重。Sonovect v0.1.1 提供标准 MCP（模型上下文协议）服务和可独立安装的技能目录／压缩包，当前没有特定插件市场的一键安装包。
 
 ## 1. 安装并连接客户端
 
@@ -16,7 +16,7 @@ sonovect --version
 也可以安装提供的 wheel（Python安装包），同时启用 MCP 依赖：
 
 ```sh
-python -m pip install './sonovect-0.1.0-py3-none-any.whl[mcp]'
+python -m pip install './sonovect-0.1.1-py3-none-any.whl[mcp]'
 ```
 
 使用已部署服务的 HTTP（网络接口）地址，并由部署者提供一个**仅含服务令牌**的受保护文件。以下路径均需替换为**客户端机器**上的实际路径。令牌必须与部署配置的 `SONOVECT_TOKEN` 一致；客户端不会自动读取 `deploy/.env`，也不能把整个配置文件当令牌文件。
@@ -66,7 +66,7 @@ SONOVECT_MCP_INPUT_ROOT = "/path/to/audio"
 
 ## 3. 安装技能
 
-把源码里的整个 `skills/sonovect` 目录复制到智能体支持的技能目录。独立的 `sonovect-0.1.0-skill.zip` 解压后也是同一 `sonovect/` 目录，须保留其中的 `SKILL.md`、`references/usage.md` 和 `agents/openai.yaml`。只安装 Python 包不会自动注册技能。
+把源码里的整个 `skills/sonovect` 目录复制到智能体支持的技能目录。独立的 `sonovect-0.1.1-skill.zip` 解压后也是同一 `sonovect/` 目录，须保留其中的 `SKILL.md`、`references/usage.md` 和 `agents/openai.yaml`。只安装 Python 包不会自动注册技能。
 
 Codex 首次安装到用户技能目录，可以从源码目录执行：
 

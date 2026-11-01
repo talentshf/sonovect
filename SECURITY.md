@@ -26,7 +26,7 @@ and no-new-privileges. They are not system-login or host-administration images.
 
 ## Current dependency and OS checks
 
-Sonovect v0.1.0 uses reviewed role-specific Linux amd64/Python3.12 locks: Torch2.14.1
+Sonovect v0.1.1 uses reviewed role-specific Linux amd64/Python3.12 locks: Torch2.14.1
 (CPU or official cu132), CPU TorchAudio2.11.0, Transformers5.20.2,
 FunASR1.4.16 and ModelScope1.40.2. MOSS is an explicitly identified derived
 inference package. Demo UI frameworks are not installed by maintained recipes.
