@@ -7,7 +7,7 @@ import time
 from typing import Literal
 
 import httpx
-from pydantic import BaseModel, ConfigDict, Field, StrictInt
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, model_validator
 
 from . import __version__
 from .store import Store, StoreBusy
@@ -40,6 +40,12 @@ class Summary(BaseModel):
     component: Component
     available_workers: StrictInt | None = Field(default=None, ge=0)
     model_inference_verified: Literal[False] = False
+
+    @model_validator(mode="after")
+    def consistent_status(self):
+        if (self.status == "ready") != (self.code == "ready"):
+            raise ValueError("inconsistent_readiness_status")
+        return self
 
 
 class Check(BaseModel):
@@ -194,6 +200,8 @@ class Readiness:
                 try:
                     if self._db_task is None or self._db_task.done():
                         self._db_task = asyncio.create_task(asyncio.to_thread(Store.worker_snapshot, self.settings, __version__))
+                        # A timed-out waiter must not leave a raw background exception in logs.
+                        self._db_task.add_done_callback(lambda task: None if task.cancelled() else task.exception())
                     snapshot = await asyncio.shield(self._db_task)
                     workers = snapshot["available_workers"]
                     checks.extend([check("queue.database", elapsed_ms=int((time.monotonic()-started)*1000)),

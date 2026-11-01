@@ -90,11 +90,13 @@ class DiagnosticsTests(unittest.TestCase):
                 self.assertFalse(value['details_supported'])
                 self.assertEqual(value['status'], body['status'])
             finally:with_client.close()
-        for status, body in [(401, {}), (503, {'message':'private-fixture-value'}), (503, {'status':'ready','scope':SCOPE})]:
+        for status, body in [(401, {}), (503, {'message':'private-fixture-value'}), (503, {'status':'ready','scope':SCOPE}),
+                (200, {'status':'ready','scope':SCOPE,'code':'gpu_device_access_denied','component':'speech.asr'})]:
             c = Client(token='test-secret', transport=httpx.MockTransport(lambda request:httpx.Response(status,json=body)))
             try:
                 with self.assertRaisesRegex(RuntimeError, '^invalid_readiness_response$'):c.readiness()
-                with self.assertRaises(RuntimeError):c.request('GET','/ready')
+                if status >= 400:
+                    with self.assertRaises(RuntimeError):c.request('GET','/ready')
             finally:c.close()
 
     def test_cli_failure_is_structured_stdout_and_nonzero_exit(self):
