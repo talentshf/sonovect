@@ -2,6 +2,8 @@
 
 API version: `/v1`. Product version:0.1.1. Authentication is an operator-supplied bearer token. An installation is one trust domain: one token can access all its jobs. Do not expose model-service ports.
 
+An opt-in [DashScope-compatible asynchronous file interface](filetrans-compatibility.md) provides `/api/v1` submission, polling and signed results over the same task store. It is a single-file protocol subset; enable it explicitly with the documented controlled input hosts and persistent signing key.
+
 | Method | Path | Behavior |
 | --- | --- | --- |
 | GET | `/health` | Process liveness |

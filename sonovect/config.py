@@ -33,6 +33,13 @@ class Settings:
     voice_backend: str = "moss"
     measurements_enabled: bool = False
     measurements_url: str = ""
+    compat_model: str = ""
+    compat_public_url: str = ""
+    compat_signing_key_file: Path | None = None
+    compat_input_hosts: tuple[str, ...] = ()
+    compat_download_timeout: float = 300
+    compat_link_seconds: int = 3600
+    compat_max_queued: int = 32
 
     def __post_init__(self):
         if not self.token or self.token in {"change-me", "REPLACE_ME", "development-token"}:
@@ -45,9 +52,19 @@ class Settings:
             raise ValueError("SONOVECT_VOICE_BACKEND must be moss or emotion2vec")
         limits = (self.max_upload_bytes, self.max_files, self.input_ttl_hours,
                self.result_ttl_hours, self.lease_seconds, self.poll_seconds, self.provider_timeout,
-               self.worker_stale_seconds, self.max_media_seconds, self.media_timeout)
+               self.worker_stale_seconds, self.max_media_seconds, self.media_timeout,
+               self.compat_download_timeout, self.compat_link_seconds, self.compat_max_queued)
         if any(not math.isfinite(value) or value <= 0 for value in limits):
             raise ValueError("Limits, retention and timeout values must be positive")
+        if self.compat_model:
+            from urllib.parse import urlsplit
+            import re
+            p = urlsplit(self.compat_public_url)
+            if (p.scheme != "https" or not p.hostname or p.port not in (None, 443)
+                    or p.username or p.password or p.query or p.fragment or ".." in p.path.split("/")
+                    or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_./:-]{0,199}", self.compat_model)
+                    or not self.compat_signing_key_file or not self.compat_input_hosts):
+                raise ValueError("Compatible ASR requires model, HTTPS public URL, signing key file and input hosts")
 
     @classmethod
     def from_env(cls):
@@ -78,4 +95,12 @@ class Settings:
             measurements_url=os.getenv(p + "MEASUREMENTS_URL", "").rstrip("/"),
             sound_url=os.getenv(p + "SOUND_URL", "").rstrip("/"),
             sound_enabled=os.getenv(p + "SOUND_ENABLED", "true").lower() in {"true", "1", "yes"},
+            compat_model=os.getenv(p + "COMPAT_MODEL", ""),
+            compat_public_url=os.getenv(p + "COMPAT_PUBLIC_URL", "").rstrip("/"),
+            compat_signing_key_file=Path(os.environ[p + "COMPAT_SIGNING_KEY_FILE"]).expanduser()
+                if os.getenv(p + "COMPAT_SIGNING_KEY_FILE") else None,
+            compat_input_hosts=tuple(v.strip().lower() for v in os.getenv(p + "COMPAT_INPUT_HOSTS", "").split(",") if v.strip()),
+            compat_download_timeout=float(os.getenv(p + "COMPAT_DOWNLOAD_TIMEOUT", "300")),
+            compat_link_seconds=int(os.getenv(p + "COMPAT_LINK_SECONDS", "3600")),
+            compat_max_queued=int(os.getenv(p + "COMPAT_MAX_QUEUED", "32")),
         )

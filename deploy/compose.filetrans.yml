@@ -1,0 +1,21 @@
+# Opt-in overlay; combine with exactly one complete base deployment recipe.
+x-filetrans-environment: &filetrans-environment
+  SONOVECT_COMPAT_MODEL: ${SONOVECT_COMPAT_MODEL:?Select one stable served model ID}
+  SONOVECT_COMPAT_PUBLIC_URL: ${SONOVECT_COMPAT_PUBLIC_URL:?Set the public HTTPS service origin}
+  SONOVECT_COMPAT_INPUT_HOSTS: ${SONOVECT_COMPAT_INPUT_HOSTS:?Set exact public HTTPS input hosts}
+  SONOVECT_COMPAT_SIGNING_KEY_FILE: /run/secrets/filetrans-signing-key
+  SONOVECT_COMPAT_DOWNLOAD_TIMEOUT: ${SONOVECT_COMPAT_DOWNLOAD_TIMEOUT:-300}
+  SONOVECT_COMPAT_LINK_SECONDS: ${SONOVECT_COMPAT_LINK_SECONDS:-3600}
+  SONOVECT_COMPAT_MAX_QUEUED: ${SONOVECT_COMPAT_MAX_QUEUED:-32}
+services:
+  api:
+    environment: *filetrans-environment
+    secrets:
+    - filetrans-signing-key
+  worker:
+    environment: *filetrans-environment
+    secrets:
+    - filetrans-signing-key
+secrets:
+  filetrans-signing-key:
+    file: ${SONOVECT_COMPAT_SIGNING_KEY_HOST_FILE:?Select an existing restricted signing key file}

@@ -125,16 +125,21 @@ class DiagnosticsTests(unittest.TestCase):
 
 class AsyncDiagnosticsTests(unittest.IsolatedAsyncioTestCase):
     async def test_timed_out_database_probe_is_not_duplicated_while_pending(self):
+        release = threading.Event()
         def slow(settings, version):
-            time.sleep(.18)
+            # Keep the probe pending until the assertions finish, including on
+            # a busy host where three deadlines may exceed a short fixed sleep.
+            release.wait(5)
             return {'available_workers':1,'code':None}
         service=Readiness(Settings(token='test-secret'),cache_seconds=0,deadline=.03)
-        with patch('sonovect.readiness.Store.worker_snapshot',side_effect=slow) as probe:
-            for _ in range(3):
-                self.assertEqual((await service.get())['code'],'probe_timeout')
-            self.assertEqual(probe.call_count,1)
-            await service._db_task
-        await service.close()
+        try:
+            with patch('sonovect.readiness.Store.worker_snapshot',side_effect=slow) as probe:
+                for _ in range(3):
+                    self.assertEqual((await service.get())['code'],'probe_timeout')
+                self.assertEqual(probe.call_count,1)
+        finally:
+            release.set()
+            await service.close()
 
     async def test_concurrent_requests_share_collection_and_cache_expires(self):
         with TemporaryDirectory() as raw:

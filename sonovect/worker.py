@@ -12,15 +12,18 @@ from .config import Settings
 from .media import MediaError, decoder_available, prepare_media
 from .store import Store, StoreBusy
 from . import __version__
+from .remote_input import download_source
+from .recognition import speech_evidence
 
 logger = logging.getLogger(__name__)
 
 
 class Worker:
-    def __init__(self, settings, backend=None):
+    def __init__(self, settings, backend=None, downloader=download_source):
         self.settings = settings
         self.store = Store(settings)
         self.backend = backend or build_backend(settings)
+        self.downloader = downloader
         self.owner = uuid.uuid4().hex
         self._next_prune = 0.0
 
@@ -89,7 +92,7 @@ class Worker:
                     logger.warning("Lease renewal failed for job %s", job["id"])
         heartbeat = threading.Thread(target=renew, daemon=True)
         heartbeat.start()
-        results, analysis = [], []
+        results, analysis, evidence = [], [], []
         sources = job["sources"]
         try:
             for source in sources:
@@ -97,6 +100,11 @@ class Worker:
                 if current["state"] != "running" or current["lease_owner"] != self.owner:
                     break
                 try:
+                    if job["protocol"]:
+                        if job["engine"]["identity"] != self.backend.identity():
+                            raise MediaError("engine_configuration_mismatch")
+                        source.update(self.downloader(self.settings, source))
+                        self.store.materialized(job["id"], self.owner, sources)
                     original = Path(source["path"])
                     stage_started = time.monotonic()
                     with prepare_media(original, job["options"], self.settings, scratch_dir=original.parent) as (path, metadata):
@@ -104,7 +112,14 @@ class Worker:
                         source["media"] = metadata
                         stage_started = time.monotonic()
                         try:
-                            result, extra = self.backend.process(path, source["key"], job["options"])
+                            recognition = self.backend.process(path, source["key"], job["options"])
+                            result, extra = recognition
+                            if job["protocol"]:
+                                if job["engine"]["identity"] != self.backend.identity():
+                                    raise MediaError("engine_configuration_mismatch")
+                                if not result["text"].strip():
+                                    raise MediaError("ASR_RESPONSE_HAVE_NO_WORDS")
+                                evidence.append(getattr(recognition, "evidence", None) or speech_evidence({}, result))
                         finally:
                             processing_seconds += time.monotonic() - stage_started
                     results.append(result)
@@ -120,7 +135,8 @@ class Worker:
             states = [s["status"] for s in sources]
             state = "succeeded" if all(s == "succeeded" for s in states) else "partial" if results else "failed"
             self.store.finish(job["id"], self.owner, state, sources, results, analysis,
-                              "processing_failed" if state == "failed" else None)
+                              (sources[0].get("error") if job["protocol"] else "processing_failed") if state == "failed" else None,
+                              evidence=evidence if job["protocol"] else None)
         finally:
             stop.set()
             heartbeat.join()

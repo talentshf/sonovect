@@ -1,5 +1,7 @@
 # 配置与模型选型
 
+可选的[标准异步文件转写接口](filetrans-compatibility.zh-CN.md)默认关闭。`SONOVECT_COMPAT_MODEL` 为单个模型名，`SONOVECT_COMPAT_PUBLIC_URL` 为对外 HTTPS 加密地址，`SONOVECT_COMPAT_INPUT_HOSTS` 为逗号分隔的输入域名精确列表；三项均默认不设置。`SONOVECT_COMPAT_SIGNING_KEY_FILE` 为进程内独立持久签名文件，`SONOVECT_COMPAT_SIGNING_KEY_HOST_FILE` 为可选容器覆盖方案所用的宿主文件。`SONOVECT_COMPAT_DOWNLOAD_TIMEOUT` 默认 300 秒，`SONOVECT_COMPAT_LINK_SECONDS` 默认 3600 秒，`SONOVECT_COMPAT_MAX_QUEUED` 默认 32 个排队及处理中任务。详细权限、组合部署和恢复规则见接口说明。
+
 Sonovect v0.1.1。部署时选组件，任务时选是否运行；默认任务只转写。配置生成器不安装宿主依赖、不启动服务、不覆盖已有文件；凭据仅写入权限0600的新配置，不打印。
 
 ## 推荐组合

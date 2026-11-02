@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Add an opt-in single-file DashScope-compatible asynchronous interface with controlled HTTPS inputs, durable engine-bound tasks, signed results and preserved word evidence. Native speech and analysis results remain separate.
+- Add a deployment overlay and report pinned segmentation model revisions for compatible admission. No runtime upgrade or public network route is implied by these source changes.
+
 ## 0.1.1 — 2026-11-01
 
 - Update hydra-core to 1.3.8 for the current upstream advisory and qualify the new gettext locale limitation with fixed C locale and checked image evidence.
