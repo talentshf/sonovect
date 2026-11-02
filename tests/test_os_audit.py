@@ -102,6 +102,52 @@ class OSAuditTests(unittest.TestCase):
         self.assertTrue(module.classify(audit,facts)['unresolved_lower_severity'])
 
 
+class NewRuntimeBoundaryTests(unittest.TestCase):
+    fixture = OSAuditTests.fixture
+
+    def test_high_sqlite_finding_requires_exact_caller_and_actual_connection_defenses(self):
+        cid = 'CVE-2026-119373'
+        audit, facts = self.fixture(cid, 'sqlite3', '3.53.4-2~sonovect13.1')
+        proof = module.POLICY[cid]['proof']
+        profile = {'profile': 'fixed-server-store', 'caller_files': copy.deepcopy(proof['caller_files']),
+                   'connection': {'defensive': True, 'trusted_schema': False, 'load_extension': False,
+                                  'attached_limit': 0, 'cell_size_check': 1}}
+        facts['residual'] = {'uid': 10001, 'effective_capabilities': '0000000000000000', 'no_new_privileges': '1',
+                             'sqlite_store': profile, 'libraries': {'libsqlite3.so.0': {'sha256': proof['library_sha256']}}}
+        accepted = module.classify(audit, facts)
+        self.assertEqual(accepted['raw_matches'], 1)
+        self.assertEqual(accepted['reviewed_high_critical'][0]['status'], 'reviewed-service-boundary')
+        self.assertFalse(accepted['unresolved_high_critical'])
+        for key, value in [('defensive', False), ('trusted_schema', True), ('load_extension', True),
+                           ('attached_limit', 1), ('cell_size_check', 0)]:
+            bad = copy.deepcopy(facts)
+            bad['residual']['sqlite_store']['connection'][key] = value
+            self.assertTrue(module.classify(audit, bad)['unresolved_high_critical'], key)
+        for key in proof['caller_files']:
+            bad = copy.deepcopy(facts)
+            bad['residual']['sqlite_store']['caller_files'][key] = 'changed'
+            self.assertTrue(module.classify(audit, bad)['unresolved_high_critical'], key)
+        for key in ('sqlite_store', 'libraries', 'uid', 'no_new_privileges'):
+            bad = copy.deepcopy(facts); del bad['residual'][key]
+            self.assertTrue(module.classify(audit, bad)['unresolved_high_critical'], key)
+
+    def test_cpp_header_review_also_requires_actual_exports_and_exact_library(self):
+        cid = 'CVE-2026-114690'
+        audit, facts = self.fixture(cid, 'gcc-14', '14.2.0-19')
+        audit['Results'][0]['Vulnerabilities'][0]['Severity'] = 'MEDIUM'
+        proof = module.POLICY[cid]['proof']
+        fields = ('parallel_algorithm_exports', 'vector_bool_exports', 'bitset_exports')
+        facts['residual'] = {'compiler_headers_present': False, 'cpp_templates': {key: [] for key in fields},
+                             'libraries': {'libstdc++.so.6': {'sha256': proof['library_sha256']}}}
+        self.assertFalse(module.classify(audit, facts)['unresolved_lower_severity'])
+        for key in fields:
+            bad = copy.deepcopy(facts); bad['residual']['cpp_templates'][key] = ['affected_export']
+            self.assertTrue(module.classify(audit, bad)['unresolved_lower_severity'])
+        for key in ('cpp_templates', 'libraries', 'compiler_headers_present'):
+            bad = copy.deepcopy(facts); del bad['residual'][key]
+            self.assertTrue(module.classify(audit, bad)['unresolved_lower_severity'])
+
+
 class GettextBoundaryTests(unittest.TestCase):
     fixture = OSAuditTests.fixture
     def test_locale_boundary_requires_all_actual_profile_fields(self):
