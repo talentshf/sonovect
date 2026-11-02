@@ -78,7 +78,7 @@ ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0" org.opencontainers.image.description="Self-hosted ASR for audio and video soundtracks, with separate sound analysis."
 EXPOSE 8096
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 CMD ["sonovect-health", "api"]
-CMD ["uvicorn", "sonovect.api:create_app", "--factory", "--host", "0.0.0.0", "--port", "8096", "--no-server-header"]
+CMD ["uvicorn", "sonovect.api:create_app", "--factory", "--host", "0.0.0.0", "--port", "8096", "--no-server-header", "--no-access-log"]
 
 FROM media-base AS media-worker
 USER root

@@ -38,6 +38,9 @@ An HTTPS reverse proxy must route all four paths, avoid caching results and avoi
 logging signed input bodies or result query strings. No public listener or model
 download is created by enabling these settings.
 
+The API image disables default Uvicorn access logs, which would include signed
+query strings. Keep that behavior when overriding the container command.
+
 ## Request and result
 
 ```json
