@@ -19,7 +19,7 @@ from speaker_policy import should_apply_low_cohesion_fallback
 from spectral import spectral_embeddings
 from firered_vad_adapter import MODEL_ID as FIRERED_VAD_MODEL, MODEL_SHA256 as FIRERED_VAD_REVISION
 from firered_vad_adapter import load_model as load_firered_vad, speech_regions as firered_speech_regions
-from model_lock import resolve_pinned_model
+from model_lock import resolve_pinned_model, pinned_revision
 from typing_extensions import Annotated
 
 
@@ -293,10 +293,10 @@ async def health() -> dict[str, Any]:
         "status": "ok" if models.status()["last_load_error"] is None else "degraded",
         "version": APP_VERSION,
         "models": {"vad": FIRERED_VAD_MODEL if VAD_BACKEND == "firered" else VAD_MODEL,
-                   "vad_revision": FIRERED_VAD_REVISION if VAD_BACKEND == "firered" else None,
+                   "vad_revision": FIRERED_VAD_REVISION if VAD_BACKEND == "firered" else pinned_revision(VAD_MODEL),
                    "speaker": SPEAKER_MODEL, "diarization": DIARIZATION_BACKEND,
                    "diarization_model": SPEAKER_MODEL,
-                   "diarization_revision": None},
+                   "diarization_revision": pinned_revision(SPEAKER_MODEL)},
         "manager": models.status(),
     }
 

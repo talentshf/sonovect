@@ -19,7 +19,7 @@ from . import __version__
 from .config import Settings
 from .capabilities import describe
 from .models import Options, Transcript, Analysis
-from .limits import BodyLimit, BearerGate
+from .limits import BodyLimit, BearerGate, boundary_error
 from .results import as_srt, as_text
 from .store import Conflict, Store, encoded
 from .readiness import Readiness, Report, Summary, summary
@@ -186,11 +186,10 @@ def create_app(settings=None):
         return store.retry(job_id)
 
     app.include_router(router)
+    from .filetrans import install
+    install(app, settings, store, authenticate)
     return app
 
 
 def problem(request: Request, status: int, code: str):
-    headers = {"WWW-Authenticate": "Bearer"} if status == 401 else {}
-    return JSONResponse({"type": f"urn:sonovect:error:{code}", "title": code,
-                         "status": status, "code": code, "instance": request.url.path},
-                        status_code=status, media_type="application/problem+json", headers=headers)
+    return boundary_error(request.url.path, status, code)

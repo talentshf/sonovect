@@ -445,6 +445,233 @@
           }
         }
       }
+    },
+    "/filetrans-results/{job_id}": {
+      "get": {
+        "summary": "Result",
+        "operationId": "result_filetrans_results__job_id__get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          },
+          {
+            "name": "expires",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Expires"
+            }
+          },
+          {
+            "name": "sha256",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Sha256"
+            }
+          },
+          {
+            "name": "signature",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Signature"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultFile"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/models": {
+      "get": {
+        "summary": "Models",
+        "operationId": "models_api_v1_models_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/services/audio/asr/transcription": {
+      "post": {
+        "summary": "Submit",
+        "operationId": "submit_api_v1_services_audio_asr_transcription_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-dashscope-async",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Dashscope-Async"
+            }
+          },
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "name": "x-input-sha256",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Input-Sha256"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Submission"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskReceipt"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/{job_id}": {
+      "get": {
+        "summary": "Status",
+        "operationId": "status_api_v1_tasks__job_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskReceipt"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -596,6 +823,32 @@
         ],
         "title": "Body_submit_v1_jobs_post"
       },
+      "ChannelTranscript": {
+        "properties": {
+          "channel_id": {
+            "type": "integer",
+            "title": "Channel Id"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "sentences": {
+            "items": {
+              "$ref": "#/components/schemas/sonovect__filetrans__Sentence"
+            },
+            "type": "array",
+            "title": "Sentences"
+          }
+        },
+        "type": "object",
+        "required": [
+          "channel_id",
+          "text",
+          "sentences"
+        ],
+        "title": "ChannelTranscript"
+      },
       "Check": {
         "properties": {
           "component": {
@@ -714,6 +967,27 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "Input": {
+        "properties": {
+          "file_urls": {
+            "items": {
+              "type": "string",
+              "maxLength": 16384,
+              "minLength": 1
+            },
+            "type": "array",
+            "maxItems": 1,
+            "minItems": 1,
+            "title": "File Urls"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "file_urls"
+        ],
+        "title": "Input"
       },
       "Issue": {
         "properties": {
@@ -872,6 +1146,43 @@
           "label"
         ],
         "title": "Observation"
+      },
+      "Parameters": {
+        "properties": {
+          "language_hints": {
+            "items": {
+              "type": "string",
+              "maxLength": 32,
+              "minLength": 1,
+              "pattern": "^[\\w-]+$"
+            },
+            "type": "array",
+            "maxItems": 1,
+            "title": "Language Hints"
+          },
+          "diarization_enabled": {
+            "type": "boolean",
+            "title": "Diarization Enabled",
+            "default": false
+          },
+          "vocabulary": {
+            "additionalProperties": {
+              "type": "integer",
+              "maximum": 5.0,
+              "minimum": 1.0
+            },
+            "propertyNames": {
+              "maxLength": 80,
+              "minLength": 1
+            },
+            "type": "object",
+            "maxProperties": 200,
+            "title": "Vocabulary"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Parameters"
       },
       "Quality": {
         "properties": {
@@ -1050,69 +1361,83 @@
         ],
         "title": "Report"
       },
-      "Sentence": {
+      "ResultFile": {
         "properties": {
-          "text": {
+          "transcripts": {
+            "items": {
+              "$ref": "#/components/schemas/ChannelTranscript"
+            },
+            "type": "array",
+            "title": "Transcripts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "transcripts"
+        ],
+        "title": "ResultFile"
+      },
+      "Submission": {
+        "properties": {
+          "model": {
             "type": "string",
-            "title": "Text"
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Model"
           },
-          "start": {
-            "type": "integer",
-            "minimum": 0.0,
-            "title": "Start"
+          "input": {
+            "$ref": "#/components/schemas/Input"
           },
-          "end": {
-            "type": "integer",
-            "minimum": 0.0,
-            "title": "End"
-          },
-          "timestamp": {
-            "anyOf": [
-              {
-                "items": {
-                  "prefixItems": [
-                    {
-                      "type": "integer",
-                      "minimum": 0.0
-                    },
-                    {
-                      "type": "integer",
-                      "minimum": 0.0
-                    }
-                  ],
-                  "type": "array",
-                  "maxItems": 2,
-                  "minItems": 2
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Timestamp"
-          },
-          "spk": {
-            "anyOf": [
-              {
-                "type": "integer",
-                "minimum": 0.0
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Spk"
+          "parameters": {
+            "$ref": "#/components/schemas/Parameters"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "text",
-          "start",
-          "end"
+          "model",
+          "input"
         ],
-        "title": "Sentence"
+        "title": "Submission"
+      },
+      "SubtaskResult": {
+        "properties": {
+          "subtask_status": {
+            "type": "string",
+            "enum": [
+              "SUCCEEDED",
+              "FAILED"
+            ],
+            "title": "Subtask Status"
+          },
+          "transcription_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transcription Url"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subtask_status"
+        ],
+        "title": "SubtaskResult"
       },
       "Summary": {
         "properties": {
@@ -1210,6 +1535,77 @@
         ],
         "title": "Summary"
       },
+      "TaskOutput": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task Id"
+          },
+          "task_status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "RUNNING",
+              "SUCCEEDED",
+              "FAILED",
+              "CANCELED",
+              "UNKNOWN"
+            ],
+            "title": "Task Status"
+          },
+          "results": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/SubtaskResult"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Results"
+          },
+          "task_metrics": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Task Metrics"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "task_status"
+        ],
+        "title": "TaskOutput"
+      },
+      "TaskReceipt": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          },
+          "output": {
+            "$ref": "#/components/schemas/TaskOutput"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "output"
+        ],
+        "title": "TaskReceipt"
+      },
       "Transcript": {
         "properties": {
           "key": {
@@ -1250,7 +1646,7 @@
             "anyOf": [
               {
                 "items": {
-                  "$ref": "#/components/schemas/Sentence"
+                  "$ref": "#/components/schemas/sonovect__models__Sentence"
                 },
                 "type": "array"
               },
@@ -1383,6 +1779,158 @@
           "end_ms"
         ],
         "title": "VoiceMeasurement"
+      },
+      "Word": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "begin_time": {
+            "type": "integer",
+            "title": "Begin Time"
+          },
+          "end_time": {
+            "type": "integer",
+            "title": "End Time"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text",
+          "begin_time",
+          "end_time"
+        ],
+        "title": "Word"
+      },
+      "sonovect__filetrans__Sentence": {
+        "properties": {
+          "sentence_id": {
+            "type": "integer",
+            "title": "Sentence Id"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "begin_time": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Begin Time"
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Time"
+          },
+          "speaker_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speaker Id"
+          },
+          "words": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Word"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Words"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sentence_id",
+          "text"
+        ],
+        "title": "Sentence"
+      },
+      "sonovect__models__Sentence": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "start": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Start"
+          },
+          "end": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "End"
+          },
+          "timestamp": {
+            "anyOf": [
+              {
+                "items": {
+                  "prefixItems": [
+                    {
+                      "type": "integer",
+                      "minimum": 0.0
+                    },
+                    {
+                      "type": "integer",
+                      "minimum": 0.0
+                    }
+                  ],
+                  "type": "array",
+                  "maxItems": 2,
+                  "minItems": 2
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timestamp"
+          },
+          "spk": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spk"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text",
+          "start",
+          "end"
+        ],
+        "title": "Sentence"
       }
     },
     "securitySchemes": {

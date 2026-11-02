@@ -1,6 +1,17 @@
 """Enforce authentication and an aggregate bound before multipart spooling."""
 import hmac
+import uuid
 from starlette.responses import JSONResponse
+
+
+def boundary_error(path, status, code):
+    headers = {"WWW-Authenticate": "Bearer"} if status == 401 else {}
+    if path == "/api/v1" or path.startswith("/api/v1/"):
+        return JSONResponse({"request_id": uuid.uuid4().hex, "code": code, "message": code},
+                            status_code=status, headers=headers)
+    return JSONResponse({"type": "urn:sonovect:error:" + code, "title": code,
+                         "status": status, "code": code, "instance": path},
+                        status_code=status, media_type="application/problem+json", headers=headers)
 
 
 class PayloadTooLarge(Exception):
@@ -15,14 +26,13 @@ class BodyLimit:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
         async def reject():
-            response = JSONResponse({"type": "urn:sonovect:error:upload_limit_exceeded",
-                "title": "upload_limit_exceeded", "status": 413, "code": "upload_limit_exceeded",
-                "instance": scope["path"]}, status_code=413, media_type="application/problem+json")
+            response = boundary_error(scope["path"], 413, "upload_limit_exceeded")
             await response(scope, receive, send)
+        maximum = min(self.maximum, 65536) if scope.get("path", "").startswith("/api/v1/") else self.maximum
         for name, value in scope["headers"]:
             if name == b"content-length":
                 try:
-                    if int(value) > self.maximum:
+                    if int(value) > maximum:
                         return await reject()
                 except ValueError:
                     pass
@@ -32,7 +42,7 @@ class BodyLimit:
             nonlocal total, exceeded
             message = await receive()
             total += len(message.get("body", b""))
-            if total > self.maximum:
+            if total > maximum:
                 exceeded = True
                 raise PayloadTooLarge()
             return message
@@ -60,13 +70,10 @@ class BearerGate:
 
     async def __call__(self, scope, receive, send):
         path = scope.get("path", "")
-        if scope["type"] == "http" and (path == "/v1" or path.startswith("/v1/")):
+        if scope["type"] == "http" and (path == "/v1" or path.startswith("/v1/") or path == "/api/v1" or path.startswith("/api/v1/")):
             values = [v for k, v in scope["headers"] if k.lower() == b"authorization"]
             scheme, _, credential = values[0].partition(b" ") if len(values) == 1 else (b"", b"", b"")
             if scheme.lower() != b"bearer" or not hmac.compare_digest(credential, self.token):
-                response = JSONResponse({"type": "urn:sonovect:error:authentication_required",
-                    "title": "authentication_required", "status": 401, "code": "authentication_required",
-                    "instance": path}, status_code=401, media_type="application/problem+json",
-                    headers={"WWW-Authenticate": "Bearer"})
+                response = boundary_error(path, 401, "authentication_required")
                 return await response(scope, receive, send)
         await self.app(scope, receive, send)

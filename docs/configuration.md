@@ -80,6 +80,9 @@ Allocator budgets do not equal total process VRAM. Reserve capacity for concurre
 | `SONOVECT_PROJECT`, `SONOVECT_VERSION`, `SONOVECT_REVISION` | sonovect, current version, uncommitted | Compose name and image provenance; retain accepted image digests |
 | `SONOVECT_BIND`, `SONOVECT_PORT` | 127.0.0.1, 8096 | Public API binding; preflight port ownership before changes |
 | `SONOVECT_DATA_DIR` | ./data/jobs; container /data | Writable durable queue/input directory |
+| `SONOVECT_COMPAT_MODEL`, `SONOVECT_COMPAT_PUBLIC_URL`, `SONOVECT_COMPAT_INPUT_HOSTS` | Unset, compatible interface disabled | One stable served model ID, public HTTPS service origin, comma-separated exact public input hosts; see [file ASR](filetrans-compatibility.md) |
+| `SONOVECT_COMPAT_SIGNING_KEY_FILE`, `SONOVECT_COMPAT_SIGNING_KEY_HOST_FILE` | Unset | Restricted persistent signing file inside the process; host source for the optional `compose.filetrans.yml` overlay |
+| `SONOVECT_COMPAT_DOWNLOAD_TIMEOUT`, `SONOVECT_COMPAT_LINK_SECONDS`, `SONOVECT_COMPAT_MAX_QUEUED` | 300 s, 3600 s, 32 tasks | Input deadline, bounded artifact-link lifetime and compatible queued/running capacity |
 | `SONOVECT_BACKEND` | funasr | funasr or speech, selected by deployment |
 | `SONOVECT_MODEL`, `SONOVECT_MODEL_REVISION` | paraformer-zh, v2.0.4 | Catalogued native combination; v2.0.9 is opt-in experimental configuration |
 | `SONOVECT_DEVICE` | cpu | Native model device; changing this does not install GPU support |

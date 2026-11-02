@@ -46,6 +46,7 @@ class Store:
         self.database = self.root / "jobs-v1.sqlite3"
         with self.connect() as con:
             con.execute("PRAGMA journal_mode=WAL")
+            con.execute("BEGIN IMMEDIATE")
             con.execute("""CREATE TABLE IF NOT EXISTS jobs (
                 id TEXT PRIMARY KEY, state TEXT NOT NULL, created REAL NOT NULL,
                 updated REAL NOT NULL, finished REAL, expires REAL, input_expires REAL,
@@ -57,6 +58,12 @@ class Store:
                 id TEXT PRIMARY KEY, backend TEXT NOT NULL, version TEXT NOT NULL,
                 available INTEGER NOT NULL, seen REAL NOT NULL
             )""")
+            # Additive migration. Compatibility states are namespaced so an
+            # older worker cannot claim or retry a URL-backed task after rollback.
+            columns = {row[1] for row in con.execute("PRAGMA table_info(jobs)")}
+            for name in ("protocol", "engine", "evidence"):
+                if name not in columns:
+                    con.execute(f"ALTER TABLE jobs ADD COLUMN {name} TEXT")
         os.chmod(self.database, 0o600)
 
     @contextmanager
@@ -138,6 +145,10 @@ class Store:
         value = dict(row)
         for name in ("options", "sources", "result", "analysis"):
             value[name] = json.loads(value[name]) if value[name] is not None else None
+        for name in ("engine", "evidence"):
+            value[name] = json.loads(value[name]) if value[name] else None
+        if value["protocol"] and value["state"].startswith("compat_"):
+            value["state"] = value["state"][7:]
         return value
 
     def public(self, job_id):
@@ -146,7 +157,43 @@ class Store:
                 "created_at": iso(row["created"]), "updated_at": iso(row["updated"]),
                 "finished_at": iso(row["finished"]), "expires_at": iso(row["expires"]),
                 "options": row["options"], "error": row["error"],
-                "sources": [{k: v for k, v in source.items() if k != "path"} for source in row["sources"]]}
+                "sources": [{k: v for k, v in source.items()
+                             if k in {"key", "sha256", "size", "status", "error", "media"}} for source in row["sources"]]}
+
+    def admit_remote(self, url, options, engine, key=None, checksum=None):
+        identity = {"options": options, "model": self.settings.compat_model, "vocabulary": engine.get("vocabulary", {}),
+                    "input": checksum or url}
+        fingerprint = hashlib.sha256(encoded(identity)).hexdigest()
+        with self.connect() as con:
+            con.execute("BEGIN IMMEDIATE")
+            if key:
+                old = con.execute("SELECT id,fingerprint,protocol FROM jobs WHERE idempotency_key=?", (key,)).fetchone()
+                if old:
+                    if not old["protocol"] or old["fingerprint"] != fingerprint:
+                        raise Conflict("idempotency_key_reused_with_different_input")
+                    return old["id"], False
+            if con.execute("SELECT count(*) FROM jobs WHERE state IN ('compat_queued','compat_running')").fetchone()[0] >= self.settings.compat_max_queued:
+                raise Conflict("compatible_queue_full")
+            job_id, now = uuid.uuid4().hex, time.time()
+            folder = self.root / "inputs" / job_id
+            folder.mkdir(mode=0o700)
+            source = {"key": "audio_0000", "path": str(folder / "0000.audio"),
+                      "remote_url": url, "sha256": checksum, "size": None, "status": "queued"}
+            try:
+                con.execute("""INSERT INTO jobs(id,state,created,updated,options,sources,idempotency_key,
+                    fingerprint,protocol,engine) VALUES (?,?,?,?,?,?,?,?,?,?)""",
+                    (job_id, "compat_queued", now, now, json.dumps(options), json.dumps([source]), key,
+                     fingerprint, "dashscope-filetrans-v1", json.dumps(engine)))
+            except BaseException:
+                shutil.rmtree(folder)
+                raise
+        return job_id, True
+
+    def materialized(self, job_id, owner, sources):
+        with self.connect() as con:
+            if con.execute("UPDATE jobs SET sources=? WHERE id=? AND lease_owner=? AND state='compat_running'",
+                           (json.dumps(sources), job_id, owner)).rowcount != 1:
+                raise Conflict("job_ownership_lost")
 
     def admit(self, sources, options, key=None):
         fingerprint = hashlib.sha256(encoded({"options": options, "inputs": [s["sha256"] for s in sources]})).hexdigest()
@@ -183,19 +230,19 @@ class Store:
         with self.connect() as con:
             # Idle polling needs no writer. Recheck candidates after taking
             # the write lock: another worker can claim/cancel in between.
-            with closing(con.execute("""SELECT 1 FROM jobs WHERE state='queued' OR
-                    (state IN ('running','cancelled') AND lease_until<?) LIMIT 1""", (now,))) as probe:
+            with closing(con.execute("""SELECT 1 FROM jobs WHERE state IN ('queued','compat_queued') OR
+                    (state IN ('running','cancelled','compat_running','compat_cancelled') AND lease_until<?) LIMIT 1""", (now,))) as probe:
                 pending = probe.fetchone()
             if pending is None:
                 return None
             con.execute("BEGIN IMMEDIATE")
             # A stale cancelled attempt is not reprocessed.
-            con.execute("UPDATE jobs SET lease_owner=NULL,lease_until=NULL WHERE state='cancelled' AND lease_until<?", (now,))
-            row = con.execute("""SELECT id,state,updated FROM jobs WHERE state='queued' OR
-                (state='running' AND lease_until<?) ORDER BY created LIMIT 1""", (now,)).fetchone()
+            con.execute("UPDATE jobs SET lease_owner=NULL,lease_until=NULL WHERE state IN ('cancelled','compat_cancelled') AND lease_until<?", (now,))
+            row = con.execute("""SELECT id,state,updated FROM jobs WHERE state IN ('queued','compat_queued') OR
+                (state IN ('running','compat_running') AND lease_until<?) ORDER BY created LIMIT 1""", (now,)).fetchone()
             if not row:
                 return None
-            con.execute("UPDATE jobs SET state='running',updated=?,lease_owner=?,lease_until=? WHERE id=?",
+            con.execute("UPDATE jobs SET state=CASE WHEN protocol IS NULL THEN 'running' ELSE 'compat_running' END,updated=?,lease_owner=?,lease_until=? WHERE id=?",
                         (now, owner, now + self.settings.lease_seconds, row["id"]))
         job = self.get(row["id"])
         # Private telemetry, never persisted in results or public job schemas.
@@ -206,26 +253,26 @@ class Store:
     def heartbeat(self, job_id, owner):
         with self.connect() as con:
             return con.execute("""UPDATE jobs SET lease_until=? WHERE id=? AND lease_owner=?
-                AND state IN ('running','cancelled')""", (time.time() + self.settings.lease_seconds, job_id, owner)).rowcount == 1
+                AND state IN ('running','cancelled','compat_running','compat_cancelled')""", (time.time() + self.settings.lease_seconds, job_id, owner)).rowcount == 1
 
-    def finish(self, job_id, owner, state, sources, result, analysis, error=None):
+    def finish(self, job_id, owner, state, sources, result, analysis, error=None, evidence=None):
         now = time.time()
         with self.connect() as con:
-            changed = con.execute("""UPDATE jobs SET state=?,sources=?,result=?,analysis=?,error=?,
+            changed = con.execute("""UPDATE jobs SET state=CASE WHEN protocol IS NULL THEN ? ELSE 'compat_'||? END,sources=?,result=?,analysis=?,error=?,evidence=?,
                 updated=?,finished=?,expires=?,input_expires=?,lease_owner=NULL,lease_until=NULL
-                WHERE id=? AND state='running' AND lease_owner=?""",
-                (state, json.dumps(sources), json.dumps(result, ensure_ascii=False), json.dumps(analysis, ensure_ascii=False),
-                 error, now, now, now + self.settings.result_ttl_hours * 3600,
+                WHERE id=? AND state IN ('running','compat_running') AND lease_owner=?""",
+                (state, state, json.dumps(sources), json.dumps(result, ensure_ascii=False), json.dumps(analysis, ensure_ascii=False),
+                 error, json.dumps(evidence, ensure_ascii=False) if evidence is not None else None, now, now, now + self.settings.result_ttl_hours * 3600,
                  now + self.settings.input_ttl_hours * 3600, job_id, owner)).rowcount
             if not changed:
-                con.execute("UPDATE jobs SET lease_owner=NULL,lease_until=NULL WHERE id=? AND state='cancelled' AND lease_owner=?", (job_id, owner))
+                con.execute("UPDATE jobs SET lease_owner=NULL,lease_until=NULL WHERE id=? AND state IN ('cancelled','compat_cancelled') AND lease_owner=?", (job_id, owner))
         return bool(changed)
 
     def cancel(self, job_id):
         now = time.time()
         with self.connect() as con:
-            con.execute("""UPDATE jobs SET state='cancelled',updated=?,finished=?,expires=?,input_expires=?
-                WHERE id=? AND state IN ('queued','running')""",
+            con.execute("""UPDATE jobs SET state=CASE WHEN protocol IS NULL THEN 'cancelled' ELSE 'compat_cancelled' END,updated=?,finished=?,expires=?,input_expires=?
+                WHERE id=? AND state IN ('queued','running','compat_queued','compat_running')""",
                 (now, now, now + self.settings.result_ttl_hours * 3600, now + self.settings.input_ttl_hours * 3600, job_id))
         return self.public(job_id)
 
@@ -235,6 +282,8 @@ class Store:
             row = con.execute("SELECT * FROM jobs WHERE id=?", (job_id,)).fetchone()
             if row is None:
                 raise KeyError(job_id)
+            if row["protocol"]:
+                raise Conflict("compatible_task_requires_new_submission")
             if row["state"] not in {"partial", "failed", "cancelled"} or row["lease_owner"]:
                 raise Conflict("job_not_retryable")
             sources = json.loads(row["sources"])
@@ -253,7 +302,7 @@ class Store:
         now, count = time.time(), 0
         due = """finished IS NOT NULL AND (lease_until IS NULL OR lease_until<?)
             AND ((input_expires>0 AND input_expires<=?) OR
-                (expires<=? AND (state<>'expired' OR input_expires>0)))"""
+                (expires<=? AND (state NOT IN ('expired','compat_expired') OR input_expires>0)))"""
         with self.connect() as con:
             with closing(con.execute("SELECT 1 FROM jobs WHERE " + due + " LIMIT 1", (now, now, now))) as probe:
                 pending = probe.fetchone()
@@ -272,7 +321,7 @@ class Store:
                     # Keep a due timestamp when removal failed, so it retries.
                     if not folder.exists():
                         con.execute("UPDATE jobs SET input_expires=0 WHERE id=?", (row["id"],))
-                if row["expires"] and row["expires"] <= now and row["state"] != "expired":
-                    con.execute("UPDATE jobs SET state='expired',result=NULL,analysis=NULL,options='{}',sources='[]',error=NULL,updated=? WHERE id=?", (now, row["id"]))
+                if row["expires"] and row["expires"] <= now and row["state"] not in {"expired", "compat_expired"}:
+                    con.execute("UPDATE jobs SET state=CASE WHEN protocol IS NULL THEN 'expired' ELSE 'compat_expired' END,result=NULL,analysis=NULL,evidence=NULL,engine=NULL,options='{}',sources='[]',error=NULL,updated=? WHERE id=?", (now, row["id"]))
                     count += 1
         return count

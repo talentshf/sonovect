@@ -8,6 +8,7 @@ import sys
 import httpx
 from .results import acoustic_result, native_result, speech_result
 from .models import measurements_requested
+from .recognition import Recognition, speech_evidence
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +37,21 @@ class SpeechBackend:
     def available(self):
         return True
 
+    def identity(self):
+        with httpx.Client(timeout=5, trust_env=False) as client:
+            response = client.get(self.settings.provider_url + "/models")
+            response.raise_for_status()
+            value = response.json()
+        revisions = value.get("revisions", {})
+        fields = ("asr", "forced_aligner", "vad", "speaker_diarization")
+        identity = {"backend": "speech"}
+        for name in fields:
+            model, revision = value.get(name), revisions.get(name)
+            if not isinstance(model, str) or not model or not isinstance(revision, str) or not revision:
+                raise BackendError("engine_identity_unavailable")
+            identity[name] = {"model": model, "revision": revision}
+        return identity
+
     def process(self, path: Path, key: str, options: dict):
         measure = measurements_requested(options)
         endpoint = "/transcribe/full" if options["analyze_sound"] or options.get("analyze_voice", False) or measure else "/transcribe"
@@ -56,7 +72,9 @@ class SpeechBackend:
             value = value["results"][0]
         if value.get("enrichment", {}).get("lanes", {}).get("speech", {}).get("state") != "completed":
             raise BackendError("speech_processing_failed")
-        return speech_result(value, key, options["speakers"]), acoustic_result(value, key, options["analyze_sound"], options.get("analyze_voice", False), measure)
+        result = speech_result(value, key, options["speakers"])
+        return Recognition(result, acoustic_result(value, key, options["analyze_sound"], options.get("analyze_voice", False), measure),
+                           speech_evidence(value, result))
 
 
 class FunASRBackend:
@@ -66,6 +84,12 @@ class FunASRBackend:
 
     def available(self):
         return importlib.util.find_spec("funasr") is not None
+
+    def identity(self):
+        return {"backend": "funasr", "asr": {"model": self.settings.model, "revision": self.settings.model_revision},
+                "vad": {"model": "fsmn-vad", "revision": "v2.0.4"},
+                "punctuation": {"model": "ct-punc", "revision": "v2.0.4"},
+                "speaker_diarization": {"model": "cam++", "revision": "v2.0.2"}}
 
     def process(self, path: Path, key: str, options: dict):
         # Model diagnostics go to stderr, including under a protocol host.
@@ -101,7 +125,7 @@ class FunASRBackend:
         result = native_result(values[0], key, speakers)
         measure = measurements_requested(options)
         if not options["analyze_sound"] and not options.get("analyze_voice", False) and not measure:
-            return result, acoustic_result({}, key, False, False)
+            return Recognition(result, acoustic_result({}, key, False, False), speech_evidence(values[0], result))
         stages = {}
         duration_ms = None
         for name, requested, url in [("events", options["analyze_sound"], self.settings.sound_url),
@@ -132,7 +156,8 @@ class FunASRBackend:
                 logger.error("optional_stage_failed stage=%s type=%s upstream_status=%s",
                              name, type(exc).__name__, getattr(response, "status_code", None))
                 stages[name] = {"error": name + "_analysis_failed"}
-        return result, acoustic_result({"stage_payloads": stages, **({"duration_ms": duration_ms} if duration_ms is not None else {})}, key, options["analyze_sound"], options.get("analyze_voice", False), measure)
+        return Recognition(result, acoustic_result({"stage_payloads": stages, **({"duration_ms": duration_ms} if duration_ms is not None else {})}, key, options["analyze_sound"], options.get("analyze_voice", False), measure),
+                           speech_evidence(values[0], result))
 
 
 def build_backend(settings):

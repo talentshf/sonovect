@@ -10,6 +10,7 @@ Sonovect v0.1.1 has one maintained product version and one analysis contract.
 | Submit and retrieve | [Usage](usage.md) · [中文用法](usage.zh-CN.md) |
 | Connect an agent | [Client, MCP and skill setup](agent-setup.md) · [中文安装接入](agent-setup.zh-CN.md) |
 | Integrate applications | [HTTP](api.md) · [MCP tool reference](mcp.md) · [Skill](../skills/sonovect/SKILL.md) |
+| Compatible file ASR | [Protocol and setup](filetrans-compatibility.md) · [中文](filetrans-compatibility.zh-CN.md) |
 | Interpret outputs | [Results](results.md) · [Generated contracts](../contracts/openapi-v1.json) |
 | Operate and recover | [Operations](operations.md) |
 | Compare measured choices | [Quality](quality.md) · [中文质量与选型](quality.zh-CN.md) · [Reference JSON](../evaluation/reference-results.json) · [Evaluation rules](accuracy-evaluation.md) |

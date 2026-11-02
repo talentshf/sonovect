@@ -128,3 +128,9 @@ The previous eight retained entries keep their source identities and semantic ha
 | [CVE-2026-84243](https://security-tracker.debian.org/tracker/CVE-2026-84243) | MEDIUM / glibc `2.43-7~sonovect13.1` | **reviewed-service-boundary** with `gettext-locale-boundary` evidence: fixed C locale, no SSH/interpreter entry points, nonroot/capability restrictions and no caller environment input. Raw matches remain visible. |
 
 The separately patched [Hydra advisory GHSA-wf6j-7hvr-gr93](https://github.com/advisories/GHSA-wf6j-7hvr-gr93) is resolved by pinning hydra-core 1.3.8 in affected role locks. Actual image inventory, dependency consistency and scans must verify the installation; this is not an exception to the Python vulnerability gate.
+
+## 2026-11-02 file-ASR rollout review
+
+Debian added the trixie `no-dsa` / "Minor issue" note to [CVE-2026-84243](https://security-tracker.debian.org/tracker/CVE-2026-84243). Removing that exact note from the current normalized advisory reproduces the previously reviewed semantic digest; the other eight retained advisories are unchanged. No fixed source is listed, and the fixed-C-locale service boundary above remains mandatory. File-ASR inputs select media, language hints and vocabulary, never process environment or gettext catalogs. The refreshed advisory baseline records this review and does not reclassify the library as fixed.
+
+The public API container disables default access logging so artifact signatures are not copied into request-target logs. An operator-provided proxy must also omit query strings and authorization headers from logs. Actual deployed image facts and ingress configuration are checked separately from this source review.

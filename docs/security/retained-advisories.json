@@ -1,6 +1,6 @@
 {
-  "reviewed_utc": "2026-11-01T12:53:49.480109+00:00",
-  "review_scope": "Nine retained upstream advisories reviewed; the added gettext locale limitation has a checked service boundary, not a library repair.",
+  "reviewed_utc": "2026-11-02T14:21:03.462275+00:00",
+  "review_scope": "Nine retained advisories rechecked for the compatible file-ASR rollout. The only semantic change is Debian adding the trixie no-dsa Minor issue note to CVE-2026-84243; removing that exact note reproduces the prior digest. Existing fixed-C-locale service boundaries remain required; this is not a glibc repair.",
   "records": {
     "CVE-2010-4756": {
       "source": "glibc",
@@ -53,7 +53,7 @@
     "CVE-2026-84243": {
       "source": "glibc",
       "source_version": "2.43-7~sonovect13.1",
-      "semantic_sha256": "cf55169e8990f16a273512bef076c133d60821ede969e22d9989c23b1dc0987b",
+      "semantic_sha256": "42bbfe80c6511790dcf312d5e23426e5903767aed44f709e7dd8ec173d58374a",
       "url": "https://security-tracker.debian.org/tracker/CVE-2026-84243"
     }
   }
