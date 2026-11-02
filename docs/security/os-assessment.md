@@ -134,3 +134,10 @@ The separately patched [Hydra advisory GHSA-wf6j-7hvr-gr93](https://github.com/a
 Debian added the trixie `no-dsa` / "Minor issue" note to [CVE-2026-84243](https://security-tracker.debian.org/tracker/CVE-2026-84243). Removing that exact note from the current normalized advisory reproduces the previously reviewed semantic digest; the other eight retained advisories are unchanged. No fixed source is listed, and the fixed-C-locale service boundary above remains mandatory. File-ASR inputs select media, language hints and vocabulary, never process environment or gettext catalogs. The refreshed advisory baseline records this review and does not reclassify the library as fixed.
 
 The public API container disables default access logging so artifact signatures are not copied into request-target logs. An operator-provided proxy must also omit query strings and authorization headers from logs. Actual deployed image facts and ingress configuration are checked separately from this source review.
+
+The refreshed image scan subsequently added thirteen SQLite/C++ advisory IDs.
+Their exact service and compiler-template boundaries, required actual-image
+proofs and remaining library limitations are recorded in the
+[ASR runtime advisory review](asr-runtime-advisories-20261102.md). The ten new
+SQLite service decisions extend the retained drift baseline to nineteen pages;
+the original nine semantic digests remain unchanged.

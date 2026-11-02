@@ -11,7 +11,7 @@ import struct
 import subprocess
 
 
-def undefined_symbols(path):
+def dynamic_symbols(path, *, undefined):
     """Read ELF64 dynamic symbol names; do not execute inspected programs."""
     data = Path(path).read_bytes()
     if data[:6] != b'\x7fELF\x02\x01':
@@ -27,9 +27,34 @@ def undefined_symbols(path):
         table = data[strings[4]:strings[4] + strings[5]]
         for pos in range(section[4], section[4] + section[5], section[9]):
             index, _, _, section_index, _, _ = struct.unpack_from('<IBBHQQ', data, pos)
-            if section_index == 0 and index:
+            if (section_index == 0) == undefined and index:
                 names.add(table[index:table.index(b'\0', index)].decode())
     return sorted(names)
+
+
+def undefined_symbols(path):
+    return dynamic_symbols(path, undefined=True)
+
+
+def sqlite_store_probe():
+    """Observe the shipped caller and its defensive connection, never a live DB."""
+    try:
+        from sonovect import store
+    except ImportError:
+        return {'profile': 'no-application-store'}
+    root = Path(store.__file__).parent
+    paths = ('api.py', 'config.py', 'filetrans.py', 'media.py', 'remote_input.py', 'store.py', 'worker.py')
+    if not all((root / name).is_file() for name in paths):
+        return {'profile': 'unsupported-application-store'}
+    with sqlite3.connect(':memory:') as connection:
+        store.harden_connection(connection)
+        flags = {'defensive': connection.getconfig(sqlite3.SQLITE_DBCONFIG_DEFENSIVE),
+                 'trusted_schema': connection.getconfig(sqlite3.SQLITE_DBCONFIG_TRUSTED_SCHEMA),
+                 'load_extension': connection.getconfig(sqlite3.SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION),
+                 'attached_limit': connection.getlimit(sqlite3.SQLITE_LIMIT_ATTACHED),
+                 'cell_size_check': connection.execute('PRAGMA cell_size_check').fetchone()[0]}
+    return {'profile': 'fixed-server-store', 'connection': flags,
+            'caller_files': {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in paths}}
 
 
 def aligned_new_probe():
@@ -89,11 +114,18 @@ def collect():
         paths = [Path(directory) / name for directory in ('/usr/bin', '/usr/sbin', '/usr/libexec', '/bin', '/sbin')]
         command_paths[name] = sorted({str(path.resolve()) for path in paths if path.is_file() or path.is_symlink()})
     sqlite_library = ctypes.CDLL('libsqlite3.so.0')
+    cpp = libraries.get('libstdc++.so.6')
+    defined = dynamic_symbols(cpp['path'], undefined=False) if cpp else []
     return {'architecture': platform.machine(), 'libc_runtime': platform.libc_ver(),
             'uid': os.getuid(), 'gid': os.getgid(),
             'effective_capabilities': next(line.split()[1] for line in status.splitlines() if line.startswith('CapEff:')),
             'no_new_privileges': next(line.split()[1] for line in status.splitlines() if line.startswith('NoNewPrivs:')),
             'sqlite_runtime': sqlite3.sqlite_version,
+            'sqlite_store': sqlite_store_probe(),
+            'cpp_templates': {
+                'parallel_algorithm_exports': [name for name in defined if '__gnu_parallel' in name and '_Settings' not in name],
+                'vector_bool_exports': [name for name in defined if '_ZNSt6vectorIb' in name],
+                'bitset_exports': [name for name in defined if '_ZNSt6bitsetI' in name]},
             'commands': command_paths,
             'sqlite_zipfile_export': hasattr(sqlite_library, 'sqlite3_zipfile_init'),
             'modules': {k: sorted(set(v)) for k, v in modules.items()},

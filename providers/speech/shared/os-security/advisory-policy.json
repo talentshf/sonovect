@@ -959,6 +959,291 @@
         "type": "gettext-locale-boundary"
       },
       "reason": "No fixed Debian source is listed. Maintained images force LC_ALL and LANGUAGE to C.UTF-8; actual runtime locale and absence of SSH/interpreters are checked. The file-job API does not accept environment variables or message catalogs. Operator locale overrides and arbitrary code are outside this supported profile. This limits the service exposure; it does not repair glibc."
+    },
+    "CVE-2026-114690": {
+      "source": "gcc-14",
+      "source_version": "14.2.0-19",
+      "severity": "MEDIUM",
+      "references": [
+        "https://access.redhat.com/security/cve/CVE-2026-114690",
+        "https://security-tracker.debian.org/tracker/CVE-2026-114690"
+      ],
+      "status": "reviewed-compiler-template-boundary",
+      "proof": {
+        "type": "compiler-template-boundary",
+        "library_sha256": "972bb2a18b71140dab0240f8a1f68ab3fb1d56bcd4c4f824a91b70888faf5a00"
+      },
+      "reason": "Affected parallel-search, vector<bool> constructor and wide-bitset templates require compiled instantiations. The exact OS library has no affected algorithm/container exports and compiler headers are absent. This classifies OS packages only; template code embedded in Python wheels is not declared fixed by this evidence and remains a separate artifact scope."
+    },
+    "CVE-2026-114691": {
+      "source": "gcc-14",
+      "source_version": "14.2.0-19",
+      "severity": "MEDIUM",
+      "references": [
+        "https://access.redhat.com/security/cve/CVE-2026-114691",
+        "https://security-tracker.debian.org/tracker/CVE-2026-114691"
+      ],
+      "status": "reviewed-compiler-template-boundary",
+      "proof": {
+        "type": "compiler-template-boundary",
+        "library_sha256": "972bb2a18b71140dab0240f8a1f68ab3fb1d56bcd4c4f824a91b70888faf5a00"
+      },
+      "reason": "Affected parallel-search, vector<bool> constructor and wide-bitset templates require compiled instantiations. The exact OS library has no affected algorithm/container exports and compiler headers are absent. This classifies OS packages only; template code embedded in Python wheels is not declared fixed by this evidence and remains a separate artifact scope."
+    },
+    "CVE-2026-115455": {
+      "source": "gcc-14",
+      "source_version": "14.2.0-19",
+      "severity": "MEDIUM",
+      "references": [
+        "https://access.redhat.com/security/cve/CVE-2026-115455",
+        "https://security-tracker.debian.org/tracker/CVE-2026-115455"
+      ],
+      "status": "reviewed-compiler-template-boundary",
+      "proof": {
+        "type": "compiler-template-boundary",
+        "library_sha256": "972bb2a18b71140dab0240f8a1f68ab3fb1d56bcd4c4f824a91b70888faf5a00"
+      },
+      "reason": "Affected parallel-search, vector<bool> constructor and wide-bitset templates require compiled instantiations. The exact OS library has no affected algorithm/container exports and compiler headers are absent. This classifies OS packages only; template code embedded in Python wheels is not declared fixed by this evidence and remains a separate artifact scope."
+    },
+    "CVE-2026-119371": {
+      "source": "sqlite3",
+      "source_version": "3.53.4-2~sonovect13.1",
+      "severity": "UNKNOWN",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-119371",
+        "https://sqlite.org/releaselog/3_54_0.html"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "sqlite-server-store",
+        "library_sha256": "a583bd1ff0d79ded57a0a543b8ed40cda11cc6fa284076b1d3de91fcd87ae154",
+        "caller_files": {
+          "api.py": "fbb00bfa6ff19364f81e7e57d0daedc4e5d7178d8d8e1128dd25e25936709133",
+          "config.py": "15b75ae3b84cf84e2bcad84d0c9986962cd7a730e48520a054d16f9b95bc98c5",
+          "filetrans.py": "3c2405c0484ba67b3483c1e55e94556f51cfee8e51ca6dd32b5ef9df11a3da47",
+          "media.py": "548b25c9bb660e74758b122546760255f8526660191c1fe2812ea7be010efd57",
+          "remote_input.py": "260788d8089db4628c844522324a0927d3928bc12e95f9e1e013e809201bda64",
+          "store.py": "6ee1e8a373a3b64f55c50961e45978e5431ae2df00cb589743f2d0b973585276",
+          "worker.py": "f9e810faaddc44c4731bdd48cbfe6e23e5deb853a019d14bbf7f12b7b614bea6"
+        }
+      },
+      "reason": "The library remains affected; upstream fixes are in SQLite 3.54.0. These issues require hostile SQL, database/WAL files, changesets, virtual-table shadow structures or authorizer-dependent SQL. This exact audited caller exposes media tasks only, uses a fixed server-owned queue database and bound SQL values, and never opens submitted media as SQLite. Observed connection defenses disable trusted schema, extension loading and ATTACH, enable defensive and cell-size checks. Caller hashes, exact library and unprivileged profile must all match. This is a service reachability review, not a library fix; review again for any SQL/database import feature or caller/library change."
+    },
+    "CVE-2026-119372": {
+      "source": "sqlite3",
+      "source_version": "3.53.4-2~sonovect13.1",
+      "severity": "UNKNOWN",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-119372",
+        "https://sqlite.org/releaselog/3_54_0.html"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "sqlite-server-store",
+        "library_sha256": "a583bd1ff0d79ded57a0a543b8ed40cda11cc6fa284076b1d3de91fcd87ae154",
+        "caller_files": {
+          "api.py": "fbb00bfa6ff19364f81e7e57d0daedc4e5d7178d8d8e1128dd25e25936709133",
+          "config.py": "15b75ae3b84cf84e2bcad84d0c9986962cd7a730e48520a054d16f9b95bc98c5",
+          "filetrans.py": "3c2405c0484ba67b3483c1e55e94556f51cfee8e51ca6dd32b5ef9df11a3da47",
+          "media.py": "548b25c9bb660e74758b122546760255f8526660191c1fe2812ea7be010efd57",
+          "remote_input.py": "260788d8089db4628c844522324a0927d3928bc12e95f9e1e013e809201bda64",
+          "store.py": "6ee1e8a373a3b64f55c50961e45978e5431ae2df00cb589743f2d0b973585276",
+          "worker.py": "f9e810faaddc44c4731bdd48cbfe6e23e5deb853a019d14bbf7f12b7b614bea6"
+        }
+      },
+      "reason": "The library remains affected; upstream fixes are in SQLite 3.54.0. These issues require hostile SQL, database/WAL files, changesets, virtual-table shadow structures or authorizer-dependent SQL. This exact audited caller exposes media tasks only, uses a fixed server-owned queue database and bound SQL values, and never opens submitted media as SQLite. Observed connection defenses disable trusted schema, extension loading and ATTACH, enable defensive and cell-size checks. Caller hashes, exact library and unprivileged profile must all match. This is a service reachability review, not a library fix; review again for any SQL/database import feature or caller/library change."
+    },
+    "CVE-2026-119374": {
+      "source": "sqlite3",
+      "source_version": "3.53.4-2~sonovect13.1",
+      "severity": "UNKNOWN",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-119374",
+        "https://sqlite.org/releaselog/3_54_0.html"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "sqlite-server-store",
+        "library_sha256": "a583bd1ff0d79ded57a0a543b8ed40cda11cc6fa284076b1d3de91fcd87ae154",
+        "caller_files": {
+          "api.py": "fbb00bfa6ff19364f81e7e57d0daedc4e5d7178d8d8e1128dd25e25936709133",
+          "config.py": "15b75ae3b84cf84e2bcad84d0c9986962cd7a730e48520a054d16f9b95bc98c5",
+          "filetrans.py": "3c2405c0484ba67b3483c1e55e94556f51cfee8e51ca6dd32b5ef9df11a3da47",
+          "media.py": "548b25c9bb660e74758b122546760255f8526660191c1fe2812ea7be010efd57",
+          "remote_input.py": "260788d8089db4628c844522324a0927d3928bc12e95f9e1e013e809201bda64",
+          "store.py": "6ee1e8a373a3b64f55c50961e45978e5431ae2df00cb589743f2d0b973585276",
+          "worker.py": "f9e810faaddc44c4731bdd48cbfe6e23e5deb853a019d14bbf7f12b7b614bea6"
+        }
+      },
+      "reason": "The library remains affected; upstream fixes are in SQLite 3.54.0. These issues require hostile SQL, database/WAL files, changesets, virtual-table shadow structures or authorizer-dependent SQL. This exact audited caller exposes media tasks only, uses a fixed server-owned queue database and bound SQL values, and never opens submitted media as SQLite. Observed connection defenses disable trusted schema, extension loading and ATTACH, enable defensive and cell-size checks. Caller hashes, exact library and unprivileged profile must all match. This is a service reachability review, not a library fix; review again for any SQL/database import feature or caller/library change."
+    },
+    "CVE-2026-119375": {
+      "source": "sqlite3",
+      "source_version": "3.53.4-2~sonovect13.1",
+      "severity": "UNKNOWN",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-119375",
+        "https://sqlite.org/releaselog/3_54_0.html"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "sqlite-server-store",
+        "library_sha256": "a583bd1ff0d79ded57a0a543b8ed40cda11cc6fa284076b1d3de91fcd87ae154",
+        "caller_files": {
+          "api.py": "fbb00bfa6ff19364f81e7e57d0daedc4e5d7178d8d8e1128dd25e25936709133",
+          "config.py": "15b75ae3b84cf84e2bcad84d0c9986962cd7a730e48520a054d16f9b95bc98c5",
+          "filetrans.py": "3c2405c0484ba67b3483c1e55e94556f51cfee8e51ca6dd32b5ef9df11a3da47",
+          "media.py": "548b25c9bb660e74758b122546760255f8526660191c1fe2812ea7be010efd57",
+          "remote_input.py": "260788d8089db4628c844522324a0927d3928bc12e95f9e1e013e809201bda64",
+          "store.py": "6ee1e8a373a3b64f55c50961e45978e5431ae2df00cb589743f2d0b973585276",
+          "worker.py": "f9e810faaddc44c4731bdd48cbfe6e23e5deb853a019d14bbf7f12b7b614bea6"
+        }
+      },
+      "reason": "The library remains affected; upstream fixes are in SQLite 3.54.0. These issues require hostile SQL, database/WAL files, changesets, virtual-table shadow structures or authorizer-dependent SQL. This exact audited caller exposes media tasks only, uses a fixed server-owned queue database and bound SQL values, and never opens submitted media as SQLite. Observed connection defenses disable trusted schema, extension loading and ATTACH, enable defensive and cell-size checks. Caller hashes, exact library and unprivileged profile must all match. This is a service reachability review, not a library fix; review again for any SQL/database import feature or caller/library change."
+    },
+    "CVE-2026-119376": {
+      "source": "sqlite3",
+      "source_version": "3.53.4-2~sonovect13.1",
+      "severity": "UNKNOWN",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-119376",
+        "https://sqlite.org/releaselog/3_54_0.html"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "sqlite-server-store",
+        "library_sha256": "a583bd1ff0d79ded57a0a543b8ed40cda11cc6fa284076b1d3de91fcd87ae154",
+        "caller_files": {
+          "api.py": "fbb00bfa6ff19364f81e7e57d0daedc4e5d7178d8d8e1128dd25e25936709133",
+          "config.py": "15b75ae3b84cf84e2bcad84d0c9986962cd7a730e48520a054d16f9b95bc98c5",
+          "filetrans.py": "3c2405c0484ba67b3483c1e55e94556f51cfee8e51ca6dd32b5ef9df11a3da47",
+          "media.py": "548b25c9bb660e74758b122546760255f8526660191c1fe2812ea7be010efd57",
+          "remote_input.py": "260788d8089db4628c844522324a0927d3928bc12e95f9e1e013e809201bda64",
+          "store.py": "6ee1e8a373a3b64f55c50961e45978e5431ae2df00cb589743f2d0b973585276",
+          "worker.py": "f9e810faaddc44c4731bdd48cbfe6e23e5deb853a019d14bbf7f12b7b614bea6"
+        }
+      },
+      "reason": "The library remains affected; upstream fixes are in SQLite 3.54.0. These issues require hostile SQL, database/WAL files, changesets, virtual-table shadow structures or authorizer-dependent SQL. This exact audited caller exposes media tasks only, uses a fixed server-owned queue database and bound SQL values, and never opens submitted media as SQLite. Observed connection defenses disable trusted schema, extension loading and ATTACH, enable defensive and cell-size checks. Caller hashes, exact library and unprivileged profile must all match. This is a service reachability review, not a library fix; review again for any SQL/database import feature or caller/library change."
+    },
+    "CVE-2026-119377": {
+      "source": "sqlite3",
+      "source_version": "3.53.4-2~sonovect13.1",
+      "severity": "UNKNOWN",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-119377",
+        "https://sqlite.org/releaselog/3_54_0.html"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "sqlite-server-store",
+        "library_sha256": "a583bd1ff0d79ded57a0a543b8ed40cda11cc6fa284076b1d3de91fcd87ae154",
+        "caller_files": {
+          "api.py": "fbb00bfa6ff19364f81e7e57d0daedc4e5d7178d8d8e1128dd25e25936709133",
+          "config.py": "15b75ae3b84cf84e2bcad84d0c9986962cd7a730e48520a054d16f9b95bc98c5",
+          "filetrans.py": "3c2405c0484ba67b3483c1e55e94556f51cfee8e51ca6dd32b5ef9df11a3da47",
+          "media.py": "548b25c9bb660e74758b122546760255f8526660191c1fe2812ea7be010efd57",
+          "remote_input.py": "260788d8089db4628c844522324a0927d3928bc12e95f9e1e013e809201bda64",
+          "store.py": "6ee1e8a373a3b64f55c50961e45978e5431ae2df00cb589743f2d0b973585276",
+          "worker.py": "f9e810faaddc44c4731bdd48cbfe6e23e5deb853a019d14bbf7f12b7b614bea6"
+        }
+      },
+      "reason": "The library remains affected; upstream fixes are in SQLite 3.54.0. These issues require hostile SQL, database/WAL files, changesets, virtual-table shadow structures or authorizer-dependent SQL. This exact audited caller exposes media tasks only, uses a fixed server-owned queue database and bound SQL values, and never opens submitted media as SQLite. Observed connection defenses disable trusted schema, extension loading and ATTACH, enable defensive and cell-size checks. Caller hashes, exact library and unprivileged profile must all match. This is a service reachability review, not a library fix; review again for any SQL/database import feature or caller/library change."
+    },
+    "CVE-2026-119379": {
+      "source": "sqlite3",
+      "source_version": "3.53.4-2~sonovect13.1",
+      "severity": "UNKNOWN",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-119379",
+        "https://sqlite.org/releaselog/3_54_0.html"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "sqlite-server-store",
+        "library_sha256": "a583bd1ff0d79ded57a0a543b8ed40cda11cc6fa284076b1d3de91fcd87ae154",
+        "caller_files": {
+          "api.py": "fbb00bfa6ff19364f81e7e57d0daedc4e5d7178d8d8e1128dd25e25936709133",
+          "config.py": "15b75ae3b84cf84e2bcad84d0c9986962cd7a730e48520a054d16f9b95bc98c5",
+          "filetrans.py": "3c2405c0484ba67b3483c1e55e94556f51cfee8e51ca6dd32b5ef9df11a3da47",
+          "media.py": "548b25c9bb660e74758b122546760255f8526660191c1fe2812ea7be010efd57",
+          "remote_input.py": "260788d8089db4628c844522324a0927d3928bc12e95f9e1e013e809201bda64",
+          "store.py": "6ee1e8a373a3b64f55c50961e45978e5431ae2df00cb589743f2d0b973585276",
+          "worker.py": "f9e810faaddc44c4731bdd48cbfe6e23e5deb853a019d14bbf7f12b7b614bea6"
+        }
+      },
+      "reason": "The library remains affected; upstream fixes are in SQLite 3.54.0. These issues require hostile SQL, database/WAL files, changesets, virtual-table shadow structures or authorizer-dependent SQL. This exact audited caller exposes media tasks only, uses a fixed server-owned queue database and bound SQL values, and never opens submitted media as SQLite. Observed connection defenses disable trusted schema, extension loading and ATTACH, enable defensive and cell-size checks. Caller hashes, exact library and unprivileged profile must all match. This is a service reachability review, not a library fix; review again for any SQL/database import feature or caller/library change."
+    },
+    "CVE-2026-119373": {
+      "source": "sqlite3",
+      "source_version": "3.53.4-2~sonovect13.1",
+      "severity": "HIGH",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-119373",
+        "https://sqlite.org/releaselog/3_54_0.html"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "sqlite-server-store",
+        "library_sha256": "a583bd1ff0d79ded57a0a543b8ed40cda11cc6fa284076b1d3de91fcd87ae154",
+        "caller_files": {
+          "api.py": "fbb00bfa6ff19364f81e7e57d0daedc4e5d7178d8d8e1128dd25e25936709133",
+          "config.py": "15b75ae3b84cf84e2bcad84d0c9986962cd7a730e48520a054d16f9b95bc98c5",
+          "filetrans.py": "3c2405c0484ba67b3483c1e55e94556f51cfee8e51ca6dd32b5ef9df11a3da47",
+          "media.py": "548b25c9bb660e74758b122546760255f8526660191c1fe2812ea7be010efd57",
+          "remote_input.py": "260788d8089db4628c844522324a0927d3928bc12e95f9e1e013e809201bda64",
+          "store.py": "6ee1e8a373a3b64f55c50961e45978e5431ae2df00cb589743f2d0b973585276",
+          "worker.py": "f9e810faaddc44c4731bdd48cbfe6e23e5deb853a019d14bbf7f12b7b614bea6"
+        }
+      },
+      "reason": "The library remains affected; upstream fixes are in SQLite 3.54.0. These issues require hostile SQL, database/WAL files, changesets, virtual-table shadow structures or authorizer-dependent SQL. This exact audited caller exposes media tasks only, uses a fixed server-owned queue database and bound SQL values, and never opens submitted media as SQLite. Observed connection defenses disable trusted schema, extension loading and ATTACH, enable defensive and cell-size checks. Caller hashes, exact library and unprivileged profile must all match. This is a service reachability review, not a library fix; review again for any SQL/database import feature or caller/library change."
+    },
+    "CVE-2026-119378": {
+      "source": "sqlite3",
+      "source_version": "3.53.4-2~sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-119378",
+        "https://sqlite.org/releaselog/3_54_0.html"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "sqlite-server-store",
+        "library_sha256": "a583bd1ff0d79ded57a0a543b8ed40cda11cc6fa284076b1d3de91fcd87ae154",
+        "caller_files": {
+          "api.py": "fbb00bfa6ff19364f81e7e57d0daedc4e5d7178d8d8e1128dd25e25936709133",
+          "config.py": "15b75ae3b84cf84e2bcad84d0c9986962cd7a730e48520a054d16f9b95bc98c5",
+          "filetrans.py": "3c2405c0484ba67b3483c1e55e94556f51cfee8e51ca6dd32b5ef9df11a3da47",
+          "media.py": "548b25c9bb660e74758b122546760255f8526660191c1fe2812ea7be010efd57",
+          "remote_input.py": "260788d8089db4628c844522324a0927d3928bc12e95f9e1e013e809201bda64",
+          "store.py": "6ee1e8a373a3b64f55c50961e45978e5431ae2df00cb589743f2d0b973585276",
+          "worker.py": "f9e810faaddc44c4731bdd48cbfe6e23e5deb853a019d14bbf7f12b7b614bea6"
+        }
+      },
+      "reason": "The library remains affected; upstream fixes are in SQLite 3.54.0. These issues require hostile SQL, database/WAL files, changesets, virtual-table shadow structures or authorizer-dependent SQL. This exact audited caller exposes media tasks only, uses a fixed server-owned queue database and bound SQL values, and never opens submitted media as SQLite. Observed connection defenses disable trusted schema, extension loading and ATTACH, enable defensive and cell-size checks. Caller hashes, exact library and unprivileged profile must all match. This is a service reachability review, not a library fix; review again for any SQL/database import feature or caller/library change."
+    },
+    "CVE-2026-119591": {
+      "source": "sqlite3",
+      "source_version": "3.53.4-2~sonovect13.1",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-119591",
+        "https://sqlite.org/releaselog/3_54_0.html"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "sqlite-server-store",
+        "library_sha256": "a583bd1ff0d79ded57a0a543b8ed40cda11cc6fa284076b1d3de91fcd87ae154",
+        "caller_files": {
+          "api.py": "fbb00bfa6ff19364f81e7e57d0daedc4e5d7178d8d8e1128dd25e25936709133",
+          "config.py": "15b75ae3b84cf84e2bcad84d0c9986962cd7a730e48520a054d16f9b95bc98c5",
+          "filetrans.py": "3c2405c0484ba67b3483c1e55e94556f51cfee8e51ca6dd32b5ef9df11a3da47",
+          "media.py": "548b25c9bb660e74758b122546760255f8526660191c1fe2812ea7be010efd57",
+          "remote_input.py": "260788d8089db4628c844522324a0927d3928bc12e95f9e1e013e809201bda64",
+          "store.py": "6ee1e8a373a3b64f55c50961e45978e5431ae2df00cb589743f2d0b973585276",
+          "worker.py": "f9e810faaddc44c4731bdd48cbfe6e23e5deb853a019d14bbf7f12b7b614bea6"
+        }
+      },
+      "reason": "The library remains affected; upstream fixes are in SQLite 3.54.0. These issues require hostile SQL, database/WAL files, changesets, virtual-table shadow structures or authorizer-dependent SQL. This exact audited caller exposes media tasks only, uses a fixed server-owned queue database and bound SQL values, and never opens submitted media as SQLite. Observed connection defenses disable trusted schema, extension loading and ATTACH, enable defensive and cell-size checks. Caller hashes, exact library and unprivileged profile must all match. This is a service reachability review, not a library fix; review again for any SQL/database import feature or caller/library change."
     }
   }
 }

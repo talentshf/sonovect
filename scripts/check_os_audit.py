@@ -18,7 +18,7 @@ ROLES = ('core', 'media-worker', 'provider', 'segmentation', 'asr', 'sound', 'ev
 POLICY = json.loads((ROOT / 'providers/speech/shared/os-security/advisory-policy.json').read_text())['records']
 
 
-def lower_disposition(item, package, facts):
+def policy_disposition(item, package, facts):
     rule = POLICY.get(item['id'])
     if (not rule or rule['severity'] != item['severity'] or rule['source'] != package.get('source')
             or rule['source_version'] != package.get('source_version')):
@@ -35,6 +35,20 @@ def lower_disposition(item, package, facts):
             valid = valid and evidence.get('sqlite_zipfile_export') is False
     elif kind == 'compiler-header':
         valid = evidence.get('compiler_headers_present') is False
+    elif kind == 'compiler-template-boundary':
+        profile = evidence.get('cpp_templates', {})
+        valid = (evidence.get('compiler_headers_present') is False
+                 and all(profile.get(key) == [] for key in ('parallel_algorithm_exports', 'vector_bool_exports', 'bitset_exports'))
+                 and evidence.get('libraries', {}).get('libstdc++.so.6', {}).get('sha256') == proof['library_sha256'])
+    elif kind == 'sqlite-server-store':
+        profile = evidence.get('sqlite_store', {})
+        valid = (evidence.get('uid') == 10001 and evidence.get('effective_capabilities') == '0000000000000000'
+                 and evidence.get('no_new_privileges') == '1' and facts.get('setid_paths') == []
+                 and profile.get('profile') == 'fixed-server-store'
+                 and profile.get('connection') == {'defensive': True, 'trusted_schema': False,
+                     'load_extension': False, 'attached_limit': 0, 'cell_size_check': 1}
+                 and profile.get('caller_files') == proof['caller_files']
+                 and evidence.get('libraries', {}).get('libsqlite3.so.0', {}).get('sha256') == proof['library_sha256'])
     elif kind == 'aligned-new':
         probe = evidence.get('aligned_new', {})
         valid = (evidence.get('architecture') == 'x86_64' and probe.get('oversized_cases') == 9
@@ -86,7 +100,7 @@ def classify(audit, facts):
             item = {'id': v['VulnerabilityID'], 'package': v['PkgName'],
                     'version': v['InstalledVersion'], 'severity': v['Severity']}
             if v['Severity'] not in ('HIGH', 'CRITICAL'):
-                assessed = lower_disposition(item, inventory.get(v['PkgName'], {}), facts)
+                assessed = policy_disposition(item, inventory.get(v['PkgName'], {}), facts)
                 residual.append(assessed or item)
                 (reviewed_lower if assessed else unresolved_lower).append(assessed or item)
                 continue
@@ -103,7 +117,8 @@ def classify(audit, facts):
                             evidence_field=absent[1])
                 reviewed.append(item)
             else:
-                unresolved.append(item)
+                assessed = policy_disposition(item, package, facts)
+                (reviewed if assessed else unresolved).append(assessed or item)
     return {'raw_matches': len(reviewed) + len(unresolved) + len(residual),
             'reviewed_high_critical': reviewed, 'unresolved_high_critical': unresolved,
             'reviewed_lower_severity': reviewed_lower, 'unresolved_lower_severity': unresolved_lower,
