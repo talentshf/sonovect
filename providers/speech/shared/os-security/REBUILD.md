@@ -6,6 +6,8 @@ Use Debian 13 amd64 with the tools in `build-packages.txt`. Execute `sh build.sh
 
 Build options `nocheck nodoc` exclude the package integration suites; behavioral acceptance and its limitations are recorded separately. This does not claim all upstream tests pass. Do not run the service-image minimization recipe on a host or development system: it deliberately removes shell and administrative tools. Runtime installation verifies package digests and retains source before minimization.
 
+SQLite 3.54.1's Debian packaging additionally builds Tcl 9.1 bindings. The Debian 13 build retains its native Tcl 8.6 binding and omits the second binding and its package-index rewrite. `additional.py` verifies the expected packaging before adapting `debian/rules` and `debian/control`; `debian/sonovect-build.json` records this change. The SQLite library source is unchanged, and only `libsqlite3-0` is installed into runtime images.
+
 Corresponding source must remain available with distributed library binaries according to their upstream licenses. Rebuilding from a fresh repository may fetch newer distribution/build dependencies; exact accepted image IDs, installed inventories and source locks distinguish that rebuild from the tested artifacts.
 
 The minimizer refuses direct checkout/host invocation. Its internal build flag, root identity, exact temporary recipe path and package bundle must all match the Docker installation stage; the flag is scoped to that build command and is not persisted in runtime settings.

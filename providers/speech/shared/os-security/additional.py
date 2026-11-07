@@ -60,12 +60,39 @@ def prepare():
                         raise RuntimeError('Debian security patch integrity mismatch')
             else:
                 apply_crc_patch(directory)
+        if name == 'sqlite3':
+            adapt_sqlite_packaging(directory)
         path = directory / 'debian/changelog'
         path.write_text(f"{name} ({spec['version']}) trixie; urgency=high\n\n"
                         '  * Rebuild fixed library sources for the Sonovect Debian13 container.\n\n'
                         ' -- Sonovect contributors <noreply@example.invalid>  Tue, 20 Oct 2026 15:00:00 +0000\n\n'
                         + path.read_text())
         subprocess.run(['dpkg-source', '-b', spec['directory']], cwd=ROOT, check=True)
+
+
+def adapt_sqlite_packaging(directory):
+    # Debian unstable builds a second Tcl binding for Tcl 9.1. Debian 13
+    # provides Tcl 8.6; only libsqlite3-0 is selected for our runtime images.
+    # Keep the upstream library and its security fixes unchanged.
+    rules = directory / 'debian/rules'
+    text = rules.read_text()
+    secondary = 'TCLV_SECONDARY = 9.1'
+    install = '\t$(MAKE) -C$(CURDIR)/debian/$(TCLV_SECONDARY) install-tcl DESTDIR=$(DESTDIR)\n'
+    start = text.find('\t# Enhance the pkgIndex.tcl file for the Tcl module.')
+    end = text.find('\nbinary-indep:', start)
+    if text.count(secondary) != 1 or text.count(install) != 1 or start < 0 or end < start:
+        raise RuntimeError('Unexpected SQLite Tcl packaging; review source lock')
+    text = text[:start] + text[end:]
+    rules.write_text(text.replace(secondary, 'TCLV_SECONDARY =').replace(install, ''))
+    control = directory / 'debian/control'
+    text = control.read_text()
+    if text.count(', tcl9.1-dev') != 1:
+        raise RuntimeError('Unexpected SQLite Tcl build dependency')
+    control.write_text(text.replace(', tcl9.1-dev', ''))
+    (directory / 'debian/sonovect-build.json').write_text(json.dumps({
+        'tcl_build_version': '8.6', 'selected_runtime_package': 'libsqlite3-0',
+        'packaging_files_adjusted': ['debian/rules', 'debian/control'],
+        'upstream_code_changed': False}, indent=2) + '\n')
 
 
 def apply_crc_patch(directory):
