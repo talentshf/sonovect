@@ -29,60 +29,64 @@
       "version": "2.43-7~sonovect13.1"
     },
     "sqlite3": {
-      "upstream_debian_version": "3.53.4-2",
+      "upstream_debian_version": "3.54.1-2",
       "files": [
         {
-          "name": "sqlite3_3.53.4-2.dsc",
-          "size": 2641,
-          "sha256": "777dcd95dd918525202b89b02f9f1f1e3e1d80e2d39cdec2841b38268069c21d",
-          "url": "https://deb.debian.org/debian/pool/main/s/sqlite3/sqlite3_3.53.4-2.dsc"
+          "name": "sqlite3_3.54.1-2.dsc",
+          "sha256": "4112cab5cabf3892c5ad01bf0768e7784ea204afe2249e564d30d994979443ef",
+          "size": 2648,
+          "url": "https://deb.debian.org/debian/pool/main/s/sqlite3/sqlite3_3.54.1-2.dsc"
         },
         {
-          "name": "sqlite3_3.53.4.orig-www.tar.xz",
-          "size": 6326460,
-          "sha256": "ea1d8746c27ca69c1b899864dde8cf819ce3d55f186d031fd71ea3207df97feb",
-          "url": "https://deb.debian.org/debian/pool/main/s/sqlite3/sqlite3_3.53.4.orig-www.tar.xz"
+          "name": "sqlite3_3.54.1.orig-www.tar.xz",
+          "sha256": "67906ee141109bebe43cdcf197892806397dabc79f5cd7f05f1278f47b0c5e25",
+          "size": 6403124,
+          "url": "https://deb.debian.org/debian/pool/main/s/sqlite3/sqlite3_3.54.1.orig-www.tar.xz"
         },
         {
-          "name": "sqlite3_3.53.4.orig.tar.xz",
-          "size": 8656972,
-          "sha256": "05366adc8ee80c6b1faa71285b49d133c2121238ca58934b077fdeb95934abd4",
-          "url": "https://deb.debian.org/debian/pool/main/s/sqlite3/sqlite3_3.53.4.orig.tar.xz"
+          "name": "sqlite3_3.54.1.orig.tar.xz",
+          "sha256": "faeff7682200b3dd58c8f0f229892a7271c73c1fdabc86e7315eb31eb7cb6e83",
+          "size": 8871620,
+          "url": "https://deb.debian.org/debian/pool/main/s/sqlite3/sqlite3_3.54.1.orig.tar.xz"
         },
         {
-          "name": "sqlite3_3.53.4-2.debian.tar.xz",
-          "size": 31864,
-          "sha256": "43bc295284387f7b69aca9ace6c43f16e6d9472905dbd7d9ab707576db887962",
-          "url": "https://deb.debian.org/debian/pool/main/s/sqlite3/sqlite3_3.53.4-2.debian.tar.xz"
+          "name": "sqlite3_3.54.1-2.debian.tar.xz",
+          "sha256": "ec8e9bb58db16bd661c6f44426855536831f3a004ac1aa8292d24db2ac504999",
+          "size": 32344,
+          "url": "https://deb.debian.org/debian/pool/main/s/sqlite3/sqlite3_3.54.1-2.debian.tar.xz"
         }
       ],
-      "directory": "sqlite3-3.53.4",
-      "version": "3.53.4-2~sonovect13.1"
+      "directory": "sqlite3-3.54.1",
+      "version": "3.54.1-2~sonovect13.2"
     },
     "zlib": {
-      "upstream_debian_version": "1:1.3.dfsg+really1.3.1-1",
+      "upstream_debian_version": "1:1.3.dfsg+really1.3.1-1+deb13u1",
       "files": [
         {
-          "name": "zlib_1.3.dfsg+really1.3.1-1.dsc",
-          "size": 2637,
-          "sha256": "ede2791e29c1d3b422f9208bdd7edf040c20445ea1e7453a72037576e64fa197",
-          "url": "https://deb.debian.org/debian/pool/main/z/zlib/zlib_1.3.dfsg+really1.3.1-1.dsc"
+          "name": "zlib_1.3.dfsg+really1.3.1-1+deb13u1.dsc",
+          "sha256": "7954224611bd043d62c094abf81cefcf9d97276479fc495767fcbc92cc6552f2",
+          "size": 3271,
+          "url": "https://security.debian.org/debian-security/pool/updates/main/z/zlib/zlib_1.3.dfsg+really1.3.1-1+deb13u1.dsc"
         },
         {
           "name": "zlib_1.3.dfsg+really1.3.1.orig.tar.gz",
-          "size": 1325737,
           "sha256": "60dd315c07f616887caa029408308a018ace66e3d142726a97db164b3b8f69fb",
-          "url": "https://deb.debian.org/debian/pool/main/z/zlib/zlib_1.3.dfsg+really1.3.1.orig.tar.gz"
+          "size": 1325737,
+          "url": "https://security.debian.org/debian-security/pool/updates/main/z/zlib/zlib_1.3.dfsg+really1.3.1.orig.tar.gz"
         },
         {
-          "name": "zlib_1.3.dfsg+really1.3.1-1.debian.tar.xz",
-          "size": 16576,
-          "sha256": "9ed525955ce9fb0c1b39be8ff98f73450dbfc6305a9a27e6149c8972d38a0a9e",
-          "url": "https://deb.debian.org/debian/pool/main/z/zlib/zlib_1.3.dfsg+really1.3.1-1.debian.tar.xz"
+          "name": "zlib_1.3.dfsg+really1.3.1-1+deb13u1.debian.tar.xz",
+          "sha256": "4e99de80447700cf16ecf8ed3e77fabb39f085a5fffc66713466ccf07397cc04",
+          "size": 17836,
+          "url": "https://security.debian.org/debian-security/pool/updates/main/z/zlib/zlib_1.3.dfsg+really1.3.1-1+deb13u1.debian.tar.xz"
         }
       ],
       "directory": "zlib-1.3.dfsg+really1.3.1",
-      "version": "1:1.3.dfsg+really1.3.1-1+sonovect13.1"
+      "version": "1:1.3.dfsg+really1.3.1-1+deb13u1+sonovect13.2",
+      "debian_patch_sha256": {
+        "debian/patches/Check-for-negative-lengths-in-crc32_combine-function.patch": "aba1c05797cd51091a2987ef97ea8c34574c43c698de9a68719e0b07bc9a336f",
+        "debian/patches/Fix-buffer-overflow-bug-in-non-blocking-gzwrite.patch": "524d815463693befeb627eaa3f8b6ca173ee0a247bb787be651f7d60a5b34211"
+      }
     }
   },
   "patches": {
@@ -92,5 +96,10 @@
       "size": 2122,
       "cve": "CVE-2026-27171"
     }
+  },
+  "updated_components": {
+    "date": "2026-11-07",
+    "sqlite3": "Official Debian 3.54.1-2 descriptor and archives; fixes the ten 2026-11937x/119591 reports.",
+    "zlib": "Official Debian trixie-security source; retains CRC fix and adds gzwrite fix for CVE-2026-76844/CVE-2026-85091."
   }
 }

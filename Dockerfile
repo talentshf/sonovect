@@ -11,7 +11,7 @@ RUN python /opt/os-security/patch-ncurses.py
 RUN python /opt/os-security/build.py build ncurses
 COPY --chmod=644 providers/speech/shared/os-security/install.sh providers/speech/shared/os-security/facts.py /opt/os-security/
 RUN python /opt/os-security/build.py finalize
-RUN apt-get update && apt-get install -y --no-install-recommends gawk texinfo tcl-dev linux-libc-dev libicu-dev chrpath libcap-dev systemtap-sdt-dev lynx rdfind symlinks netbase gperf libgd-dev
+RUN apt-get -o Acquire::Retries=0 update && apt-get -o Acquire::Retries=0 install -y --no-install-recommends gawk texinfo tcl-dev linux-libc-dev libicu-dev chrpath libcap-dev systemtap-sdt-dev lynx rdfind symlinks netbase gperf libgd-dev
 COPY --chmod=644 providers/speech/shared/os-security/additional.py providers/speech/shared/os-security/additional-source-lock.json providers/speech/shared/os-security/zlib-crc.patch /opt/os-security/
 RUN python /opt/os-security/additional.py prepare
 RUN python /opt/os-security/additional.py build zlib
@@ -36,8 +36,8 @@ RUN pip wheel --no-deps --no-build-isolation --wheel-dir /wheels .
 FROM python:3.12-slim-trixie@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1 AS runtime-base
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_DISABLE_PIP_VERSION_CHECK=1 HOME=/home/sonovect SONOVECT_DATA_DIR=/data
 WORKDIR /app
-RUN apt-get update && apt-get upgrade -y \
-    && apt-get install -y --no-install-recommends ca-certificates=20250419+deb13u1 \
+RUN apt-get -o Acquire::Retries=0 update && apt-get -o Acquire::Retries=0 upgrade -y \
+    && apt-get -o Acquire::Retries=0 install -y --no-install-recommends ca-certificates=20250419+deb13u1 \
     && rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir pip==26.2.1 setuptools==84.2.0 wheel==0.48.0
 COPY requirements.lock ./
@@ -48,7 +48,7 @@ USER 10001:10001
 
 FROM runtime-base AS media-base
 USER root
-RUN apt-get update && apt-get install -y --no-install-recommends libmp3lame0 libopus0 libvpx9 \
+RUN apt-get -o Acquire::Retries=0 update && apt-get -o Acquire::Retries=0 install -y --no-install-recommends libmp3lame0 libopus0 libvpx9 \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=media-build /out/bin/ /usr/local/bin/
 COPY --from=media-build /out/share/ /usr/local/share/
@@ -73,7 +73,7 @@ COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
 RUN ["python", "/usr/local/share/sonovect-os-security/source/recipe/facts.py", "--verify"]
-ARG VERSION=0.1.1
+ARG VERSION=0.2.0
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0" org.opencontainers.image.description="Self-hosted ASR for audio and video soundtracks, with separate sound analysis."
 EXPOSE 8096
@@ -89,7 +89,7 @@ COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
 RUN ["python", "/usr/local/share/sonovect-os-security/source/recipe/facts.py", "--verify"]
-ARG VERSION=0.1.1
+ARG VERSION=0.2.0
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect media worker" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0"
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 CMD ["sonovect-health", "worker"]
@@ -104,7 +104,7 @@ COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
 RUN ["python", "/usr/local/share/sonovect-os-security/source/recipe/facts.py", "--verify"]
-ARG VERSION=0.1.1
+ARG VERSION=0.2.0
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect native worker" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0"
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 CMD ["sonovect-health", "worker"]
@@ -123,7 +123,7 @@ COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
 RUN ["python", "/usr/local/share/sonovect-os-security/source/recipe/facts.py", "--verify"]
-ARG VERSION=0.1.1
+ARG VERSION=0.2.0
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect experimental CPU vocal worker" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0"
 EXPOSE 8085
@@ -144,7 +144,7 @@ COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
 RUN ["python", "/usr/local/share/sonovect-os-security/source/recipe/facts.py", "--verify"]
-ARG VERSION=0.1.1
+ARG VERSION=0.2.0
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect weight-free measurements" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0"
 ENV OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 NUMBA_CACHE_DIR=/tmp/numba-cache
@@ -193,7 +193,7 @@ RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
 RUN ["python", "-c", "import os; from pathlib import Path; root=Path('/opt/sonovect/providers'); assert all(p.is_file() and os.access(p.parent, os.X_OK) for p in [root/'events/app.py',root/'vocal/vocal_app.py',root/'measurements/measurement_app.py'])"]
 RUN ["python", "/usr/local/share/sonovect-os-security/source/recipe/facts.py", "--verify"]
-ARG VERSION=0.1.1
+ARG VERSION=0.2.0
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect local CPU analysis" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0"
 ENV OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 NUMBA_CACHE_DIR=/tmp/numba-cache

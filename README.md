@@ -3,11 +3,13 @@
 
 [中文](README.zh-CN.md) · [Configuration](docs/configuration.md) · [Deploy](deploy/README.md) · [Benchmarks](docs/quality.md) · [Agent setup](docs/agent-setup.md) · [Discussions](https://github.com/talentshf/sonovect/discussions) · [Contribute](CONTRIBUTING.md)
 
-[![Checks](https://github.com/talentshf/sonovect/actions/workflows/checks.yml/badge.svg)](https://github.com/talentshf/sonovect/actions/workflows/checks.yml) · [Apache-2.0](LICENSE) · Python 3.12+ · [v0.1.1 release notes](docs/release-v0.1.1.md)
+[![Checks](https://github.com/talentshf/sonovect/actions/workflows/checks.yml/badge.svg)](https://github.com/talentshf/sonovect/actions/workflows/checks.yml) · [Apache-2.0](LICENSE) · Python 3.12+ · [v0.2.0 release notes](docs/release-v0.2.0.md)
 
 # Turn recordings and video soundtracks into text, subtitles and sound data
 
-**Sonovect v0.1.1 is a self-hosted transcription and sound-analysis service.** Upload files, choose the processing you need and retrieve results by job ID. Speech, acoustic analysis and job status are separate outputs for people, applications and assistants.
+**Sonovect v0.2.0 is a self-hosted transcription and sound-analysis service.** Upload files, choose the processing you need and retrieve results by job ID. Speech, acoustic analysis and job status are separate outputs for people, applications and assistants.
+
+v0.2.0 also offers an opt-in [DashScope-compatible asynchronous file interface](docs/filetrans-compatibility.md) for applications that submit managed audio URLs and recover results by the original task ID.
 
 ## What it does
 

@@ -1,6 +1,6 @@
 # MCP integration
 
-Product version **0.1.1**; maintained dependency lock **MCP Python SDK 2.3.0**. The server runs with `sonovect-mcp` over stdio and calls the same `/v1` HTTP task service. For executable configuration, authentication, skill installation and a complete example, use [agent setup](agent-setup.md) / [中文接入指南](agent-setup.zh-CN.md).
+Product version **0.2.0**; maintained dependency lock **MCP Python SDK 2.3.0**. The server runs with `sonovect-mcp` over stdio and calls the same `/v1` HTTP task service. For executable configuration, authentication, skill installation and a complete example, use [agent setup](agent-setup.md) / [中文接入指南](agent-setup.zh-CN.md).
 
 Configure the executable, `SONOVECT_URL`, one of `SONOVECT_TOKEN`/`SONOVECT_TOKEN_FILE`, and `SONOVECT_MCP_INPUT_ROOT` through the assistant's native secure configuration. No machine-specific paths or credentials are shipped. Without an input root, submission is disabled while reads remain available. Resolved file paths, including symlinks, must stay within the allowed root. An absolute executable path may be needed when the host does not inherit shell PATH.
 

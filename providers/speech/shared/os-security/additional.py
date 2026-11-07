@@ -48,21 +48,63 @@ def prepare():
                 'compiler': 'Debian13 GCC14', 'packaging_files_adjusted': changed,
                 'upstream_code_changed': False}, indent=2) + '\n')
         if name == 'zlib':
-            patch = HERE / 'zlib-crc.patch'
-            if hashlib.sha256(patch.read_bytes()).hexdigest() != LOCK['patches']['zlib']['sha256']:
-                raise RuntimeError('Upstream patch integrity mismatch')
-            target = directory / 'debian/patches/sonovect-crc-negative-length.patch'
-            shutil.copy2(patch, target)
-            series = directory / 'debian/patches/series'
-            with series.open('a') as stream:
-                stream.write('\nsonovect-crc-negative-length.patch\n')
-            subprocess.run(['dpkg-source', '--before-build', '.'], cwd=directory, check=True)
+            retained = spec.get('debian_patch_sha256')
+            if retained:
+                # The security source now carries both fixes. Verify exact
+                # distro patches instead of applying the CRC fix a second time.
+                if (len(retained) != 2 or not any('crc32_combine' in n for n in retained)
+                        or not any('gzwrite' in n for n in retained)):
+                    raise RuntimeError('Incomplete security source patches')
+                for filename, digest in retained.items():
+                    if hashlib.sha256((directory / filename).read_bytes()).hexdigest() != digest:
+                        raise RuntimeError('Debian security patch integrity mismatch')
+            else:
+                apply_crc_patch(directory)
+        if name == 'sqlite3':
+            adapt_sqlite_packaging(directory)
         path = directory / 'debian/changelog'
         path.write_text(f"{name} ({spec['version']}) trixie; urgency=high\n\n"
                         '  * Rebuild fixed library sources for the Sonovect Debian13 container.\n\n'
                         ' -- Sonovect contributors <noreply@example.invalid>  Tue, 20 Oct 2026 15:00:00 +0000\n\n'
                         + path.read_text())
         subprocess.run(['dpkg-source', '-b', spec['directory']], cwd=ROOT, check=True)
+
+
+def adapt_sqlite_packaging(directory):
+    # Debian unstable builds a second Tcl binding for Tcl 9.1. Debian 13
+    # provides Tcl 8.6; only libsqlite3-0 is selected for our runtime images.
+    # Keep the upstream library and its security fixes unchanged.
+    rules = directory / 'debian/rules'
+    text = rules.read_text()
+    secondary = 'TCLV_SECONDARY = 9.1'
+    install = '\t$(MAKE) -C$(CURDIR)/debian/$(TCLV_SECONDARY) install-tcl DESTDIR=$(DESTDIR)\n'
+    start = text.find('\t# Enhance the pkgIndex.tcl file for the Tcl module.')
+    end = text.find('\nbinary-indep:', start)
+    if text.count(secondary) != 1 or text.count(install) != 1 or start < 0 or end < start:
+        raise RuntimeError('Unexpected SQLite Tcl packaging; review source lock')
+    text = text[:start] + text[end:]
+    rules.write_text(text.replace(secondary, 'TCLV_SECONDARY =').replace(install, ''))
+    control = directory / 'debian/control'
+    text = control.read_text()
+    if text.count(', tcl9.1-dev') != 1:
+        raise RuntimeError('Unexpected SQLite Tcl build dependency')
+    control.write_text(text.replace(', tcl9.1-dev', ''))
+    (directory / 'debian/sonovect-build.json').write_text(json.dumps({
+        'tcl_build_version': '8.6', 'selected_runtime_package': 'libsqlite3-0',
+        'packaging_files_adjusted': ['debian/rules', 'debian/control'],
+        'upstream_code_changed': False}, indent=2) + '\n')
+
+
+def apply_crc_patch(directory):
+    patch = HERE / 'zlib-crc.patch'
+    if hashlib.sha256(patch.read_bytes()).hexdigest() != LOCK['patches']['zlib']['sha256']:
+        raise RuntimeError('Upstream patch integrity mismatch')
+    target = directory / 'debian/patches/sonovect-crc-negative-length.patch'
+    shutil.copy2(patch, target)
+    series = directory / 'debian/patches/series'
+    with series.open('a') as stream:
+        stream.write('\nsonovect-crc-negative-length.patch\n')
+    subprocess.run(['dpkg-source', '--before-build', '.'], cwd=directory, check=True)
 
 
 def build(name):

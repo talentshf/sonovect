@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.2.0 — 2026-11-07
+
+- Rebuild fixed SQLite 3.54.1 and Debian security zlib sources; retain CRC fixes, remove unused APT download code and disable build-time APT retries. Refresh exact-source advisory decisions and retain the remaining explicit service boundaries.
+
 - Add an opt-in single-file DashScope-compatible asynchronous interface with controlled HTTPS inputs, durable engine-bound tasks, signed results and preserved word evidence. Native speech and analysis results remain separate.
 - Add a deployment overlay and report pinned segmentation model revisions for compatible admission. No runtime upgrade or public network route is implied by these source changes.
 

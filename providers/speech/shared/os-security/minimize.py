@@ -11,7 +11,8 @@ PROGRAMS = ('bash', 'bashbug', 'dash', 'sh', 'perl', 'tar', 'rmt', 'rmt-tar',
             'diff', 'diff3', 'sdiff', 'cmp', 'chown', 'chgrp', 'sort', 'uniq',
             'unexpand', 'login', 'su', 'sulogin', 'runuser', 'chfn', 'chsh', 'gpasswd',
             'newgrp', 'passwd', 'chage', 'chpasswd', 'usermod', 'userdel',
-            'groupadd', 'groupdel', 'groupmod', 'useradd', 'newusers', 'chroot')
+            'groupadd', 'groupdel', 'groupmod', 'useradd', 'newusers', 'chroot',
+            'apt', 'apt-get', 'apt-cache', 'apt-config', 'apt-key', 'apt-mark', 'apt-cdrom')
 
 
 def minimize():
@@ -43,6 +44,14 @@ def minimize():
         shutil.rmtree(modules)
     for path in Path('/usr/lib').rglob('pam_userdb.so'):
         remove(path)
+    for path in Path('/usr/lib').rglob('libapt-*.so*'):
+        remove(path)
+    methods = Path('/usr/lib/apt/methods')
+    if methods.is_dir():
+        for path in sorted(methods.rglob('*')):
+            if path.is_file() or path.is_symlink():
+                remove(path)
+        shutil.rmtree(methods)
     for name in ('/etc/subuid', '/etc/subgid'):
         remove(Path(name))
     btmp = Path('/var/log/btmp')

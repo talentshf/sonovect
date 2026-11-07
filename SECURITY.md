@@ -26,7 +26,7 @@ and no-new-privileges. They are not system-login or host-administration images.
 
 ## Current dependency and OS checks
 
-Sonovect v0.1.1 uses reviewed role-specific Linux amd64/Python3.12 locks: Torch2.14.1
+Sonovect v0.2.0 uses reviewed role-specific Linux amd64/Python3.12 locks: Torch2.14.1
 (CPU or official cu132), CPU TorchAudio2.11.0, Transformers5.20.2,
 FunASR1.4.16 and ModelScope1.40.2. MOSS is an explicitly identified derived
 inference package. Demo UI frameworks are not installed by maintained recipes.
@@ -34,7 +34,7 @@ Keep raw installed-package Python audit receipts; the
 [Python audit check](scripts/check_dependency_audit.py) rejects new findings,
 skipped packages and scoped version drift.
 
-The maintained candidate retains the exact-source Debian13 backports of util-linux2.42.4, ACL2.4.0, ncurses6.6, glibc2.43-7, SQLite3.53.4-2 and zlib1.3.1 with a narrow upstream CRC fix. It installs no unstable binary packages and changes no host OS. Hash-locked source, complete packaging changes, modified corresponding source packages, build instructions and inventories remain under `/usr/local/share/sonovect-os-security` in every role image. The runtime removes setuid/setgid bits and unused shell, Perl, archive and account-administration programs. Use direct Python diagnostics; rebuild images to change software.
+The maintained candidate retains the exact-source Debian13 backports of util-linux2.42.4, ACL2.4.0, ncurses6.6, glibc2.43-7, SQLite3.54.1-2 and the zlib1.3.1 trixie-security source with CRC/gzip-write fixes. It installs no unstable binary packages and changes no host OS. Hash-locked source, complete packaging changes, modified corresponding source packages, build instructions and inventories remain under `/usr/local/share/sonovect-os-security` in every role image. The runtime removes setuid/setgid bits and unused shell, Perl, archive, package-manager download code and account-administration programs. Use direct Python diagnostics; rebuild images to change software.
 
 A source-package advisory can match a library while the affected executable/module is absent. Findings require exact per-image package/file evidence; absence of a distro fix does not close them. The [OS audit gate](scripts/check_os_audit.py) rejects unreviewed findings at **all severities**, severity/source-version drift, incomplete inventories and missing applicability proof. Every raw match is retained: the actual raw package/advisory match count per candidate role, not a zero scanner count. Actual-role Python installed-package audits must have no unreviewed matches or skipped third-party packages; project-authored and derived model-runtime code is reviewed as source.
 

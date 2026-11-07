@@ -9,9 +9,9 @@ for item in json.load(open('packages.json')):
     if path.name != item['file'] or hashlib.sha256(path.read_bytes()).hexdigest() != item['sha256']:
         raise RuntimeError('Backport integrity mismatch')
 CHECK
-apt-get update
-apt-get install -y --no-install-recommends ./runtime/*.deb
-apt-get check
+apt-get -o Acquire::Retries=0 update
+apt-get -o Acquire::Retries=0 install -y --no-install-recommends ./runtime/*.deb
+apt-get -o Acquire::Retries=0 check
 # Preserve exact corresponding source and build inventory with the binaries.
 mkdir -p /usr/local/share/sonovect-os-security
 cp -a source packages.json build-packages.txt /usr/local/share/sonovect-os-security/

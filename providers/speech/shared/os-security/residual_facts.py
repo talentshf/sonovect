@@ -82,8 +82,8 @@ def collect():
                 'tar', 'rmt', 'chown', 'chgrp', 'sort', 'uniq', 'unexpand',
                 'login', 'su', 'chfn', 'chsh', 'sulogin', 'init', 'apt-key', 'getfacl', 'setfacl', 'chacl', 'getfattr', 'setfattr',
                 'bzip2recover', 'nscd', 'systemd-oomd', 'systemd-journald',
-                'newuidmap', 'newgidmap', 'pod2text', 'gcc', 'g++')
-    modules = {'file_temp': [], 'pod_text': [], 'nscd': [], 'systemd_programs': [], 'pam_userdb': [], 'sqlite_zipfile': []}
+                'newuidmap', 'newgidmap', 'pod2text', 'gcc', 'g++', 'apt', 'apt-get', 'apt-cache')
+    modules = {'file_temp': [], 'pod_text': [], 'nscd': [], 'systemd_programs': [], 'pam_userdb': [], 'sqlite_zipfile': [], 'apt_methods': [], 'apt_libraries': []}
     for directory in ('/usr', '/sbin', '/bin'):
         for path in Path(directory).rglob('*'):
             if not path.is_file():
@@ -98,6 +98,10 @@ def collect():
                 modules['pam_userdb'].append(str(path))
             if path.name == 'zipfile.so':
                 modules['sqlite_zipfile'].append(str(path))
+            if path.name.startswith('libapt-') and '.so' in path.name:
+                modules['apt_libraries'].append(str(path))
+            if '/apt/methods/' in str(path):
+                modules['apt_methods'].append(str(path))
             if path.name in ('systemd', 'systemd-oomd', 'systemd-journald'):
                 modules['systemd_programs'].append(str(path))
     dash = shutil.which('dash')

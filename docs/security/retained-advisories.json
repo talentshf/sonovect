@@ -1,6 +1,6 @@
 {
-  "reviewed_utc": "2026-11-02T15:01:35.841227+00:00",
-  "review_scope": "Nineteen retained service-boundary advisories. Original nine digests unchanged; ten newly reported SQLite issues require hostile SQL/database/WAL/changeset input absent from the exact audited caller. Actual connection defenses and caller/library hashes are required. This is a reachability decision, not a SQLite repair; SQLite 3.54.0 contains upstream fixes.",
+  "reviewed_utc": "2026-11-07T15:03:34.183518+00:00",
+  "review_scope": "Nine retained service-boundary advisories. SQLite 2021-45346 Debian distribution table was manually re-reviewed; eight other semantic digests unchanged. The ten 2026 SQLite reports are now fixed by locked 3.54.1 sources and remain explicit fixed-source records in policy. Source/runtime/image evidence remains separate.",
   "records": {
     "CVE-2010-4756": {
       "source": "glibc",
@@ -46,8 +46,8 @@
     },
     "CVE-2021-45346": {
       "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
-      "semantic_sha256": "a0a06bc95101368d8b8abf10e0b10646772080855169fbc0fa53b3527fd3828f",
+      "source_version": "3.54.1-2~sonovect13.2",
+      "semantic_sha256": "b659e7dba8d3474d54a79ca9d163bc5c2d1fff27bd3c21a8e0e0e3339de3e2ff",
       "url": "https://security-tracker.debian.org/tracker/CVE-2021-45346"
     },
     "CVE-2026-84243": {
@@ -55,66 +55,6 @@
       "source_version": "2.43-7~sonovect13.1",
       "semantic_sha256": "42bbfe80c6511790dcf312d5e23426e5903767aed44f709e7dd8ec173d58374a",
       "url": "https://security-tracker.debian.org/tracker/CVE-2026-84243"
-    },
-    "CVE-2026-119371": {
-      "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
-      "semantic_sha256": "b0ca6118e978eb34546d6b6b28a6d6637ac0ae9e7cb7bc891a03387dc39d853d",
-      "url": "https://security-tracker.debian.org/tracker/CVE-2026-119371"
-    },
-    "CVE-2026-119372": {
-      "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
-      "semantic_sha256": "2674467df8442f1716b9264d0adee2b106a4432d45fc1c5dc6d30e03003bc6bb",
-      "url": "https://security-tracker.debian.org/tracker/CVE-2026-119372"
-    },
-    "CVE-2026-119373": {
-      "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
-      "semantic_sha256": "fc7d743172984a983b715ff1fe31899b79988cf0c3ef9ca5142095de1ce3383f",
-      "url": "https://security-tracker.debian.org/tracker/CVE-2026-119373"
-    },
-    "CVE-2026-119374": {
-      "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
-      "semantic_sha256": "f938bb5e9c90b0fd58600fec9cd0ac9eac1f4155d9ed1f5c9b0847d8d2cb9f2b",
-      "url": "https://security-tracker.debian.org/tracker/CVE-2026-119374"
-    },
-    "CVE-2026-119375": {
-      "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
-      "semantic_sha256": "ac480c1ed69eb5898f54c3b39ccae26f46793d36ff70237fab51c433c2c10051",
-      "url": "https://security-tracker.debian.org/tracker/CVE-2026-119375"
-    },
-    "CVE-2026-119376": {
-      "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
-      "semantic_sha256": "76b7e556313551461a342843eb44c21b2989f89baac38b59754559392b1b71f9",
-      "url": "https://security-tracker.debian.org/tracker/CVE-2026-119376"
-    },
-    "CVE-2026-119377": {
-      "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
-      "semantic_sha256": "05fbf95a9b6f75f56efaca8532f89705fccbff2aae8fe586b6597d69d92b0190",
-      "url": "https://security-tracker.debian.org/tracker/CVE-2026-119377"
-    },
-    "CVE-2026-119378": {
-      "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
-      "semantic_sha256": "caa4ad981ce61510288f7ab41a88bfdf0a226e49c000ff3e115ed3d713347ccf",
-      "url": "https://security-tracker.debian.org/tracker/CVE-2026-119378"
-    },
-    "CVE-2026-119379": {
-      "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
-      "semantic_sha256": "4e90cd5d1fcce733fcef839fdcfa25fb27b4da101887965f3e8f6f6f6e98da68",
-      "url": "https://security-tracker.debian.org/tracker/CVE-2026-119379"
-    },
-    "CVE-2026-119591": {
-      "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
-      "semantic_sha256": "9589a9784875bb72ab03e65184ca8fd261ca8dc47e36a3d6010e33f5f50ffaa5",
-      "url": "https://security-tracker.debian.org/tracker/CVE-2026-119591"
     }
   }
 }
