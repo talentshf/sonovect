@@ -1,6 +1,6 @@
 # Configuration and model selection
 
-Sonovect v0.1.1. Deployment selects components; jobs select execution. Jobs default to speech only. Setup writes a new mode-0600 configuration with a random token, never prints the token, and refuses overwrites.
+Sonovect v0.2.0. Deployment selects components; jobs select execution. Jobs default to speech only. Setup writes a new mode-0600 configuration with a random token, never prints the token, and refuses overwrites.
 
 ## Recommended choices
 

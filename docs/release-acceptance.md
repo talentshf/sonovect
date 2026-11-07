@@ -35,4 +35,4 @@ Compute `FROZEN_MANIFEST_SHA256` after choosing local paths, before inference. T
 
 The accepted Linux amd64 deployment supports CPU and NVIDIA speech routes, compact/distributed layouts and independent optional analysis. Validation covers HTTP/CLI/MCP submission and retrieval, subtitles, export integrity, restart persistence, empty-cache preparation and selected model combinations. Hardware requirements are in [deployment choices](deployment-options.md); developer commands are in [validation](validation.md).
 
-Version 0.1.0 identifies the product; exact source revisions, image identities and package checksums identify builds. Model-quality references do not replace functional installation checks on a different machine. Publication availability is recorded in [PUBLICATION.md](../PUBLICATION.md).
+The application version identifies the product; exact source revisions, image identities and package checksums identify builds. Model-quality references do not replace functional installation checks on a different machine. Publication availability is recorded in [PUBLICATION.md](../PUBLICATION.md).

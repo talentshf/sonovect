@@ -2,7 +2,7 @@
 
 [中文](agent-setup.zh-CN.md) · [MCP tool reference](mcp.md)
 
-The service runs the models. A small client on the agent's machine connects to that service; the optional skill teaches the agent how to use it. The client needs Python 3.12+, not a GPU or model weights. Sonovect v0.1.1 ships a standard stdio MCP server and a portable skill directory/ZIP, not a marketplace-specific plugin installer.
+The service runs the models. A small client on the agent's machine connects to that service; the optional skill teaches the agent how to use it. The client needs Python 3.12+, not a GPU or model weights. Sonovect v0.2.0 ships a standard stdio MCP server and a portable skill directory/ZIP, not a marketplace-specific plugin installer.
 
 ## 1. Install and connect the client
 
@@ -16,7 +16,7 @@ sonovect --version
 Alternatively, install the supplied wheel with its MCP extra:
 
 ```sh
-python -m pip install './sonovect-0.1.1-py3-none-any.whl[mcp]'
+python -m pip install './sonovect-0.2.0-py3-none-any.whl[mcp]'
 ```
 
 Use the URL of your deployed HTTP API and a protected file containing only its token. All paths below are examples to replace on the **client machine**. The token must match the deployment's `SONOVECT_TOKEN`; the client does not automatically read `deploy/.env`, and an entire environment file is not a token file.
@@ -66,7 +66,7 @@ If the host cannot find the executable, set `command` to the absolute path retur
 
 ## 3. Install the skill
 
-Copy the complete `skills/sonovect` directory into your agent's supported skill directory. The independent `sonovect-0.1.1-skill.zip` contains the same top-level `sonovect/` directory. Keep `SKILL.md`, `references/usage.md` and `agents/openai.yaml` together. Installing the wheel alone does not register a skill.
+Copy the complete `skills/sonovect` directory into your agent's supported skill directory. The independent `sonovect-0.2.0-skill.zip` contains the same top-level `sonovect/` directory. Keep `SKILL.md`, `references/usage.md` and `agents/openai.yaml` together. Installing the wheel alone does not register a skill.
 
 For a first user-level Codex installation, from the source directory:
 

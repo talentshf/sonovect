@@ -3,11 +3,13 @@
 
 [English](README.md) · [完整配置](docs/configuration.zh-CN.md) · [部署](deploy/README.md) · [测试参考](docs/quality.zh-CN.md) · [智能体接入](docs/agent-setup.zh-CN.md) · [交流讨论](https://github.com/talentshf/sonovect/discussions) · [参与贡献](CONTRIBUTING.md#中文)
 
-[![Checks](https://github.com/talentshf/sonovect/actions/workflows/checks.yml/badge.svg)](https://github.com/talentshf/sonovect/actions/workflows/checks.yml) · [Apache-2.0](LICENSE) · Python 3.12+ · [v0.1.1 发行介绍](docs/release-v0.1.1.md)
+[![Checks](https://github.com/talentshf/sonovect/actions/workflows/checks.yml/badge.svg)](https://github.com/talentshf/sonovect/actions/workflows/checks.yml) · [Apache-2.0](LICENSE) · Python 3.12+ · [v0.2.0 发行介绍](docs/release-v0.2.0.md)
 
 # 把录音和视频音轨，变成文字、字幕和声音数据
 
-**Sonovect v0.1.1 是本地部署的音视频转写与声音分析服务。** 上传文件，选择要做的处理，再按任务编号取回结果。语音正文、声音分析和任务状态分别读取，便于人直接使用，也便于软件和助手继续处理。
+**Sonovect v0.2.0 是本地部署的音视频转写与声音分析服务。** 上传文件，选择要做的处理，再按任务编号取回结果。语音正文、声音分析和任务状态分别读取，便于人直接使用，也便于软件和助手继续处理。
+
+v0.2.0 另提供默认关闭的 [DashScope（百炼服务协议）兼容异步文件接口](docs/filetrans-compatibility.zh-CN.md)，供应用提交受控音频地址并按原任务编号恢复结果。
 
 ## 能做什么
 

@@ -73,7 +73,7 @@ def validate(evidence, images, revision, version):
     return {'version': version, 'revision': revision, 'engineering_gate': 'passed',
             'publication': 'not_performed', 'roles': records,
             'component_sources': 'Optional component source and declaration records are informational and retained in the distribution.',
-            'limitations': 'Nine reviewed OS service-boundary IDs remain; Chinese emotion is experimental and measured quality has a limited scope.'}
+            'limitations': 'Reviewed OS service-boundary limitations remain documented; Chinese emotion is experimental and measured quality has a limited scope.'}
 
 
 def validate_configuration(config):
@@ -113,7 +113,7 @@ def main():
     parser.add_argument('--evidence', type=Path)
     parser.add_argument('--images', type=Path)
     parser.add_argument('--revision')
-    parser.add_argument('--version', default='0.1.1')
+    parser.add_argument('--version', default='0.2.0')
     parser.add_argument('--output', type=Path)
     parser.add_argument('--compose-config', type=Path, help='Resolved standard Compose JSON; environment values are never printed')
     args = parser.parse_args()

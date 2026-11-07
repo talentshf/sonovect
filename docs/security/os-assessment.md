@@ -1,6 +1,6 @@
-# OS advisory assessment — 0.1.1
+# OS advisory assessment — 0.2.0
 
-This register records the exact maintained source-package versions, primary advisories and scoped dispositions for the maintained recipes (v0.1.0 baseline, refreshed for v0.1.1). The CA package repair uses ca-certificates20250419+deb13u1. The64 medium/low/unknown IDs below retain their concrete assessment; raw matches remain visible. TEMP identifiers are Debian-local tracker entries, not assigned CVEs. Actual-image identity and scan evidence must be verified separately for a candidate; source applicability alone is not a completed image scan.
+This register records the exact maintained source-package versions, primary advisories and scoped dispositions for the maintained recipes (v0.1.0 baseline, refreshed for v0.1.1 and the compatible-ASR review, retained in v0.2.0). The CA package repair uses ca-certificates20250419+deb13u1. The64 medium/low/unknown IDs below retain their concrete assessment; raw matches remain visible. TEMP identifiers are Debian-local tracker entries, not assigned CVEs. Actual-image identity and scan evidence must be verified separately for a candidate; source applicability alone is not a completed image scan.
 
 This assessment applies only to maintained Linux amd64 immutable service images, UID 10001, dropped capabilities, no-new-privileges and the documented file-job interface. It is not a whole-image zero-vulnerability assertion, a host assessment or permission to execute untrusted Python, ELF, SQL or regular expressions. Final per-role scan receipts and release qualification are linked from the [current release review](../release-readiness.md).
 

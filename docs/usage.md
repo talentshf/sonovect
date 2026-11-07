@@ -1,6 +1,6 @@
 # Usage
 
-Sonovect v0.1.1. Configure a service endpoint and one authentication method (`SONOVECT_TOKEN` or `SONOVECT_TOKEN_FILE`); the latter contains only the token. No client implicitly reads a deployment environment file. Query `sonovect capabilities` before requesting optional features.
+Sonovect v0.2.0. Configure a service endpoint and one authentication method (`SONOVECT_TOKEN` or `SONOVECT_TOKEN_FILE`); the latter contains only the token. No client implicitly reads a deployment environment file. Query `sonovect capabilities` before requesting optional features.
 
 | Option | Default | Meaning |
 | --- | --- | --- |
