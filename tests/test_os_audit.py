@@ -128,6 +128,18 @@ class NewRuntimeBoundaryTests(unittest.TestCase):
             del bad['residual']['modules'][key]
             self.assertTrue(module.classify(audit, bad)['unresolved_high_critical'])
 
+    def test_current_apt_key_record_requires_exact_version_and_observed_absence(self):
+        audit, facts = self.fixture('CVE-2011-3374', 'apt', '3.0.4')
+        audit['Results'][0]['Vulnerabilities'][0]['Severity'] = 'LOW'
+        self.assertTrue(module.classify(audit, facts)['unresolved_lower_severity'])
+        facts['residual'] = {'commands': {'apt-key': []}}
+        self.assertFalse(module.classify(audit, facts)['unresolved_lower_severity'])
+        facts['residual']['commands']['apt-key'] = ['/usr/bin/apt-key']
+        self.assertTrue(module.classify(audit, facts)['unresolved_lower_severity'])
+        facts['residual']['commands']['apt-key'] = []
+        facts['packages'][0]['source_version'] = '3.0.5'
+        self.assertTrue(module.classify(audit, facts)['unresolved_lower_severity'])
+
     def test_pod_text_absence_requires_formatter_and_interpreter_absent(self):
         audit, facts = self.fixture('CVE-2026-82560', 'perl', '5.40.1-6+deb13u1')
         audit['Results'][0]['Vulnerabilities'][0]['Severity'] = 'MEDIUM'

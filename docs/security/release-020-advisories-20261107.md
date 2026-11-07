@@ -37,6 +37,12 @@ inventory. The classifier requires observed absence of all these components;
 missing evidence or a restored downloader/library fails the check. Host package
 managers and running services are not modified by recipe preparation.
 
+The current distribution update installs APT **3.0.4**, which fixes 109518.
+The older [CVE-2011-3374](https://security-tracker.debian.org/tracker/CVE-2011-3374)
+still appears against that exact version. Its record requires observed removal
+of `apt-key` from the actual image. The new package version does not itself
+justify dismissing this older finding, and unreviewed versions still fail.
+
 [CVE-2026-82560](https://security-tracker.debian.org/tracker/CVE-2026-82560)
 affects the Perl Pod::Text formatter. The existing runtime minimization already
 removes Perl and its base modules. The new disposition requires actual absence

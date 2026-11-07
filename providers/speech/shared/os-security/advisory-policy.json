@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "reviewed": "2026-10-21",
+  "reviewed": "2026-11-07",
   "scope": "Supported immutable Linuxamd64 service images and maintained file-job interface only; not arbitrary operator Python/shell or host security. Raw findings remain visible.",
   "records": {
     "CVE-2011-3374": {
       "source": "apt",
-      "source_version": "3.0.3",
+      "source_version": "3.0.4",
       "severity": "LOW",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2011-3374"
@@ -17,7 +17,7 @@
           "apt-key"
         ]
       },
-      "reason": "Affected standalone interpreter/administration/utility code is absent in the maintained immutable service image. Package metadata and raw scanner matches are retained."
+      "reason": "The current trixie-security package remains listed for this older apt-key issue. The immutable runtime removes apt-key; acceptance requires exact source version 3.0.4 and observed command absence. Package metadata and raw matches remain visible; this is code removal, not a claimed library fix."
     },
     "TEMP-0841856-B18BAF": {
       "source": "bash",
