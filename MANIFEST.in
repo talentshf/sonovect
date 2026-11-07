@@ -7,5 +7,5 @@ recursive-include providers *.py *.txt *.json *.sh *.lock *.patch *.md Dockerfil
 recursive-include scripts *.py
 recursive-include tests *.py
 recursive-include assets *.svg *.json *.md
-recursive-include skills *.md *.yaml
+recursive-include skills *.md *.yaml *.json
 recursive-include evaluation *.json

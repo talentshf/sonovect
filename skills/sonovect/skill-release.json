@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "name": "sonovect",
+  "projectRoot": "../..",
+  "maintenance": {
+    "owner": "Sonovect contributors",
+    "authority": "https://github.com/talentshf/sonovect"
+  },
+  "kind": "service",
+  "audience": "Agents using an authorized, configured Sonovect service",
+  "dependencies": [
+    "A configured Sonovect MCP connection or Sonovect CLI with an authorized service URL and token",
+    "Deployment-owned readable input directories; model assets and credentials are separate"
+  ],
+  "platforms": {
+    "codex": {"checks": []},
+    "openclaw": {"checks": []},
+    "hermes": {"checks": []}
+  },
+  "exports": {
+    "SKILL.md": "SKILL.md",
+    "references/usage.md": "references/usage.md",
+    "agents/openai.yaml": "agents/openai.yaml"
+  },
+  "distribution": {
+    "mode": "project-native",
+    "versionSource": "sonovect/_version.py",
+    "acceptance": "Package validation is separate from native loading, service access and model quality"
+  }
+}
