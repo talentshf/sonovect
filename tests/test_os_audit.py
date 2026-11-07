@@ -66,15 +66,15 @@ class OSAuditTests(unittest.TestCase):
 
     def test_low_absence_is_not_accepted_without_observed_file_evidence(self):
         audit, facts = self.fixture('CVE-2026-82560', 'perl', '5.40.1-6+deb13u1')
-        audit['Results'][0]['Vulnerabilities'][0]['Severity'] = 'UNKNOWN'
+        audit['Results'][0]['Vulnerabilities'][0]['Severity'] = 'MEDIUM'
         self.assertTrue(module.classify(audit, facts)['unresolved_lower_severity'])
-        facts['residual'] = {'modules': {'pod_text': []}}
+        facts['residual'] = {'commands': {'perl': [], 'pod2text': []}, 'modules': {'pod_text': []}}
         self.assertFalse(module.classify(audit, facts)['unresolved_lower_severity'])
         facts['residual']['modules']['pod_text'] = ['/usr/lib/perl/Pod/Text.pm']
         self.assertTrue(module.classify(audit, facts)['unresolved_lower_severity'])
 
     def test_library_patch_version_must_match_current_policy(self):
-        audit, facts = self.fixture('CVE-2026-27171', 'zlib', '1:1.3.dfsg+really1.3.1-1+sonovect13.1')
+        audit, facts = self.fixture('CVE-2026-27171', 'zlib', '1:1.3.dfsg+really1.3.1-1+deb13u1+sonovect13.2')
         audit['Results'][0]['Vulnerabilities'][0]['Severity'] = 'MEDIUM'
         self.assertFalse(module.classify(audit, facts)['unresolved_lower_severity'])
         facts['packages'][0]['source_version'] = '1:1.3.dfsg+really1.3.1-1'
@@ -105,31 +105,36 @@ class OSAuditTests(unittest.TestCase):
 class NewRuntimeBoundaryTests(unittest.TestCase):
     fixture = OSAuditTests.fixture
 
-    def test_high_sqlite_finding_requires_exact_caller_and_actual_connection_defenses(self):
+    def test_sqlite_fixed_source_cannot_qualify_an_older_library(self):
         cid = 'CVE-2026-119373'
-        audit, facts = self.fixture(cid, 'sqlite3', '3.53.4-2~sonovect13.1')
-        proof = module.POLICY[cid]['proof']
-        profile = {'profile': 'fixed-server-store', 'caller_files': copy.deepcopy(proof['caller_files']),
-                   'connection': {'defensive': True, 'trusted_schema': False, 'load_extension': False,
-                                  'attached_limit': 0, 'cell_size_check': 1}}
-        facts['residual'] = {'uid': 10001, 'effective_capabilities': '0000000000000000', 'no_new_privileges': '1',
-                             'sqlite_store': profile, 'libraries': {'libsqlite3.so.0': {'sha256': proof['library_sha256']}}}
+        audit, facts = self.fixture(cid, 'sqlite3', '3.54.1-2~sonovect13.2')
         accepted = module.classify(audit, facts)
-        self.assertEqual(accepted['raw_matches'], 1)
-        self.assertEqual(accepted['reviewed_high_critical'][0]['status'], 'reviewed-service-boundary')
         self.assertFalse(accepted['unresolved_high_critical'])
-        for key, value in [('defensive', False), ('trusted_schema', True), ('load_extension', True),
-                           ('attached_limit', 1), ('cell_size_check', 0)]:
-            bad = copy.deepcopy(facts)
-            bad['residual']['sqlite_store']['connection'][key] = value
-            self.assertTrue(module.classify(audit, bad)['unresolved_high_critical'], key)
-        for key in proof['caller_files']:
-            bad = copy.deepcopy(facts)
-            bad['residual']['sqlite_store']['caller_files'][key] = 'changed'
-            self.assertTrue(module.classify(audit, bad)['unresolved_high_critical'], key)
-        for key in ('sqlite_store', 'libraries', 'uid', 'no_new_privileges'):
-            bad = copy.deepcopy(facts); del bad['residual'][key]
-            self.assertTrue(module.classify(audit, bad)['unresolved_high_critical'], key)
+        self.assertEqual(accepted['reviewed_high_critical'][0]['status'], 'fixed-by-source-backport')
+        facts['packages'][0]['source_version'] = '3.53.4-2~sonovect13.1'
+        self.assertTrue(module.classify(audit, facts)['unresolved_high_critical'])
+
+    def test_apt_absence_requires_downloaders_and_shared_libraries_absent(self):
+        audit, facts = self.fixture('CVE-2026-109518', 'apt', '3.0.3')
+        facts['residual'] = {'commands': {key: [] for key in ('apt', 'apt-get', 'apt-cache')},
+                             'modules': {'apt_methods': [], 'apt_libraries': []}}
+        self.assertFalse(module.classify(audit, facts)['unresolved_high_critical'])
+        for key in facts['residual']['commands']:
+            bad = copy.deepcopy(facts); bad['residual']['commands'][key] = ['/usr/bin/' + key]
+            self.assertTrue(module.classify(audit, bad)['unresolved_high_critical'])
+        for key in facts['residual']['modules']:
+            bad = copy.deepcopy(facts); bad['residual']['modules'][key] = ['/usr/lib/affected']
+            self.assertTrue(module.classify(audit, bad)['unresolved_high_critical'])
+            del bad['residual']['modules'][key]
+            self.assertTrue(module.classify(audit, bad)['unresolved_high_critical'])
+
+    def test_pod_text_absence_requires_formatter_and_interpreter_absent(self):
+        audit, facts = self.fixture('CVE-2026-82560', 'perl', '5.40.1-6+deb13u1')
+        audit['Results'][0]['Vulnerabilities'][0]['Severity'] = 'MEDIUM'
+        facts['residual'] = {'commands': {'perl': [], 'pod2text': []}, 'modules': {'pod_text': []}}
+        self.assertFalse(module.classify(audit, facts)['unresolved_lower_severity'])
+        facts['residual']['modules']['pod_text'] = ['/usr/lib/Pod/Text.pm']
+        self.assertTrue(module.classify(audit, facts)['unresolved_lower_severity'])
 
     def test_cpp_header_review_also_requires_actual_exports_and_exact_library(self):
         cid = 'CVE-2026-114690'

@@ -4,9 +4,9 @@ set -eu
 # Release signature fingerprint: FCF986EA15E6E293A5644F10B4322F04D67658D8.
 VERSION=9.0.2
 SHA256=8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e
-apt-get update
-apt-get upgrade -y
-apt-get install -y --no-install-recommends build-essential pkg-config nasm curl ca-certificates xz-utils libmp3lame-dev libopus-dev libvpx-dev
+apt-get -o Acquire::Retries=0 update
+apt-get -o Acquire::Retries=0 upgrade -y
+apt-get -o Acquire::Retries=0 install -y --no-install-recommends build-essential pkg-config nasm curl ca-certificates xz-utils libmp3lame-dev libopus-dev libvpx-dev
 mkdir -p /tmp/media-source /out/bin /out/share/sonovect-media
 cd /tmp/media-source
 curl --fail --location --retry 3 --output ffmpeg.tar.xz "https://ffmpeg.org/releases/ffmpeg-${VERSION}.tar.xz"

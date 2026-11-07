@@ -576,7 +576,7 @@
     },
     "CVE-2026-50812": {
       "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
+      "source_version": "3.54.1-2~sonovect13.2",
       "severity": "MEDIUM",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2026-50812"
@@ -589,7 +589,7 @@
     },
     "CVE-2026-50813": {
       "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
+      "source_version": "3.54.1-2~sonovect13.2",
       "severity": "MEDIUM",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2026-50813"
@@ -602,7 +602,7 @@
     },
     "CVE-2021-45346": {
       "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
+      "source_version": "3.54.1-2~sonovect13.2",
       "severity": "LOW",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2021-45346"
@@ -615,7 +615,7 @@
     },
     "CVE-2025-70873": {
       "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
+      "source_version": "3.54.1-2~sonovect13.2",
       "severity": "LOW",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2025-70873"
@@ -809,18 +809,22 @@
     "CVE-2026-82560": {
       "source": "perl",
       "source_version": "5.40.1-6+deb13u1",
-      "severity": "UNKNOWN",
+      "severity": "MEDIUM",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2026-82560"
       ],
       "status": "affected-module-absent",
       "proof": {
         "type": "absence",
+        "commands": [
+          "perl",
+          "pod2text"
+        ],
         "modules": [
           "pod_text"
         ]
       },
-      "reason": "The affected optional module/extension is not installed, or is explicitly removed from the immutable service runtime; exact package/file evidence is required."
+      "reason": "The affected Pod::Text formatter, Perl interpreter and pod2text entry point are absent from the immutable service. Raw package metadata remains and observed absence is required."
     },
     "TEMP-0517018-A83CE6": {
       "source": "sysvinit",
@@ -921,7 +925,7 @@
     },
     "CVE-2026-27171": {
       "source": "zlib",
-      "source_version": "1:1.3.dfsg+really1.3.1-1+sonovect13.1",
+      "source_version": "1:1.3.dfsg+really1.3.1-1+deb13u1+sonovect13.2",
       "severity": "MEDIUM",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2026-27171"
@@ -934,17 +938,17 @@
     },
     "CVE-2026-85091": {
       "source": "zlib",
-      "source_version": "1:1.3.dfsg+really1.3.1-1+sonovect13.1",
-      "severity": "MEDIUM",
+      "source_version": "1:1.3.dfsg+really1.3.1-1+deb13u1+sonovect13.2",
+      "severity": "HIGH",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2026-85091",
-        "https://github.com/madler/zlib/commit/81cc0bebedd935daeb81b0b6e475d8786b51af3d"
+        "https://www.debian.org/security/2026/dsa-6613"
       ],
-      "status": "not-affected-version",
+      "status": "fixed-by-source-backport",
       "proof": {
         "type": "fixed-source"
       },
-      "reason": "Keep zlib1.3.1 plus the narrow CRC fix: the vulnerable nonblocking gzip-buffer implementation was introduced later, in1.3.1.2. No full1.3.2 upgrade introducing it is used."
+      "reason": "Official trixie-security source includes the verified gzwrite backport and existing negative CRC-length fix. Rebuilt source/package version and actual image inventory are required."
     },
     "CVE-2026-84243": {
       "source": "glibc",
@@ -1007,243 +1011,179 @@
     },
     "CVE-2026-119371": {
       "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
-      "severity": "UNKNOWN",
+      "source_version": "3.54.1-2~sonovect13.2",
+      "severity": "MEDIUM",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2026-119371",
         "https://sqlite.org/releaselog/3_54_0.html"
       ],
-      "status": "reviewed-service-boundary",
+      "status": "fixed-by-source-backport",
       "proof": {
-        "type": "sqlite-server-store",
-        "library_sha256": "a583bd1ff0d79ded57a0a543b8ed40cda11cc6fa284076b1d3de91fcd87ae154",
-        "caller_files": {
-          "api.py": "fbb00bfa6ff19364f81e7e57d0daedc4e5d7178d8d8e1128dd25e25936709133",
-          "config.py": "15b75ae3b84cf84e2bcad84d0c9986962cd7a730e48520a054d16f9b95bc98c5",
-          "filetrans.py": "3c2405c0484ba67b3483c1e55e94556f51cfee8e51ca6dd32b5ef9df11a3da47",
-          "media.py": "548b25c9bb660e74758b122546760255f8526660191c1fe2812ea7be010efd57",
-          "remote_input.py": "260788d8089db4628c844522324a0927d3928bc12e95f9e1e013e809201bda64",
-          "store.py": "6ee1e8a373a3b64f55c50961e45978e5431ae2df00cb589743f2d0b973585276",
-          "worker.py": "f9e810faaddc44c4731bdd48cbfe6e23e5deb853a019d14bbf7f12b7b614bea6"
-        }
+        "type": "fixed-source"
       },
-      "reason": "The library remains affected; upstream fixes are in SQLite 3.54.0. These issues require hostile SQL, database/WAL files, changesets, virtual-table shadow structures or authorizer-dependent SQL. This exact audited caller exposes media tasks only, uses a fixed server-owned queue database and bound SQL values, and never opens submitted media as SQLite. Observed connection defenses disable trusted schema, extension loading and ATTACH, enable defensive and cell-size checks. Caller hashes, exact library and unprivileged profile must all match. This is a service reachability review, not a library fix; review again for any SQL/database import feature or caller/library change."
+      "reason": "Official hash-locked Debian SQLite 3.54.1-2 sources contain the upstream 3.54.0 fixes; rebuilt for Debian13. Every shipped image must match the rebuilt source version and actual package/file facts. This supersedes the former caller-boundary disposition for these ten IDs."
     },
     "CVE-2026-119372": {
       "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
-      "severity": "UNKNOWN",
+      "source_version": "3.54.1-2~sonovect13.2",
+      "severity": "MEDIUM",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2026-119372",
         "https://sqlite.org/releaselog/3_54_0.html"
       ],
-      "status": "reviewed-service-boundary",
+      "status": "fixed-by-source-backport",
       "proof": {
-        "type": "sqlite-server-store",
-        "library_sha256": "a583bd1ff0d79ded57a0a543b8ed40cda11cc6fa284076b1d3de91fcd87ae154",
-        "caller_files": {
-          "api.py": "fbb00bfa6ff19364f81e7e57d0daedc4e5d7178d8d8e1128dd25e25936709133",
-          "config.py": "15b75ae3b84cf84e2bcad84d0c9986962cd7a730e48520a054d16f9b95bc98c5",
-          "filetrans.py": "3c2405c0484ba67b3483c1e55e94556f51cfee8e51ca6dd32b5ef9df11a3da47",
-          "media.py": "548b25c9bb660e74758b122546760255f8526660191c1fe2812ea7be010efd57",
-          "remote_input.py": "260788d8089db4628c844522324a0927d3928bc12e95f9e1e013e809201bda64",
-          "store.py": "6ee1e8a373a3b64f55c50961e45978e5431ae2df00cb589743f2d0b973585276",
-          "worker.py": "f9e810faaddc44c4731bdd48cbfe6e23e5deb853a019d14bbf7f12b7b614bea6"
-        }
+        "type": "fixed-source"
       },
-      "reason": "The library remains affected; upstream fixes are in SQLite 3.54.0. These issues require hostile SQL, database/WAL files, changesets, virtual-table shadow structures or authorizer-dependent SQL. This exact audited caller exposes media tasks only, uses a fixed server-owned queue database and bound SQL values, and never opens submitted media as SQLite. Observed connection defenses disable trusted schema, extension loading and ATTACH, enable defensive and cell-size checks. Caller hashes, exact library and unprivileged profile must all match. This is a service reachability review, not a library fix; review again for any SQL/database import feature or caller/library change."
+      "reason": "Official hash-locked Debian SQLite 3.54.1-2 sources contain the upstream 3.54.0 fixes; rebuilt for Debian13. Every shipped image must match the rebuilt source version and actual package/file facts. This supersedes the former caller-boundary disposition for these ten IDs."
     },
     "CVE-2026-119374": {
       "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
-      "severity": "UNKNOWN",
+      "source_version": "3.54.1-2~sonovect13.2",
+      "severity": "HIGH",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2026-119374",
         "https://sqlite.org/releaselog/3_54_0.html"
       ],
-      "status": "reviewed-service-boundary",
+      "status": "fixed-by-source-backport",
       "proof": {
-        "type": "sqlite-server-store",
-        "library_sha256": "a583bd1ff0d79ded57a0a543b8ed40cda11cc6fa284076b1d3de91fcd87ae154",
-        "caller_files": {
-          "api.py": "fbb00bfa6ff19364f81e7e57d0daedc4e5d7178d8d8e1128dd25e25936709133",
-          "config.py": "15b75ae3b84cf84e2bcad84d0c9986962cd7a730e48520a054d16f9b95bc98c5",
-          "filetrans.py": "3c2405c0484ba67b3483c1e55e94556f51cfee8e51ca6dd32b5ef9df11a3da47",
-          "media.py": "548b25c9bb660e74758b122546760255f8526660191c1fe2812ea7be010efd57",
-          "remote_input.py": "260788d8089db4628c844522324a0927d3928bc12e95f9e1e013e809201bda64",
-          "store.py": "6ee1e8a373a3b64f55c50961e45978e5431ae2df00cb589743f2d0b973585276",
-          "worker.py": "f9e810faaddc44c4731bdd48cbfe6e23e5deb853a019d14bbf7f12b7b614bea6"
-        }
+        "type": "fixed-source"
       },
-      "reason": "The library remains affected; upstream fixes are in SQLite 3.54.0. These issues require hostile SQL, database/WAL files, changesets, virtual-table shadow structures or authorizer-dependent SQL. This exact audited caller exposes media tasks only, uses a fixed server-owned queue database and bound SQL values, and never opens submitted media as SQLite. Observed connection defenses disable trusted schema, extension loading and ATTACH, enable defensive and cell-size checks. Caller hashes, exact library and unprivileged profile must all match. This is a service reachability review, not a library fix; review again for any SQL/database import feature or caller/library change."
+      "reason": "Official hash-locked Debian SQLite 3.54.1-2 sources contain the upstream 3.54.0 fixes; rebuilt for Debian13. Every shipped image must match the rebuilt source version and actual package/file facts. This supersedes the former caller-boundary disposition for these ten IDs."
     },
     "CVE-2026-119375": {
       "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
-      "severity": "UNKNOWN",
+      "source_version": "3.54.1-2~sonovect13.2",
+      "severity": "MEDIUM",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2026-119375",
         "https://sqlite.org/releaselog/3_54_0.html"
       ],
-      "status": "reviewed-service-boundary",
+      "status": "fixed-by-source-backport",
       "proof": {
-        "type": "sqlite-server-store",
-        "library_sha256": "a583bd1ff0d79ded57a0a543b8ed40cda11cc6fa284076b1d3de91fcd87ae154",
-        "caller_files": {
-          "api.py": "fbb00bfa6ff19364f81e7e57d0daedc4e5d7178d8d8e1128dd25e25936709133",
-          "config.py": "15b75ae3b84cf84e2bcad84d0c9986962cd7a730e48520a054d16f9b95bc98c5",
-          "filetrans.py": "3c2405c0484ba67b3483c1e55e94556f51cfee8e51ca6dd32b5ef9df11a3da47",
-          "media.py": "548b25c9bb660e74758b122546760255f8526660191c1fe2812ea7be010efd57",
-          "remote_input.py": "260788d8089db4628c844522324a0927d3928bc12e95f9e1e013e809201bda64",
-          "store.py": "6ee1e8a373a3b64f55c50961e45978e5431ae2df00cb589743f2d0b973585276",
-          "worker.py": "f9e810faaddc44c4731bdd48cbfe6e23e5deb853a019d14bbf7f12b7b614bea6"
-        }
+        "type": "fixed-source"
       },
-      "reason": "The library remains affected; upstream fixes are in SQLite 3.54.0. These issues require hostile SQL, database/WAL files, changesets, virtual-table shadow structures or authorizer-dependent SQL. This exact audited caller exposes media tasks only, uses a fixed server-owned queue database and bound SQL values, and never opens submitted media as SQLite. Observed connection defenses disable trusted schema, extension loading and ATTACH, enable defensive and cell-size checks. Caller hashes, exact library and unprivileged profile must all match. This is a service reachability review, not a library fix; review again for any SQL/database import feature or caller/library change."
+      "reason": "Official hash-locked Debian SQLite 3.54.1-2 sources contain the upstream 3.54.0 fixes; rebuilt for Debian13. Every shipped image must match the rebuilt source version and actual package/file facts. This supersedes the former caller-boundary disposition for these ten IDs."
     },
     "CVE-2026-119376": {
       "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
-      "severity": "UNKNOWN",
+      "source_version": "3.54.1-2~sonovect13.2",
+      "severity": "MEDIUM",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2026-119376",
         "https://sqlite.org/releaselog/3_54_0.html"
       ],
-      "status": "reviewed-service-boundary",
+      "status": "fixed-by-source-backport",
       "proof": {
-        "type": "sqlite-server-store",
-        "library_sha256": "a583bd1ff0d79ded57a0a543b8ed40cda11cc6fa284076b1d3de91fcd87ae154",
-        "caller_files": {
-          "api.py": "fbb00bfa6ff19364f81e7e57d0daedc4e5d7178d8d8e1128dd25e25936709133",
-          "config.py": "15b75ae3b84cf84e2bcad84d0c9986962cd7a730e48520a054d16f9b95bc98c5",
-          "filetrans.py": "3c2405c0484ba67b3483c1e55e94556f51cfee8e51ca6dd32b5ef9df11a3da47",
-          "media.py": "548b25c9bb660e74758b122546760255f8526660191c1fe2812ea7be010efd57",
-          "remote_input.py": "260788d8089db4628c844522324a0927d3928bc12e95f9e1e013e809201bda64",
-          "store.py": "6ee1e8a373a3b64f55c50961e45978e5431ae2df00cb589743f2d0b973585276",
-          "worker.py": "f9e810faaddc44c4731bdd48cbfe6e23e5deb853a019d14bbf7f12b7b614bea6"
-        }
+        "type": "fixed-source"
       },
-      "reason": "The library remains affected; upstream fixes are in SQLite 3.54.0. These issues require hostile SQL, database/WAL files, changesets, virtual-table shadow structures or authorizer-dependent SQL. This exact audited caller exposes media tasks only, uses a fixed server-owned queue database and bound SQL values, and never opens submitted media as SQLite. Observed connection defenses disable trusted schema, extension loading and ATTACH, enable defensive and cell-size checks. Caller hashes, exact library and unprivileged profile must all match. This is a service reachability review, not a library fix; review again for any SQL/database import feature or caller/library change."
+      "reason": "Official hash-locked Debian SQLite 3.54.1-2 sources contain the upstream 3.54.0 fixes; rebuilt for Debian13. Every shipped image must match the rebuilt source version and actual package/file facts. This supersedes the former caller-boundary disposition for these ten IDs."
     },
     "CVE-2026-119377": {
       "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
-      "severity": "UNKNOWN",
+      "source_version": "3.54.1-2~sonovect13.2",
+      "severity": "LOW",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2026-119377",
         "https://sqlite.org/releaselog/3_54_0.html"
       ],
-      "status": "reviewed-service-boundary",
+      "status": "fixed-by-source-backport",
       "proof": {
-        "type": "sqlite-server-store",
-        "library_sha256": "a583bd1ff0d79ded57a0a543b8ed40cda11cc6fa284076b1d3de91fcd87ae154",
-        "caller_files": {
-          "api.py": "fbb00bfa6ff19364f81e7e57d0daedc4e5d7178d8d8e1128dd25e25936709133",
-          "config.py": "15b75ae3b84cf84e2bcad84d0c9986962cd7a730e48520a054d16f9b95bc98c5",
-          "filetrans.py": "3c2405c0484ba67b3483c1e55e94556f51cfee8e51ca6dd32b5ef9df11a3da47",
-          "media.py": "548b25c9bb660e74758b122546760255f8526660191c1fe2812ea7be010efd57",
-          "remote_input.py": "260788d8089db4628c844522324a0927d3928bc12e95f9e1e013e809201bda64",
-          "store.py": "6ee1e8a373a3b64f55c50961e45978e5431ae2df00cb589743f2d0b973585276",
-          "worker.py": "f9e810faaddc44c4731bdd48cbfe6e23e5deb853a019d14bbf7f12b7b614bea6"
-        }
+        "type": "fixed-source"
       },
-      "reason": "The library remains affected; upstream fixes are in SQLite 3.54.0. These issues require hostile SQL, database/WAL files, changesets, virtual-table shadow structures or authorizer-dependent SQL. This exact audited caller exposes media tasks only, uses a fixed server-owned queue database and bound SQL values, and never opens submitted media as SQLite. Observed connection defenses disable trusted schema, extension loading and ATTACH, enable defensive and cell-size checks. Caller hashes, exact library and unprivileged profile must all match. This is a service reachability review, not a library fix; review again for any SQL/database import feature or caller/library change."
+      "reason": "Official hash-locked Debian SQLite 3.54.1-2 sources contain the upstream 3.54.0 fixes; rebuilt for Debian13. Every shipped image must match the rebuilt source version and actual package/file facts. This supersedes the former caller-boundary disposition for these ten IDs."
     },
     "CVE-2026-119379": {
       "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
-      "severity": "UNKNOWN",
+      "source_version": "3.54.1-2~sonovect13.2",
+      "severity": "HIGH",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2026-119379",
         "https://sqlite.org/releaselog/3_54_0.html"
       ],
-      "status": "reviewed-service-boundary",
+      "status": "fixed-by-source-backport",
       "proof": {
-        "type": "sqlite-server-store",
-        "library_sha256": "a583bd1ff0d79ded57a0a543b8ed40cda11cc6fa284076b1d3de91fcd87ae154",
-        "caller_files": {
-          "api.py": "fbb00bfa6ff19364f81e7e57d0daedc4e5d7178d8d8e1128dd25e25936709133",
-          "config.py": "15b75ae3b84cf84e2bcad84d0c9986962cd7a730e48520a054d16f9b95bc98c5",
-          "filetrans.py": "3c2405c0484ba67b3483c1e55e94556f51cfee8e51ca6dd32b5ef9df11a3da47",
-          "media.py": "548b25c9bb660e74758b122546760255f8526660191c1fe2812ea7be010efd57",
-          "remote_input.py": "260788d8089db4628c844522324a0927d3928bc12e95f9e1e013e809201bda64",
-          "store.py": "6ee1e8a373a3b64f55c50961e45978e5431ae2df00cb589743f2d0b973585276",
-          "worker.py": "f9e810faaddc44c4731bdd48cbfe6e23e5deb853a019d14bbf7f12b7b614bea6"
-        }
+        "type": "fixed-source"
       },
-      "reason": "The library remains affected; upstream fixes are in SQLite 3.54.0. These issues require hostile SQL, database/WAL files, changesets, virtual-table shadow structures or authorizer-dependent SQL. This exact audited caller exposes media tasks only, uses a fixed server-owned queue database and bound SQL values, and never opens submitted media as SQLite. Observed connection defenses disable trusted schema, extension loading and ATTACH, enable defensive and cell-size checks. Caller hashes, exact library and unprivileged profile must all match. This is a service reachability review, not a library fix; review again for any SQL/database import feature or caller/library change."
+      "reason": "Official hash-locked Debian SQLite 3.54.1-2 sources contain the upstream 3.54.0 fixes; rebuilt for Debian13. Every shipped image must match the rebuilt source version and actual package/file facts. This supersedes the former caller-boundary disposition for these ten IDs."
     },
     "CVE-2026-119373": {
       "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
+      "source_version": "3.54.1-2~sonovect13.2",
       "severity": "HIGH",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2026-119373",
         "https://sqlite.org/releaselog/3_54_0.html"
       ],
-      "status": "reviewed-service-boundary",
+      "status": "fixed-by-source-backport",
       "proof": {
-        "type": "sqlite-server-store",
-        "library_sha256": "a583bd1ff0d79ded57a0a543b8ed40cda11cc6fa284076b1d3de91fcd87ae154",
-        "caller_files": {
-          "api.py": "fbb00bfa6ff19364f81e7e57d0daedc4e5d7178d8d8e1128dd25e25936709133",
-          "config.py": "15b75ae3b84cf84e2bcad84d0c9986962cd7a730e48520a054d16f9b95bc98c5",
-          "filetrans.py": "3c2405c0484ba67b3483c1e55e94556f51cfee8e51ca6dd32b5ef9df11a3da47",
-          "media.py": "548b25c9bb660e74758b122546760255f8526660191c1fe2812ea7be010efd57",
-          "remote_input.py": "260788d8089db4628c844522324a0927d3928bc12e95f9e1e013e809201bda64",
-          "store.py": "6ee1e8a373a3b64f55c50961e45978e5431ae2df00cb589743f2d0b973585276",
-          "worker.py": "f9e810faaddc44c4731bdd48cbfe6e23e5deb853a019d14bbf7f12b7b614bea6"
-        }
+        "type": "fixed-source"
       },
-      "reason": "The library remains affected; upstream fixes are in SQLite 3.54.0. These issues require hostile SQL, database/WAL files, changesets, virtual-table shadow structures or authorizer-dependent SQL. This exact audited caller exposes media tasks only, uses a fixed server-owned queue database and bound SQL values, and never opens submitted media as SQLite. Observed connection defenses disable trusted schema, extension loading and ATTACH, enable defensive and cell-size checks. Caller hashes, exact library and unprivileged profile must all match. This is a service reachability review, not a library fix; review again for any SQL/database import feature or caller/library change."
+      "reason": "Official hash-locked Debian SQLite 3.54.1-2 sources contain the upstream 3.54.0 fixes; rebuilt for Debian13. Every shipped image must match the rebuilt source version and actual package/file facts. This supersedes the former caller-boundary disposition for these ten IDs."
     },
     "CVE-2026-119378": {
       "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
+      "source_version": "3.54.1-2~sonovect13.2",
       "severity": "MEDIUM",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2026-119378",
         "https://sqlite.org/releaselog/3_54_0.html"
       ],
-      "status": "reviewed-service-boundary",
+      "status": "fixed-by-source-backport",
       "proof": {
-        "type": "sqlite-server-store",
-        "library_sha256": "a583bd1ff0d79ded57a0a543b8ed40cda11cc6fa284076b1d3de91fcd87ae154",
-        "caller_files": {
-          "api.py": "fbb00bfa6ff19364f81e7e57d0daedc4e5d7178d8d8e1128dd25e25936709133",
-          "config.py": "15b75ae3b84cf84e2bcad84d0c9986962cd7a730e48520a054d16f9b95bc98c5",
-          "filetrans.py": "3c2405c0484ba67b3483c1e55e94556f51cfee8e51ca6dd32b5ef9df11a3da47",
-          "media.py": "548b25c9bb660e74758b122546760255f8526660191c1fe2812ea7be010efd57",
-          "remote_input.py": "260788d8089db4628c844522324a0927d3928bc12e95f9e1e013e809201bda64",
-          "store.py": "6ee1e8a373a3b64f55c50961e45978e5431ae2df00cb589743f2d0b973585276",
-          "worker.py": "f9e810faaddc44c4731bdd48cbfe6e23e5deb853a019d14bbf7f12b7b614bea6"
-        }
+        "type": "fixed-source"
       },
-      "reason": "The library remains affected; upstream fixes are in SQLite 3.54.0. These issues require hostile SQL, database/WAL files, changesets, virtual-table shadow structures or authorizer-dependent SQL. This exact audited caller exposes media tasks only, uses a fixed server-owned queue database and bound SQL values, and never opens submitted media as SQLite. Observed connection defenses disable trusted schema, extension loading and ATTACH, enable defensive and cell-size checks. Caller hashes, exact library and unprivileged profile must all match. This is a service reachability review, not a library fix; review again for any SQL/database import feature or caller/library change."
+      "reason": "Official hash-locked Debian SQLite 3.54.1-2 sources contain the upstream 3.54.0 fixes; rebuilt for Debian13. Every shipped image must match the rebuilt source version and actual package/file facts. This supersedes the former caller-boundary disposition for these ten IDs."
     },
     "CVE-2026-119591": {
       "source": "sqlite3",
-      "source_version": "3.53.4-2~sonovect13.1",
+      "source_version": "3.54.1-2~sonovect13.2",
       "severity": "MEDIUM",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2026-119591",
         "https://sqlite.org/releaselog/3_54_0.html"
       ],
-      "status": "reviewed-service-boundary",
+      "status": "fixed-by-source-backport",
       "proof": {
-        "type": "sqlite-server-store",
-        "library_sha256": "a583bd1ff0d79ded57a0a543b8ed40cda11cc6fa284076b1d3de91fcd87ae154",
-        "caller_files": {
-          "api.py": "fbb00bfa6ff19364f81e7e57d0daedc4e5d7178d8d8e1128dd25e25936709133",
-          "config.py": "15b75ae3b84cf84e2bcad84d0c9986962cd7a730e48520a054d16f9b95bc98c5",
-          "filetrans.py": "3c2405c0484ba67b3483c1e55e94556f51cfee8e51ca6dd32b5ef9df11a3da47",
-          "media.py": "548b25c9bb660e74758b122546760255f8526660191c1fe2812ea7be010efd57",
-          "remote_input.py": "260788d8089db4628c844522324a0927d3928bc12e95f9e1e013e809201bda64",
-          "store.py": "6ee1e8a373a3b64f55c50961e45978e5431ae2df00cb589743f2d0b973585276",
-          "worker.py": "f9e810faaddc44c4731bdd48cbfe6e23e5deb853a019d14bbf7f12b7b614bea6"
-        }
+        "type": "fixed-source"
       },
-      "reason": "The library remains affected; upstream fixes are in SQLite 3.54.0. These issues require hostile SQL, database/WAL files, changesets, virtual-table shadow structures or authorizer-dependent SQL. This exact audited caller exposes media tasks only, uses a fixed server-owned queue database and bound SQL values, and never opens submitted media as SQLite. Observed connection defenses disable trusted schema, extension loading and ATTACH, enable defensive and cell-size checks. Caller hashes, exact library and unprivileged profile must all match. This is a service reachability review, not a library fix; review again for any SQL/database import feature or caller/library change."
+      "reason": "Official hash-locked Debian SQLite 3.54.1-2 sources contain the upstream 3.54.0 fixes; rebuilt for Debian13. Every shipped image must match the rebuilt source version and actual package/file facts. This supersedes the former caller-boundary disposition for these ten IDs."
+    },
+    "CVE-2026-76844": {
+      "source": "zlib",
+      "source_version": "1:1.3.dfsg+really1.3.1-1+deb13u1+sonovect13.2",
+      "severity": "HIGH",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-76844",
+        "https://www.debian.org/security/2026/dsa-6613"
+      ],
+      "status": "fixed-by-source-backport",
+      "proof": {
+        "type": "fixed-source"
+      },
+      "reason": "Official trixie-security source includes the verified gzwrite backport and existing negative CRC-length fix. Rebuilt source/package version and actual image inventory are required."
+    },
+    "CVE-2026-109518": {
+      "source": "apt",
+      "source_version": "3.0.3",
+      "severity": "HIGH",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-109518"
+      ],
+      "status": "affected-module-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "apt",
+          "apt-get",
+          "apt-cache"
+        ],
+        "modules": [
+          "apt_methods",
+          "apt_libraries"
+        ]
+      },
+      "reason": "Immutable runtime images remove package-manager commands, download methods and APT shared libraries, retaining package metadata. Build-time apt commands disable Acquire::Retries before downloads, avoiding the reported non-zero retry prerequisite until the distribution update is installed. Missing runtime absence evidence fails."
     }
   }
 }

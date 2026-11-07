@@ -34,7 +34,7 @@ def facts():
 def verify(value):
     expected = {'util-linux': '2.42.4-1~sonovect13.1', 'acl': '2.4.0-1~sonovect13.1',
                 'ncurses': '6.6+20260608-2~sonovect13.1', 'glibc': '2.43-7~sonovect13.1',
-                'sqlite3': '3.53.4-2~sonovect13.1', 'zlib': '1:1.3.dfsg+really1.3.1-1+sonovect13.1'}
+                'sqlite3': '3.54.1-2~sonovect13.2', 'zlib': '1:1.3.dfsg+really1.3.1-1+deb13u1+sonovect13.2'}
     for source, version in expected.items():
         matching = [p for p in value['packages'] if p['source'] == source]
         if not matching or any(p['source_version'] != version for p in matching):

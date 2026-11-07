@@ -37,10 +37,10 @@ another model or quality for representative Chinese, long or multi-speaker audio
 ## Security and distribution
 
 The API image disables access logging that could expose signed result query
-strings. [The runtime advisory review](security/asr-runtime-advisories-20261102.md)
-binds retained SQLite and C++ findings to exact caller and observed runtime
-boundaries. These are scoped mitigations, not claims that the libraries are fixed
-or that a source review replaces actual-image qualification.
+strings. [The release dependency update](security/release-020-advisories-20261107.md)
+uses fixed SQLite/zlib sources and removes package-manager entry points. Remaining
+service and C++ findings retain their explicit runtime boundaries. Source review
+does not replace actual-image qualification.
 
 Release attachments provide source, public Git history, the Python wheel, a
 source distribution and the standalone agent skill. Check them with `SHA256SUMS`.
