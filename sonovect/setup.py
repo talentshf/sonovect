@@ -9,7 +9,37 @@ from . import __version__
 from .assets import catalog, component_license_metadata
 
 
-def selection(route="qwen", speech="1.7b", sound="ast", vad=None, native_revision="v2.0.4", voice="none", measurements=False, layout="compact"):
+def selection(route="qwen", speech="1.7b", sound=None, vad=None, native_revision="v2.0.4", voice="none", measurements=False, layout="compact"):
+    sound = sound or ("none" if route in {"vibevoice", "vibevoice-1.5b"} else "ast")
+    if route == "vibevoice-1.5b":
+        if sound != "none" or voice != "none" or measurements or vad is not None or speech != "1.7b" or native_revision != "v2.0.4" or layout != "compact":
+            raise ValueError("vibevoice_stream_requires_plain_realtime_route")
+        alias = "vibevoice-stream-1.5b"
+        model = catalog()[alias]
+        return {"schema_version": "sonovect/deployment-selection-v1", "version": __version__,
+                "route": route, "layout": "external", "compose_file": "deploy/compose.realtime.vibevoice.yml",
+                "container_count": 1, "experimental": True, "models": {alias: model},
+                "download_bytes": model["bytes"], "environment": {
+                    "SONOVECT_VERSION": __version__, "SONOVECT_REALTIME_ENABLED": "true",
+                    "SONOVECT_REALTIME_BACKEND": "vibevoice-1.5b", "SONOVECT_REALTIME_MAX_SECONDS": "300",
+                    "SONOVECT_REALTIME_DEVICE": "cuda:0", "SONOVECT_REALTIME_GPU_MEMORY_UTILIZATION": "0.35",
+                    "SONOVECT_REALTIME_MODEL_PATH": "/models/huggingface/models--microsoft--VibeVoice-ASR-Streaming-1.5B/snapshots/" + model["revision"],
+                    "SONOVECT_SOUND_ENABLED": "false", "SONOVECT_VOICE_ENABLED": "false",
+                    "SONOVECT_MEASUREMENTS_ENABLED": "false"}}
+    if route == "vibevoice":
+        if sound != "none" or voice != "none" or measurements or vad is not None or speech != "1.7b" or native_revision != "v2.0.4" or layout != "compact":
+            raise ValueError("vibevoice_requires_plain_external_route")
+        return {"schema_version": "sonovect/deployment-selection-v1", "version": __version__,
+                "route": "vibevoice", "layout": "external", "compose_file": "deploy/compose.vibevoice.yml",
+                "container_count": 2, "external_model_service_required": True, "experimental": True,
+                "models": {}, "download_bytes": 0, "upstream_weight_bytes": 17348198410,
+                "upstream_model": "microsoft/VibeVoice-ASR",
+                "environment": {"SONOVECT_VERSION": __version__, "SONOVECT_BACKEND": "vibevoice",
+                    "SONOVECT_LAYOUT": "external", "SONOVECT_SOUND_ENABLED": "false",
+                    "SONOVECT_VOICE_ENABLED": "false", "SONOVECT_MEASUREMENTS_ENABLED": "false",
+                    "SONOVECT_VIBEVOICE_MODEL": "vibevoice",
+                    "SONOVECT_VIBEVOICE_REVISION": "d0c9efdb8d614685062c04425d91e01b6f37d944",
+                    "SONOVECT_VIBEVOICE_MAX_SECONDS": "900", "SONOVECT_MAX_MEDIA_SECONDS": "900"}}
     if layout not in {"compact", "distributed"}:
         raise ValueError("unsupported_layout")
     vad = vad or ("fsmn" if route == "cpu" else "firered")
@@ -69,10 +99,10 @@ def selection(route="qwen", speech="1.7b", sound="ast", vad=None, native_revisio
 
 def main(argv=None):
     p = argparse.ArgumentParser(description="Select models, show storage needs, generate .env; never installs host tools")
-    p.add_argument("--route", choices=["cpu", "qwen"], default="qwen")
+    p.add_argument("--route", choices=["cpu", "qwen", "vibevoice", "vibevoice-1.5b"], default="qwen")
     p.add_argument("--layout", choices=["compact", "distributed"], default="compact", help="Default: 2 base containers plus selected analysis/MOSS; distributed is for independent scaling")
     p.add_argument("--speech", choices=["1.7b", "0.6b"], default="1.7b")
-    p.add_argument("--sound", choices=["none", "ast"], default="ast", help="Independent CPU event classification")
+    p.add_argument("--sound", choices=["none", "ast"], help="Independent CPU event classification; default AST, none for VibeVoice")
     p.add_argument("--voice", choices=["none", "4b", "8b", "emotion2vec"], default="none", help="Experimental vocal backend: CPU emotion2vec or GPU MOSS; off by default")
     p.add_argument("--measurements", action=argparse.BooleanOptionalAction, default=False,
                    help="Independent weight-free pitch/energy; off unless selected")
@@ -83,12 +113,13 @@ def main(argv=None):
     a = p.parse_args(argv)
     try:
         if a.interactive:
-            a.route = input("Route [qwen/cpu] (qwen): ").strip() or "qwen"
+            a.route = input("Route [qwen/cpu/vibevoice/vibevoice-1.5b] (qwen): ").strip() or "qwen"
             if a.route == "qwen":
                 a.speech = input("Speech [1.7b/0.6b experimental] (1.7b): ").strip() or "1.7b"
                 a.vad = input("VAD [firered/fsmn] (firered): ").strip() or "firered"
         if a.interactive:
-            a.sound = input("Events [ast/none] (ast): ").strip() or "ast"
+            default_sound = "none" if a.route.startswith("vibevoice") else "ast"
+            a.sound = input(f"Events [ast/none] ({default_sound}): ").strip() or default_sound
             a.voice = input("Experimental vocal analysis [none/emotion2vec/4b/8b] (none): ").strip() or "none"
         value = selection(a.route, a.speech, a.sound, a.vad, a.native_revision, a.voice, a.measurements, a.layout)
         if a.write:

@@ -44,7 +44,7 @@ RUN groupadd --gid 10001 sonovect && useradd --uid 10001 --gid 10001 --create-ho
 ENV LC_ALL=C.UTF-8 LANGUAGE=C.UTF-8
 COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
-ARG VERSION=0.2.0
+ARG VERSION=0.3.0
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect segmentation-worker" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0"
 USER 10001:10001

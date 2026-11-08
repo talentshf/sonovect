@@ -3,7 +3,7 @@
   "info": {
     "title": "Sonovect",
     "description": "Self-hosted ASR for audio and video soundtracks, FunASR speech results and separate sound analysis.",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "paths": {
     "/health": {

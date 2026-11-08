@@ -3,13 +3,15 @@
 
 [中文](README.zh-CN.md) · [Configuration](docs/configuration.md) · [Deploy](deploy/README.md) · [Benchmarks](docs/quality.md) · [Agent setup](docs/agent-setup.md) · [Discussions](https://github.com/talentshf/sonovect/discussions) · [Contribute](CONTRIBUTING.md)
 
-[![Checks](https://github.com/talentshf/sonovect/actions/workflows/checks.yml/badge.svg)](https://github.com/talentshf/sonovect/actions/workflows/checks.yml) · [Apache-2.0](LICENSE) · Python 3.12+ · [v0.2.0 release notes](docs/release-v0.2.0.md)
+[![Checks](https://github.com/talentshf/sonovect/actions/workflows/checks.yml/badge.svg)](https://github.com/talentshf/sonovect/actions/workflows/checks.yml) · [Apache-2.0](LICENSE) · Python 3.12+ · [v0.3.0 release notes](docs/release-v0.3.0.md)
 
 # Turn recordings and video soundtracks into text, subtitles and sound data
 
-**Sonovect v0.2.0 is a self-hosted transcription and sound-analysis service.** Upload files, choose the processing you need and retrieve results by job ID. Speech, acoustic analysis and job status are separate outputs for people, applications and assistants.
+**Sonovect v0.3.0 is a self-hosted ASR and sound-analysis service with Qwen3-ASR, FunASR and optional Microsoft VibeVoice-ASR.** Upload files, choose the processing you need and retrieve results by job ID. Speech, acoustic analysis and job status are separate outputs for people, applications and assistants.
 
-v0.2.0 also offers an opt-in [DashScope-compatible asynchronous file interface](docs/filetrans-compatibility.md) for applications that submit managed audio URLs and recover results by the original task ID.
+v0.3.0 also offers an opt-in [DashScope-compatible asynchronous file interface](docs/filetrans-compatibility.md) for applications that submit managed audio URLs and recover results by the original task ID.
+
+**New in v0.3.0:** optional Qwen and VibeVoice-ASR Streaming 1.5B live recognition through the service and CLI. VibeVoice 1.5B is an **on-demand alternative**, with a separate runtime and no automatic restart; Qwen remains the default file-transcription route. The release includes the adapters and recipes; GPU runtimes and model assets are prepared separately. See [live recognition and the separate VibeVoice-ASR file adapter](docs/vibevoice-realtime.md).
 
 ## What it does
 
@@ -70,7 +72,15 @@ Defaults: **16 files per job, 256 MiB aggregate upload and two decoded hours per
 | Voice research and experiments | Pitch and relative energy over speech intervals, plus optional experimental vocal outputs | Compare signal features while retaining methods, windows and experimental provenance |
 | Assistants and automated workflows | Queryable file jobs, structured results and artifact manifests | Collect or download files upstream, process sound here and organize or ask questions about content downstream |
 
-This is a file-job service, with no browser UI or live streaming endpoint. Environmental labels can have false positives and misses, and analysis windows are not exact event boundaries. Vocal emotions and descriptions remain experimental and require review. Speaker IDs are recording-local; predictions and measurements do not establish psychological state, identity or health. See [benchmarks and limitations](docs/quality.md).
+The default service processes file jobs without a browser UI. Environmental labels can have false positives and misses, and analysis windows are not exact event boundaries. Vocal emotions and descriptions remain experimental and require review. Speaker IDs are recording-local; predictions and measurements do not establish psychological state, identity or health. See [benchmarks and limitations](docs/quality.md).
+
+## Optional live recognition
+
+`sonovect stream` accepts a mono 16 kHz PCM16 WAV file or live PCM on stdin, and emits replaceable text drafts followed by a final result. The Qwen route provides text; VibeVoice Streaming 1.5B also preserves native anonymous speaker labels, without timestamps. There is no browser recording interface.
+
+The 1.5B route needs approximately **5.64 GB of model assets**. A short English sample on an RTX3090 / 24 GiB reached **5.14 GiB of peak PyTorch reserved memory**, excluding other GPU allocations. This is a short-sample measurement, not a long-session capacity guarantee; Chinese meeting quality and speaker accuracy remain unqualified. The [runtime guide](docs/vibevoice-realtime.md#vibevoice-streaming-15b) documents the Chinese sample error and the limits of this check.
+
+Run its separate container explicitly when needed, in the foreground with automatic removal on exit. It does not join the default file deployment; stopping the process releases the loaded model. Prepare and qualify the isolated image before use.
 
 ## Transcription quality reference
 

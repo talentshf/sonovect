@@ -1,5 +1,5 @@
 {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "api_version": "v1",
   "backend": "funasr",
   "transcript": "funasr-speech-v1",
@@ -203,6 +203,29 @@
       ],
       "sha256": true
     }
+  },
+  "realtime": {
+    "enabled": false,
+    "path": "/v1/realtime",
+    "protocol": "sonovect.realtime/v1",
+    "model_family": "qwen3-asr",
+    "sample_rate": 16000,
+    "encoding": "pcm_s16le",
+    "channels": 1,
+    "max_frame_bytes": 64000,
+    "max_seconds": 300,
+    "idle_seconds": 30,
+    "max_sessions_per_process": 1,
+    "partial_semantics": "replace-full-text",
+    "timestamps": false,
+    "speakers": false,
+    "retention": "client-owned",
+    "resume": false,
+    "automatic_retry": false
+  },
+  "speech_limits": {
+    "word_timestamps": true,
+    "max_media_seconds": 7200
   },
   "execution": {
     "layout": "compact",

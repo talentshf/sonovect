@@ -6,6 +6,8 @@
 
 Sonovect is a self-hosted ASR service for recordings and video soundtracks. Turn your CPU or NVIDIA GPU into a local transcription service with Qwen3-ASR or FunASR, timestamps, anonymous speakers and subtitles. Add AST sound events, experimental vocal analysis or pitch/energy measurements independently, with separate structured results.
 
+Optional Microsoft **VibeVoice-ASR** support adds an external file adapter and **VibeVoice-ASR Streaming 1.5B** live recognition through the service and CLI. The 1.5B route is an on-demand alternative in a separate runtime, without automatic restart; Qwen remains the default file route. Live speaker labels have no aligned timestamps. See the [runtime guide](vibevoice-realtime.md) for preparation and measured limits.
+
 Choose the models you need, prepare their fixed assets and load them on request. A typical deployment uses two or three containers. Applications and agents share the same HTTP, CLI and MCP task workflow; the included Sonovect skill explains feature selection, submission and result retrieval.
 
 The same-audio [reference comparison](quality.md) shows local Qwen1.7B matching the tested cloud services on English and making fewer errors on the Mandarin meeting. Results retain their dates, configurations and denominators; environmental sounds and experimental emotions have separate evaluations.
@@ -16,13 +18,15 @@ The same-audio [reference comparison](quality.md) shows local Qwen1.7B matching 
 
 Sonovect 是面向录音和视频音轨的本地 ASR（自动语音识别）服务。利用已有 CPU（处理器）或 NVIDIA GPU（显卡），通过 Qwen3-ASR 或 FunASR 完成转写，输出时间戳、匿名说话人和字幕。环境音、实验人声分析、音高能量分别选择、独立输出，方便应用和智能体读取。
 
+可选的微软 **VibeVoice-ASR** 支持包含独立文件适配及 **VibeVoice-ASR Streaming 1.5B**（流式小版）服务、命令行实时识别。1.5B 作为备选，在独立环境按需运行、不自动重启；默认文件路线仍为 Qwen。实时说话人标签不带对齐时间，准备方式和实测限制见[运行指南](vibevoice-realtime.zh-CN.md)。
+
 按选型下载固定模型、按请求加载运行，常用部署只需两到三个容器。HTTP（网络接口）、CLI（命令行）和 MCP（模型上下文协议）共用一套任务流程，附带的 Sonovect skill（技能）说明选功能、交任务和读结果的方法。
 
 已有[同素材参考测试](quality.zh-CN.md)中，本地 Qwen1.7B 的英文结果与所测云端服务相当，中文会议字符错误更少。说明保留测试日期、配置和分母；环境音及实验情绪的结果另列。
 
 ## GitHub About / 仓库简介
 
-> Local ASR on your hardware | 本地部署语音识别：Qwen3-ASR / FunASR, audio & video transcription, speakers, subtitles and independent sound analysis. Docker · HTTP · CLI · MCP · Agent Skill.
+> Self-hosted ASR: VibeVoice-ASR / VibeVoice Streaming 1.5B, Qwen3-ASR & FunASR | 本地语音识别、实时转写、说话人、字幕与独立声音分析。Docker · HTTP · CLI · MCP.
 
 Repository / 仓库：<https://github.com/talentshf/sonovect>
 
@@ -32,9 +36,9 @@ The README is the product landing page: choose English or 中文, compare config
 
 ```text
 asr speech-recognition speech-to-text self-hosted local-asr offline-asr
-funasr qwen3-asr speaker-diarization audio-processing audio-event-detection
-video-transcription subtitles mcp docker python audio-analysis emotion-recognition
-ai-agent model-context-protocol
+funasr qwen3-asr vibevoice vibevoice-asr streaming-asr speaker-diarization
+audio-event-detection video-transcription subtitles mcp docker audio-analysis
+emotion-recognition ai-agent
 ```
 
 These 20 topics describe implemented interfaces and optional capabilities; emotion recognition remains experimental. Public discovery begins after the repository is made public. No promise of search ranking, popularity or broader quality superiority is implied.

@@ -39,6 +39,8 @@ def create_app(settings=None):
     app.state.store = store
     app.state.settings = settings
     app.state.readiness = readiness
+    from .realtime import install as install_realtime
+    install_realtime(app, settings)
     app.add_middleware(BodyLimit, maximum=settings.max_upload_bytes + settings.max_files * 8192 + 20000)
 
     # Last added user middleware runs first: reject before body limits or parsing.
@@ -93,6 +95,9 @@ def create_app(settings=None):
                     result["models"] = response.json()
             except Exception:
                 result["models"] = {"discovery_available": False}
+        elif settings.backend == "vibevoice":
+            result["models"] = {"asr": "microsoft/VibeVoice-ASR", "revision": settings.vibevoice_revision,
+                                "served_model": settings.vibevoice_model, "identity_source": "operator-configuration"}
         else:
             result["models"] = {"asr": settings.model, "revision": settings.model_revision}
         return result

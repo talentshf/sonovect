@@ -5,6 +5,7 @@ from . import __version__
 
 
 def describe(settings):
+    from .realtime import capability
     sound = settings.sound_enabled and (settings.backend == "speech" or bool(settings.sound_url))
     voice = settings.voice_enabled and (settings.backend == "speech" or bool(settings.voice_url))
     measurements = settings.measurements_enabled and (settings.backend == "speech" or bool(settings.measurements_url))
@@ -25,7 +26,7 @@ def describe(settings):
                   "video_examples": VIDEO_EXAMPLES, "video_processing": "audio-track-only",
                   "audio_track_index": "zero-based", "timeline_origin": "container_start",
                   "channel_handling": "mono-downmix", "decoded_sample_rate": 16000,
-                  "max_media_seconds": settings.max_media_seconds, "media_timeout_seconds": settings.media_timeout,
+                  "max_media_seconds": settings.source_seconds_limit, "media_timeout_seconds": settings.media_timeout,
                   "codec_support": "depends-on-worker-ffmpeg-build"},
         "processing_routes": [
             {"id": "speech", "available": True, "options": {"speakers": True, "analyze_sound": False, "analyze_voice": False}},
@@ -45,5 +46,8 @@ def describe(settings):
                                "srt_requires": "one-successful-source-with-sentence-timing"},
                     "analysis": {"formats": ["json"], "separate_from_transcript": True},
                     "export": {"artifacts": ["result.json", "analysis.json", "manifest.json"], "sha256": True}},
-        "execution": {"layout": settings.layout, "mode": "queued-file-jobs", "streaming": False, "backend_selection": "deployment"},
+        "realtime": capability(settings),
+        "speech_limits": {"word_timestamps": settings.backend != "vibevoice",
+                          "max_media_seconds": settings.source_seconds_limit},
+        "execution": {"layout": settings.layout, "mode": "queued-file-jobs", "streaming": settings.realtime_enabled, "backend_selection": "deployment"},
     }

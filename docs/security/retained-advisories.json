@@ -1,6 +1,6 @@
 {
   "reviewed_utc": "2026-11-07T15:03:34.183518+00:00",
-  "review_scope": "Nine retained service-boundary advisories. SQLite 2021-45346 Debian distribution table was manually re-reviewed; eight other semantic digests unchanged. The ten 2026 SQLite reports are now fixed by locked 3.54.1 sources and remain explicit fixed-source records in policy. Source/runtime/image evidence remains separate.",
+  "review_scope": "Ten retained service-boundary advisories. The 2026-11-09 GCC from_chars record was manually reviewed and retained as an explicit unfixed low-severity availability/parsing limitation, with exact-library and observed restriction guards. The prior nine records are retained unchanged. This is not a library fix or proof of native decoder unreachability; optional realtime and wheel-bundled libraries remain separate scopes.",
   "records": {
     "CVE-2010-4756": {
       "source": "glibc",
@@ -55,6 +55,11 @@
       "source_version": "2.43-7~sonovect13.1",
       "semantic_sha256": "42bbfe80c6511790dcf312d5e23426e5903767aed44f709e7dd8ec173d58374a",
       "url": "https://security-tracker.debian.org/tracker/CVE-2026-84243"
+    },
+    "CVE-2026-115456": {
+      "source": "gcc-14",
+      "source_version": "14.2.0-19",
+      "semantic_sha256": "3261334a62aed5e6718c175f77dcda23f96ad552459a0cd4e87f7098f0907d41"
     }
   }
 }

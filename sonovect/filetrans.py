@@ -120,7 +120,7 @@ def install(app, settings, store, authenticate):
                     "speaker_diarization": bool(identity.get("speaker_diarization")),
                     "hotwords": {"mode": "inline", "effect": "model-dependent-hint"}},
                 "limits": {"max_files": 1, "max_upload_bytes": settings.max_upload_bytes,
-                           "max_media_seconds": int(settings.max_media_seconds)}}]}
+                           "max_media_seconds": int(settings.source_seconds_limit)}}]}
 
     @router.post("/services/audio/asr/transcription", status_code=202, response_model=TaskReceipt,
                  response_model_exclude_none=True)

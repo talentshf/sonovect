@@ -73,7 +73,7 @@ COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
 RUN ["python", "/usr/local/share/sonovect-os-security/source/recipe/facts.py", "--verify"]
-ARG VERSION=0.2.0
+ARG VERSION=0.3.0
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0" org.opencontainers.image.description="Self-hosted ASR for audio and video soundtracks, with separate sound analysis."
 EXPOSE 8096
@@ -89,7 +89,7 @@ COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
 RUN ["python", "/usr/local/share/sonovect-os-security/source/recipe/facts.py", "--verify"]
-ARG VERSION=0.2.0
+ARG VERSION=0.3.0
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect media worker" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0"
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 CMD ["sonovect-health", "worker"]
@@ -104,7 +104,7 @@ COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
 RUN ["python", "/usr/local/share/sonovect-os-security/source/recipe/facts.py", "--verify"]
-ARG VERSION=0.2.0
+ARG VERSION=0.3.0
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect native worker" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0"
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 CMD ["sonovect-health", "worker"]
@@ -123,7 +123,7 @@ COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
 RUN ["python", "/usr/local/share/sonovect-os-security/source/recipe/facts.py", "--verify"]
-ARG VERSION=0.2.0
+ARG VERSION=0.3.0
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect experimental CPU vocal worker" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0"
 EXPOSE 8085
@@ -144,7 +144,7 @@ COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
 RUN ["python", "/usr/local/share/sonovect-os-security/source/recipe/facts.py", "--verify"]
-ARG VERSION=0.2.0
+ARG VERSION=0.3.0
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect weight-free measurements" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0"
 ENV OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 NUMBA_CACHE_DIR=/tmp/numba-cache
@@ -193,7 +193,7 @@ RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
 RUN ["python", "-c", "import os; from pathlib import Path; root=Path('/opt/sonovect/providers'); assert all(p.is_file() and os.access(p.parent, os.X_OK) for p in [root/'events/app.py',root/'vocal/vocal_app.py',root/'measurements/measurement_app.py'])"]
 RUN ["python", "/usr/local/share/sonovect-os-security/source/recipe/facts.py", "--verify"]
-ARG VERSION=0.2.0
+ARG VERSION=0.3.0
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect local CPU analysis" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0"
 ENV OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 NUMBA_CACHE_DIR=/tmp/numba-cache

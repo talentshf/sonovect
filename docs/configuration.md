@@ -1,6 +1,6 @@
 # Configuration and model selection
 
-Sonovect v0.2.0. Deployment selects components; jobs select execution. Jobs default to speech only. Setup writes a new mode-0600 configuration with a random token, never prints the token, and refuses overwrites.
+Sonovect v0.3.0. Deployment selects components; jobs select execution. Jobs default to speech only. Setup writes a new mode-0600 configuration with a random token, never prints the token, and refuses overwrites.
 
 ## Recommended choices
 
@@ -200,3 +200,26 @@ The Mandarin supplement does not qualify stable emotion recognition: the default
 ## Readiness diagnostics
 
 `sonovect ready --details` uses the existing service token to include component checks. `sonovect ready` keeps its JSON summary and exits 1 for an expected not-ready result. No new environment variable or credential is required. The 6-second readiness deadline, 250-millisecond diagnostic database wait, 2-second API report cache and health client's 8-second wait are bounded independently of inference/job timeouts. See [readiness](readiness.md).
+
+## Optional VibeVoice-ASR and realtime routes
+
+[Setup and boundaries](vibevoice-realtime.md). `--route vibevoice` uses an external model service without downloading weights; optional analysis is unsupported. `sonovect stream FILE` or `sonovect stream --stdin` accepts live audio, with `--language` and `--hotword`. Prepare the isolated realtime runtime without downgrading file-worker dependencies.
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `SONOVECT_VIBEVOICE_MODEL` | `vibevoice` | Upstream served model name |
+| `SONOVECT_VIBEVOICE_REVISION` | `d0c9efdb8d614685062c04425d91e01b6f37d944` | Operator-selected upstream revision; verify actual server separately |
+| `SONOVECT_VIBEVOICE_MAX_SECONDS` | `900` | Maximum duration per source; no implicit chunking |
+| `SONOVECT_VIBEVOICE_MAX_TOKENS` | `32768` | Generation limit; truncated output fails |
+| `SONOVECT_PROVIDER_TOKEN_FILE` | `unset` | Optional upstream bearer secret file, mounted read-only |
+| `SONOVECT_REALTIME_ENABLED` | `false` | Enable optional live service in this process |
+| `SONOVECT_REALTIME_MODEL_PATH` | `unset` | Local SDK-format Qwen checkpoint, separate from -hf file weights |
+| `SONOVECT_REALTIME_MAX_SECONDS` | `300` | Audio duration/session; single process/session |
+| `SONOVECT_REALTIME_IDLE_SECONDS` | `30` | Receive idle timeout in seconds |
+| `SONOVECT_REALTIME_GPU_MEMORY_UTILIZATION` | `0.35` | vLLM reservation fraction, validated in (0,0.9] |
+
+### VibeVoice Streaming 1.5B
+
+`--route vibevoice-1.5b` generates an independent live-service configuration, using `deploy/compose.realtime.vibevoice.yml` and the candidate image selected by `SONOVECT_REALTIME_IMAGE`. `SONOVECT_REALTIME_PORT` defaults to 8097; `SONOVECT_MODELS_DIR` is the read-only model root. `SONOVECT_REALTIME_BACKEND` selects `qwen` (unchanged default) or `vibevoice-1.5b`. `SONOVECT_REALTIME_DEVICE` defaults to `cuda:0`; `cpu` is also supported for functional checks without a realtime speed guarantee. Input stays 16kHz PCM, resampled continuously to 24kHz. The maximum is 480 seconds (default 300). Model-emitted `speaker_segments` use anonymous session-local IDs without word timestamps. Use `sonovect models prepare vibevoice-stream-1.5b --cache ...`; the model catalog pins the revision and every file digest.
+
+`TORCH_DISABLE_NATIVE_JIT` defaults to 1 in the optional realtime container. This uses the verified native non-JIT fallback on a slim runtime without a C compiler. An image with a complete compiler toolchain can explicitly set 0 and requalify; the production file worker is unchanged.

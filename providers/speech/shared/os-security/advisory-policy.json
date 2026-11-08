@@ -1184,6 +1184,21 @@
         ]
       },
       "reason": "Immutable runtime images remove package-manager commands, download methods and APT shared libraries, retaining package metadata. Build-time apt commands disable Acquire::Retries before downloads, avoiding the reported non-zero retry prerequisite until the distribution update is installed. Missing runtime absence evidence fails."
+    },
+    "CVE-2026-115456": {
+      "source": "gcc-14",
+      "source_version": "14.2.0-19",
+      "severity": "LOW",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-115456",
+        "https://bugzilla.redhat.com/show_bug.cgi?id=2563044"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "cpp-parser-service-boundary",
+        "library_sha256": "972bb2a18b71140dab0240f8a1f68ab3fb1d56bcd4c4f824a91b70888faf5a00"
+      },
+      "reason": "Unfixed libstdc++ std::from_chars out-of-bounds read with non-NUL-terminated buffers can cause invalid float parsing or denial of service. The authenticated single-trust-domain service accepts bounded media and typed options, not C++ pointers, compiler input or arbitrary native code. Exact distro source/library identity, non-root execution, dropped capabilities, no-new-privileges, absent setid programs, shells and compiler headers are required. These controls limit exposure and privilege impact; they do not prove native decoder paths unreachable or repair parsing. Residual process availability and parsing risk remains disclosed. Wheel-bundled libraries, optional realtime operator images and alternate callers require separate assessment."
     }
   }
 }

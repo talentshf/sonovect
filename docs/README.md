@@ -1,6 +1,6 @@
 # Documentation
 
-Sonovect v0.2.0 has one maintained product version, native and opt-in compatible file-task interfaces, and one analysis contract.
+Sonovect v0.3.0 has one maintained product version, native and opt-in compatible file-task interfaces, and one analysis contract.
 
 | Need | Reference |
 | --- | --- |
@@ -11,6 +11,7 @@ Sonovect v0.2.0 has one maintained product version, native and opt-in compatible
 | Connect an agent | [Client, MCP and skill setup](agent-setup.md) · [中文安装接入](agent-setup.zh-CN.md) |
 | Integrate applications | [HTTP](api.md) · [MCP tool reference](mcp.md) · [Skill](../skills/sonovect/SKILL.md) |
 | Compatible file ASR | [Protocol and setup](filetrans-compatibility.md) · [中文](filetrans-compatibility.zh-CN.md) |
+| Optional VibeVoice-ASR and live recognition | [Runtime and protocol](vibevoice-realtime.md) · [中文](vibevoice-realtime.zh-CN.md) |
 | Interpret outputs | [Results](results.md) · [Generated contracts](../contracts/openapi-v1.json) |
 | Operate and recover | [Operations](operations.md) |
 | Compare measured choices | [Quality](quality.md) · [中文质量与选型](quality.zh-CN.md) · [Reference JSON](../evaluation/reference-results.json) · [Evaluation rules](accuracy-evaluation.md) |
@@ -20,4 +21,4 @@ Sonovect v0.2.0 has one maintained product version, native and opt-in compatible
 
 Private planning, retired development versions and raw acceptance materials are maintained outside this product repository. No machine-specific credentials, source locations or business workflows are required by the product or its skill.
 
-[Product introduction / 产品介绍](positioning.md) · [v0.2.0 release notes / 发行介绍](release-v0.2.0.md)
+[Product introduction / 产品介绍](positioning.md) · [v0.3.0 release notes / 发行介绍](release-v0.3.0.md)
