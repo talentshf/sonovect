@@ -42,13 +42,26 @@ def main(argv=None):
         if name == "wait":
             sub.add_argument("--timeout", type=float, default=7200)
     commands.add_parser("capabilities")
+    stream = commands.add_parser("stream", help="Stream 16kHz mono PCM16 WAV or live PCM stdin; emit NDJSON snapshots")
+    stream.add_argument("file", nargs="?")
+    stream.add_argument("--stdin", action="store_true", help="Read raw little-endian PCM16 mono 16kHz from stdin")
+    stream.add_argument("--language")
+    stream.add_argument("--hotword", action="append", default=[])
     ready = commands.add_parser("ready", help="Check service/worker readiness without loading models")
     ready.add_argument("--details", action="store_true", help="Include authenticated component diagnostics")
     args = parser.parse_args(argv)
     client = None
     try:
         client = Client()
-        if args.command == "submit":
+        if args.command == "stream":
+            if bool(args.file) == bool(args.stdin):
+                raise ValueError("select_one_stream_input")
+            from .stream_client import run
+            for event in run(client, args.file, sys.stdin.buffer if args.stdin else None,
+                             language=args.language, hotwords=args.hotword):
+                print(json.dumps(event, ensure_ascii=False), flush=True)
+            return 0
+        elif args.command == "submit":
             selected = Options(language=args.language, speakers=not args.no_speakers,
                                analyze_sound=args.analyze_sound, analyze_voice=args.analyze_voice, hotwords=args.hotword, audio_track=args.audio_track,
                                measure_voice=args.measure_voice)

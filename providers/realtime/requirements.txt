@@ -1,0 +1,4 @@
+# Optional, isolated GPU runtime. Never install into the Transformers 5 file worker.
+qwen-asr[vllm]==0.0.6
+# Install Sonovect from the same selected build, with --no-deps only AFTER its
+# normal core dependencies have been installed and checked in this environment.

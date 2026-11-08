@@ -522,6 +522,76 @@
         }
       },
       "bytes": 1118249310
+    },
+    "vibevoice-stream-1.5b": {
+      "hub": "huggingface",
+      "repo_id": "microsoft/VibeVoice-ASR-Streaming-1.5B",
+      "revision": "4262d23d8a539a6530cf64fbd0b1751ef9a30853",
+      "license": "MIT",
+      "source": "https://huggingface.co/microsoft/VibeVoice-ASR-Streaming-1.5B/tree/4262d23d8a539a6530cf64fbd0b1751ef9a30853",
+      "files": {
+        "added_tokens.json": {
+          "size": 714,
+          "algorithm": "git-sha1",
+          "digest": "2cd3deebbeb6658efbee920aa097ba793aba4f0f"
+        },
+        "config.json": {
+          "size": 2941,
+          "algorithm": "git-sha1",
+          "digest": "8731a7148bd4dc88762d1582aea515e71e96b8bb"
+        },
+        "merges.txt": {
+          "size": 1671853,
+          "algorithm": "git-sha1",
+          "digest": "31349551d90c7606f325fe0f11bbb8bd5fa0d7c7"
+        },
+        "model-00001-of-00003.safetensors": {
+          "size": 2498354152,
+          "algorithm": "sha256",
+          "digest": "788e6206a158c614e1e6777ab843baf64ca8a3f555e3cb72c26d5d79b925d4b9"
+        },
+        "model-00002-of-00003.safetensors": {
+          "size": 2486576066,
+          "algorithm": "sha256",
+          "digest": "4d58b3ce47ac6b0ac5d3b142d54e56f10e02a928cf016b493e9e6a3f91beb75d"
+        },
+        "model-00003-of-00003.safetensors": {
+          "size": 643458072,
+          "algorithm": "sha256",
+          "digest": "884b560dcd3024436d8827d32c7e211c545751c099df4ee75101c1ee2196f427"
+        },
+        "model.safetensors.index.json": {
+          "size": 120114,
+          "algorithm": "git-sha1",
+          "digest": "6627aabc0ad713cea5d3348f08b0c8e6467b26cc"
+        },
+        "preprocessor_config.json": {
+          "size": 191,
+          "algorithm": "git-sha1",
+          "digest": "e79309dd9d5770e72d38e348e0d567d2a4e70458"
+        },
+        "special_tokens_map.json": {
+          "size": 769,
+          "algorithm": "git-sha1",
+          "digest": "61b7ee281dbe33169d3eabdd693e78e06fe22e0d"
+        },
+        "tokenizer.json": {
+          "size": 11422657,
+          "algorithm": "sha256",
+          "digest": "d198a051741ee47805797b744e6524c259b08a59b58d1ec159cfd7f1da5f2df7"
+        },
+        "tokenizer_config.json": {
+          "size": 9330,
+          "algorithm": "git-sha1",
+          "digest": "c9a2fbb0b7be1a76b37c42fe4d4a246768521d1b"
+        },
+        "vocab.json": {
+          "size": 2776833,
+          "algorithm": "git-sha1",
+          "digest": "4783fe10ac3adce15ac8f358ef5462739852c569"
+        }
+      },
+      "bytes": 5644393692
     }
   }
 }

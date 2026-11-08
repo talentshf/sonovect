@@ -1,0 +1,5 @@
+# Upstream streaming methods require their own Transformers <5 runtime.
+# Reuse compatible host Torch/CUDA; never downgrade the deployed file worker.
+transformers==4.57.6
+soxr==1.1.0
+vibevoice @ git+https://github.com/microsoft/VibeVoice.git@16fb2cb1217c9934a886e1948ffb06120caa2df5

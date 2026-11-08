@@ -66,7 +66,7 @@ def prepare_media(path: Path, options: dict, settings, *, scratch_dir=None):
                                      _seconds(info.get("format", {}).get("start_time")))))
     except (ValueError, TypeError, AttributeError, KeyError):
         raise MediaError("media_decode_failed") from None
-    if offset >= settings.max_media_seconds * 1000:
+    if offset >= settings.source_seconds_limit * 1000:
         raise MediaError("media_duration_exceeded")
     with TemporaryDirectory(prefix="decode-", dir=scratch_dir or settings.data_dir) as directory:
         decoded = Path(directory) / "audio.wav"
@@ -76,7 +76,7 @@ def prepare_media(path: Path, options: dict, settings, *, scratch_dir=None):
                        "-i", str(path), "-map", f"0:a:{track}", "-vn", "-sn", "-dn",
                        "-af", f"asetpts=PTS-STARTPTS,aresample=16000:async=1:first_pts=0,adelay={offset}:all=1",
                        "-ac", "1", "-c:a", "pcm_s16le", "-threads", "1",
-                       "-map_metadata", "-1", "-t", str(settings.max_media_seconds + 1),
+                       "-map_metadata", "-1", "-t", str(settings.source_seconds_limit + 1),
                        "-y", str(decoded)], settings.media_timeout)
         if result.returncode:
             raise MediaError("media_decode_failed")
@@ -87,7 +87,7 @@ def prepare_media(path: Path, options: dict, settings, *, scratch_dir=None):
             raise MediaError("media_decode_failed") from None
         if not frames:
             raise MediaError("media_no_audio")
-        if frames > settings.max_media_seconds * rate:
+        if frames > settings.source_seconds_limit * rate:
             raise MediaError("media_duration_exceeded")
         metadata = {"kind": "video" if any(s.get("codec_type") == "video" for s in streams) else "audio",
                     "audio_track": track, "audio_tracks": len(audio),

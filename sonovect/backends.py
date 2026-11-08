@@ -161,4 +161,7 @@ class FunASRBackend:
 
 
 def build_backend(settings):
+    if settings.backend == "vibevoice":
+        from .vibevoice import VibeVoiceBackend
+        return VibeVoiceBackend(settings)
     return FunASRBackend(settings) if settings.backend == "funasr" else SpeechBackend(settings)

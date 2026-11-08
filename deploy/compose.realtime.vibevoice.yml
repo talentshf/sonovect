@@ -1,0 +1,28 @@
+# Optional on-demand VibeVoice Streaming 1.5B service. No file-job volume.
+# Run in the foreground with `docker compose ... run --rm --service-ports realtime`.
+name: sonovect-realtime-vibevoice
+services:
+  realtime:
+    image: ${SONOVECT_REALTIME_IMAGE:?Set a qualified image with this Sonovect build and the pinned VibeVoice runtime}
+    env_file: ${SONOVECT_ENV_FILE:-.env}
+    environment:
+      SONOVECT_REALTIME_ENABLED: 'true'
+      SONOVECT_REALTIME_BACKEND: vibevoice-1.5b
+      HF_HUB_OFFLINE: '1'
+      TRANSFORMERS_OFFLINE: '1'
+      TORCH_DISABLE_NATIVE_JIT: ${TORCH_DISABLE_NATIVE_JIT:-1}
+    command: [uvicorn, 'sonovect.realtime:create_realtime_app', --factory, --host, '0.0.0.0', --port, '8097', --workers, '1', --ws-max-size, '64000', --no-server-header]
+    ports: ['${SONOVECT_BIND:-127.0.0.1}:${SONOVECT_REALTIME_PORT:-8097}:8097']
+    volumes: ['${SONOVECT_MODELS_DIR:-./models}:/models:ro']
+    deploy:
+      resources:
+        reservations:
+          devices: [{driver: nvidia, count: 1, capabilities: [gpu]}]
+    init: true
+    restart: 'no'
+    stop_grace_period: 60s
+    security_opt: ['no-new-privileges:true']
+    cap_drop: [ALL]
+    logging:
+      driver: json-file
+      options: {max-size: '10m', max-file: '3'}

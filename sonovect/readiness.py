@@ -100,12 +100,12 @@ def summary(value):
     return Summary.model_validate({k: v for k, v in value.items() if k in Summary.model_fields}).model_dump()
 
 
-async def fetch_health(url, timeout=4.5):
+async def fetch_health(url, timeout=4.5, headers=None, path="/health"):
     """A wall-clock deadline and streaming limit, in addition to HTTP phase limits."""
     try:
         async with asyncio.timeout(timeout):
-            async with httpx.AsyncClient(timeout=min(timeout, 4), trust_env=False, follow_redirects=False) as client:
-                async with client.stream("GET", url + "/health") as response:
+            async with httpx.AsyncClient(timeout=min(timeout, 4), trust_env=False, follow_redirects=False, headers=headers) as client:
+                async with client.stream("GET", url + path) as response:
                     if response.status_code != 200:
                         return None, "provider_http_error"
                     content = bytearray()
@@ -213,9 +213,20 @@ class Readiness:
                     checks.extend([check("queue.database", code="database_unavailable"),
                                    check("queue.worker", code="dependency_failed", skipped=True)])
                 pending = "speech.provider"
-                if self.settings.backend == "speech":
-                    value, code = await fetch_health(self.settings.provider_url)
-                    checks.extend([check(pending, code=code)] if code else provider_checks(self.settings, value))
+                if self.settings.backend in {"speech", "vibevoice"}:
+                    if self.settings.backend == "vibevoice":
+                        from .auth import provider_headers
+                        value, code = await fetch_health(self.settings.provider_url, headers=provider_headers(self.settings), path="/v1/models")
+                        if not code:
+                            models = value.get("data")
+                            if not isinstance(models, list):
+                                code = "provider_invalid_response"
+                            elif not any(isinstance(m, dict) and m.get("id") == self.settings.vibevoice_model for m in models):
+                                code = "provider_configuration_mismatch"
+                        checks.append(check(pending, code=code))
+                    else:
+                        value, code = await fetch_health(self.settings.provider_url)
+                        checks.extend([check(pending, code=code)] if code else provider_checks(self.settings, value))
                 else:
                     checks.append(check(pending, code="not_applicable", skipped=True))
         except TimeoutError:

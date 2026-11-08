@@ -40,20 +40,57 @@ class Settings:
     compat_download_timeout: float = 300
     compat_link_seconds: int = 3600
     compat_max_queued: int = 32
+    vibevoice_model: str = "vibevoice"
+    vibevoice_revision: str = "d0c9efdb8d614685062c04425d91e01b6f37d944"
+    vibevoice_max_seconds: float = 900
+    vibevoice_max_tokens: int = 32768
+    provider_token_file: Path | None = None
+    realtime_enabled: bool = False
+    realtime_backend: str = "qwen"
+    realtime_model_path: str = ""
+    realtime_max_seconds: float = 300
+    realtime_idle_seconds: float = 30
+    realtime_gpu_memory_utilization: float = 0.35
+    realtime_device: str = "cuda:0"
+
+    @property
+    def source_seconds_limit(self):
+        return min(self.max_media_seconds, self.vibevoice_max_seconds) if self.backend == "vibevoice" else self.max_media_seconds
 
     def __post_init__(self):
         if not self.token or self.token in {"change-me", "REPLACE_ME", "development-token"}:
             raise ValueError("Set SONOVECT_TOKEN to a non-placeholder secret")
         if self.layout not in {"compact", "distributed", "external"}:
             raise ValueError("SONOVECT_LAYOUT must be compact, distributed or external")
-        if self.backend not in {"funasr", "speech"}:
-            raise ValueError("SONOVECT_BACKEND must be funasr or speech")
+        if self.backend not in {"funasr", "speech", "vibevoice"}:
+            raise ValueError("SONOVECT_BACKEND must be funasr, speech or vibevoice")
+        if self.backend == "vibevoice":
+            from urllib.parse import urlsplit
+            url = urlsplit(self.provider_url)
+            if url.scheme not in {"http", "https"} or not url.hostname or url.username or url.password or url.query or url.fragment:
+                raise ValueError("invalid_vibevoice_provider_url")
+            if self.sound_enabled or self.voice_enabled or self.measurements_enabled:
+                raise ValueError("vibevoice_route_does_not_support_optional_analysis")
+            import re
+            if not re.fullmatch(r"[0-9a-f]{40}", self.vibevoice_revision) or not self.vibevoice_model.strip():
+                raise ValueError("vibevoice_requires_pinned_revision_and_served_model")
+        if not 0 < self.realtime_gpu_memory_utilization <= 0.9:
+            raise ValueError("invalid_realtime_gpu_budget")
+        if self.realtime_backend not in {"qwen", "vibevoice-1.5b"}:
+            raise ValueError("invalid_realtime_backend")
+        if self.realtime_device not in {"cuda:0", "cpu"}:
+            raise ValueError("invalid_realtime_device")
+        if self.realtime_backend == "vibevoice-1.5b" and self.realtime_max_seconds > 480:
+            raise ValueError("vibevoice_streaming_limit_is_480_seconds")
+        if self.realtime_enabled and (not self.realtime_model_path or not Path(self.realtime_model_path).is_dir()):
+            raise ValueError("realtime_requires_local_sdk_model_directory")
         if self.voice_backend not in {"moss", "emotion2vec"}:
             raise ValueError("SONOVECT_VOICE_BACKEND must be moss or emotion2vec")
         limits = (self.max_upload_bytes, self.max_files, self.input_ttl_hours,
                self.result_ttl_hours, self.lease_seconds, self.poll_seconds, self.provider_timeout,
                self.worker_stale_seconds, self.max_media_seconds, self.media_timeout,
-               self.compat_download_timeout, self.compat_link_seconds, self.compat_max_queued)
+               self.compat_download_timeout, self.compat_link_seconds, self.compat_max_queued,
+               self.vibevoice_max_seconds, self.vibevoice_max_tokens, self.realtime_max_seconds, self.realtime_idle_seconds)
         if any(not math.isfinite(value) or value <= 0 for value in limits):
             raise ValueError("Limits, retention and timeout values must be positive")
         if self.compat_model:
@@ -103,4 +140,16 @@ class Settings:
             compat_download_timeout=float(os.getenv(p + "COMPAT_DOWNLOAD_TIMEOUT", "300")),
             compat_link_seconds=int(os.getenv(p + "COMPAT_LINK_SECONDS", "3600")),
             compat_max_queued=int(os.getenv(p + "COMPAT_MAX_QUEUED", "32")),
+            vibevoice_model=os.getenv(p + "VIBEVOICE_MODEL", "vibevoice"),
+            vibevoice_revision=os.getenv(p + "VIBEVOICE_REVISION", "d0c9efdb8d614685062c04425d91e01b6f37d944"),
+            vibevoice_max_seconds=float(os.getenv(p + "VIBEVOICE_MAX_SECONDS", "900")),
+            vibevoice_max_tokens=int(os.getenv(p + "VIBEVOICE_MAX_TOKENS", "32768")),
+            provider_token_file=Path(os.environ[p + "PROVIDER_TOKEN_FILE"]).expanduser() if os.getenv(p + "PROVIDER_TOKEN_FILE") else None,
+            realtime_enabled=os.getenv(p + "REALTIME_ENABLED", "false").lower() in {"true", "1", "yes"},
+            realtime_backend=os.getenv(p + "REALTIME_BACKEND", "qwen"),
+            realtime_model_path=os.getenv(p + "REALTIME_MODEL_PATH", ""),
+            realtime_max_seconds=float(os.getenv(p + "REALTIME_MAX_SECONDS", "300")),
+            realtime_idle_seconds=float(os.getenv(p + "REALTIME_IDLE_SECONDS", "30")),
+            realtime_gpu_memory_utilization=float(os.getenv(p + "REALTIME_GPU_MEMORY_UTILIZATION", "0.35")),
+            realtime_device=os.getenv(p + "REALTIME_DEVICE", "cuda:0"),
         )

@@ -184,3 +184,26 @@ SQLite（嵌入式数据库）的临时写锁冲突会让工作进程等待后�
 ## 就绪诊断
 
 `sonovect ready --details` 使用现有服务令牌读取各组件检查；不加该参数时返回摘要。未就绪也会输出 JSON（结构化文本），退出码为 1，不再只显示泛化请求失败。无需新增环境变量或凭据。就绪报告总截止 6 秒、诊断数据库等锁 250 毫秒、接口报告缓存 2 秒、健康客户端等待 8 秒，均与推理和任务超时分开。后端只共享进行中的采集，不叠加已完成缓存的保留时间。详见[就绪诊断](readiness.md)。
+
+## 可选 VibeVoice 与实时路线（未发行）
+
+[完整配置与边界](vibevoice-realtime.zh-CN.md)。`--route vibevoice` 选择外部模型服务，不下载权重；附加分析暂不支持。`sonovect stream FILE` 或 `sonovect stream --stdin` 接收实时音频，沿用 `--language` 和 `--hotword`。实时依赖单独准备，不降低文件工作器版本。
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `SONOVECT_VIBEVOICE_MODEL` | `vibevoice` | 上游服务模型名称 |
+| `SONOVECT_VIBEVOICE_REVISION` | `d0c9efdb8d614685062c04425d91e01b6f37d944` | 管理员选定的上游修订，真实加载另行回读 |
+| `SONOVECT_VIBEVOICE_MAX_SECONDS` | `900` | 单来源时长上限，不自动切段 |
+| `SONOVECT_VIBEVOICE_MAX_TOKENS` | `32768` | 生成长度上限，截断输出失败 |
+| `SONOVECT_PROVIDER_TOKEN_FILE` | `unset` | 可选上游认证令牌文件，只读挂载 |
+| `SONOVECT_REALTIME_ENABLED` | `false` | 显式启用本进程的实时服务 |
+| `SONOVECT_REALTIME_MODEL_PATH` | `unset` | 本地SDK格式Qwen权重目录，与文件路线的-hf格式分别准备 |
+| `SONOVECT_REALTIME_MAX_SECONDS` | `300` | 每会话音频时长，一个进程只允许一个会话 |
+| `SONOVECT_REALTIME_IDLE_SECONDS` | `30` | 接收空闲超时秒数 |
+| `SONOVECT_REALTIME_GPU_MEMORY_UTILIZATION` | `0.35` | vLLM显存预留比例，范围(0,0.9] |
+
+### VibeVoice Streaming 1.5B
+
+`--route vibevoice-1.5b` 生成独立实时服务配置；使用 `deploy/compose.realtime.vibevoice.yml` 和 `SONOVECT_REALTIME_IMAGE` 选定的候选镜像。`SONOVECT_REALTIME_PORT` 默认8097，`SONOVECT_MODELS_DIR` 为只读模型目录。`SONOVECT_REALTIME_BACKEND` 可选 `qwen`（原默认）或 `vibevoice-1.5b`；`SONOVECT_REALTIME_DEVICE` 默认 `cuda:0`，也可用 `cpu` 做功能检查，CPU不保证实时速度。该路线仍接收16kHz PCM，通过连续重采样送入24kHz模型；最长允许480秒，默认300秒。可按模型输出提供会话内匿名 `speaker_segments`，不提供字词时间。模型准备沿 `sonovect models prepare vibevoice-stream-1.5b --cache ...`，固定修订与文件摘要由模型清单验证。
+
+`TORCH_DISABLE_NATIVE_JIT` 默认为1，仅作用于可选实时容器：在不带C编译器的精简运行时，使用已验证的PyTorch原生非即时编译路径。带完整编译工具链的镜像可显式设为0重新评测；该配置不改变现役文件工作器。
