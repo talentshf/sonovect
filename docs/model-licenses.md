@@ -17,6 +17,9 @@ Sonovect是模型组装与服务平台，负责接入、任务、输出和部署
 | `paraformer-v2.0.9` | [iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch](https://www.modelscope.cn/models/iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch) · `v2.0.9` | Apache-2.0 |
 | `ast-events` | [MIT/ast-finetuned-audioset-10-10-0.4593](https://huggingface.co/MIT/ast-finetuned-audioset-10-10-0.4593/tree/f826b80d28226b62986cc218e5cec390b1096902) · `f826b80d28226b62986cc218e5cec390b1096902` | BSD-3-Clause |
 | `emotion2vec-base` | [emotion2vec/emotion2vec_plus_base](https://huggingface.co/emotion2vec/emotion2vec_plus_base/tree/b318240bfe67db81a8c572ecb37ce9c3759b81c9) · `b318240bfe67db81a8c572ecb37ce9c3759b81c9` | model-license |
+| `vibevoice-stream-1.5b` | [microsoft/VibeVoice-ASR-Streaming-1.5B](https://huggingface.co/microsoft/VibeVoice-ASR-Streaming-1.5B/tree/4262d23d8a539a6530cf64fbd0b1751ef9a30853) · `4262d23d8a539a6530cf64fbd0b1751ef9a30853` | MIT |
+
+VibeVoice 实时路线官方推理代码固定于 `16fb2cb1217c9934a886e1948ffb06120caa2df5`，[许可正文](https://github.com/microsoft/VibeVoice/blob/16fb2cb1217c9934a886e1948ffb06120caa2df5/LICENSE)为 MIT，保留 Microsoft 版权与声明。代码与模型分别准备；原版文件适配连接部署者自行维护的上游服务，不分发其权重或镜像。
 
 emotion2vec两个官方来源声明不同，当前固定资产仍照实保留原声明。MOSS固定代码树缺少其元数据引用的许可正文，派生包保留该事实与对应源码，不自行补造上游授权。这两项均保留实验接入，不设置强制确认或等待询证；中文情绪保持实验功能，已有表演语料结果不代表自然对话准确率。
 

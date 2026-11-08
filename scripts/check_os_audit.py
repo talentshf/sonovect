@@ -40,6 +40,13 @@ def policy_disposition(item, package, facts):
         valid = (evidence.get('compiler_headers_present') is False
                  and all(profile.get(key) == [] for key in ('parallel_algorithm_exports', 'vector_bool_exports', 'bitset_exports'))
                  and evidence.get('libraries', {}).get('libstdc++.so.6', {}).get('sha256') == proof['library_sha256'])
+    elif kind == 'cpp-parser-service-boundary':
+        commands = evidence.get('commands', {})
+        valid = (evidence.get('uid') == 10001 and evidence.get('effective_capabilities') == '0000000000000000'
+                 and evidence.get('no_new_privileges') == '1' and facts.get('setid_paths') == []
+                 and evidence.get('compiler_headers_present') is False
+                 and all(key in commands and not commands[key] for key in ('sh', 'bash', 'dash', 'perl', 'gcc', 'g++'))
+                 and evidence.get('libraries', {}).get('libstdc++.so.6', {}).get('sha256') == proof['library_sha256'])
     elif kind == 'sqlite-server-store':
         profile = evidence.get('sqlite_store', {})
         valid = (evidence.get('uid') == 10001 and evidence.get('effective_capabilities') == '0000000000000000'

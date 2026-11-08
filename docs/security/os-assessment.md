@@ -1,10 +1,16 @@
-# OS advisory assessment — 0.2.0
+# OS advisory assessment — 0.3.0
 
 This register records exact source versions, primary advisories and scoped dispositions for maintained Linux amd64 immutable service images. It is source applicability evidence; actual image/package inventory, complete scanner coverage and per-role qualification are required separately. Raw findings remain visible. TEMP identifiers are Debian tracker entries, not assigned CVEs.
 
 The v0.2.0 recipes use fixed SQLite 3.54.1-2 and official Debian trixie-security zlib sources, retaining the CRC fix and adding the gzip-write fix. APT download code is removed in final images and build-time retries are disabled. See the [2026-11-07 dependency review](release-020-advisories-20261107.md) and [hash-locked sources](../../providers/speech/shared/os-security/additional-source-lock.json). No host library or existing service is changed by publishing these recipes.
 
 The classifier rejects unknown findings, changed severities/versions, incomplete inventories and missing observed proof at every severity. Retained service boundaries require UID 10001, dropped capabilities, no-new-privileges, no setid bits and the documented media-job interface. They do not authorize arbitrary SQL, database import, executable input or operator code execution. OS packages, Python packages and native wheel libraries have separate coverage.
+
+## Newly observed GCC parser limitation
+
+The 2026-11-09 scanner refresh reports [CVE-2026-115456](https://security-tracker.debian.org/tracker/CVE-2026-115456) against `gcc-14-base`, `libgcc-s1` and `libstdc++6`, all from GCC 14.2.0-19. [The original report](https://bugzilla.redhat.com/show_bug.cgi?id=2563044) describes a non-NUL-terminated buffer passed to `std::from_chars`, causing invalid float parsing or process denial of service; Debian currently lists no fixed version. The finding is retained as an explicit residual service limitation, **not a library fix or proof of unreachable code**.
+
+The classifier requires the exact source version and library digest, UID 10001, dropped capabilities, no-new-privileges, no setid files, shells, compilers or compiler headers. The supported authenticated interface accepts bounded media and typed options, not native pointers or executable code. Native decoder reachability and availability risk are not ruled out by those restrictions. Do not extend this decision to arbitrary operator code, wheel-bundled libraries or separate realtime images. Changed version, severity, digest or observed restrictions fail closed; raw matches remain visible.
 
 ## Current policy
 
@@ -14,9 +20,9 @@ The classifier rejects unknown findings, changed severities/versions, incomplete
 - `not-affected-platform-branch`: 1 unique IDs.
 - `not-affected-runtime-package`: 1 unique IDs.
 - `reviewed-compiler-template-boundary`: 3 unique IDs.
-- `reviewed-service-boundary`: 9 unique IDs.
+- `reviewed-service-boundary`: 10 unique IDs.
 
-Nine entries remain service-boundary limitations: eight glibc issues including gettext locale traversal, and the corrupt SQLite/SQL limitation CVE-2021-45346. They are not library fixes. The ten SQLite IDs previously accepted through an exact caller boundary now require the fixed source. The corresponding earlier page hashes and source decisions remain in Git history.
+Ten entries remain service-boundary limitations: eight glibc issues including gettext locale traversal, the corrupt SQLite/SQL limitation CVE-2021-45346, and the libstdc++ parser availability/invalid-number risk CVE-2026-115456. They are not library fixes. The ten SQLite IDs previously accepted through an exact caller boundary now require the fixed source. The corresponding earlier page hashes and source decisions remain in Git history.
 
 | Advisory | Severity / source version | Disposition and required evidence |
 | --- | --- | --- |

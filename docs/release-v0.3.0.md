@@ -48,6 +48,10 @@ Realtime sessions are transient, limited to one per process, default to
 acoustic analysis. There is no browser recording UI or Sayflit realtime page.
 The original VibeVoice file route does not support optional acoustic stages.
 
+## Security review
+
+The refreshed image scan retains an explicit low-severity GCC parser limitation, [CVE-2026-115456](https://security-tracker.debian.org/tracker/CVE-2026-115456), with no current Debian fix. The exact-library and restricted-service assessment does not repair the library or exclude native decoder denial of service. See the [scoped review and required evidence](security/os-assessment.md#newly-observed-gcc-parser-limitation). Optional realtime images remain a separate operator qualification scope.
+
 ## Distribution and existing deployments
 
 Release attachments contain source ZIP, clean public Git history bundle, Python

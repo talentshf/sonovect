@@ -148,6 +148,31 @@ class NewRuntimeBoundaryTests(unittest.TestCase):
         facts['residual']['modules']['pod_text'] = ['/usr/lib/Pod/Text.pm']
         self.assertTrue(module.classify(audit, facts)['unresolved_lower_severity'])
 
+    def test_cpp_parser_residual_requires_exact_identity_and_observed_restrictions(self):
+        cid = 'CVE-2026-115456'
+        audit, facts = self.fixture(cid, 'gcc-14', '14.2.0-19')
+        audit['Results'][0]['Vulnerabilities'][0]['Severity'] = 'LOW'
+        proof = module.POLICY[cid]['proof']
+        facts['residual'] = {'uid': 10001, 'effective_capabilities': '0000000000000000',
+            'no_new_privileges': '1', 'compiler_headers_present': False,
+            'commands': {key: [] for key in ('sh', 'bash', 'dash', 'perl', 'gcc', 'g++')},
+            'libraries': {'libstdc++.so.6': {'sha256': proof['library_sha256']}}}
+        result = module.classify(audit, facts)
+        self.assertEqual(result['reviewed_lower_severity'][0]['status'], 'reviewed-service-boundary')
+        self.assertEqual(result['raw_matches'], 1)
+        mutations = [lambda f: f['residual'].update(uid=0),
+            lambda f: f['residual'].update(no_new_privileges='0'),
+            lambda f: f['residual'].update(effective_capabilities='0000000000000001'),
+            lambda f: f['residual'].update(compiler_headers_present=True),
+            lambda f: f['residual']['commands'].update(gcc=['/usr/bin/gcc']),
+            lambda f: f['residual']['commands'].pop('sh'),
+            lambda f: f['residual']['libraries']['libstdc++.so.6'].update(sha256='changed'),
+            lambda f: f.update(setid_paths=['/usr/bin/su']),
+            lambda f: f['packages'][0].update(source_version='14.2.0-20')]
+        for mutate in mutations:
+            bad = copy.deepcopy(facts); mutate(bad)
+            self.assertTrue(module.classify(audit, bad)['unresolved_lower_severity'])
+
     def test_cpp_header_review_also_requires_actual_exports_and_exact_library(self):
         cid = 'CVE-2026-114690'
         audit, facts = self.fixture(cid, 'gcc-14', '14.2.0-19')

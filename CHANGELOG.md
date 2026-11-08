@@ -4,6 +4,8 @@
 
 ## 0.3.0 — 2026-11-09
 
+- Retain the newly observed low-severity GCC parser finding as an explicit residual service limitation, bound to the exact library and observed restrictions; do not claim a library fix or decoder unreachability.
+
 - Add pinned VibeVoice Streaming 1.5B assets and a native realtime route with stateful 16kHz-to-24kHz resampling, checkpoint-specific chunk/lookahead buffering, tail flushing and session-local speaker segments.
 - Document VibeVoice 1.5B as an on-demand alternative, disable automatic container restart and retain the default Qwen file route.
 - Add an opt-in VibeVoice vLLM file backend with bounded duration, recording-local speakers and sentence-only timing; preserve the durable job and compatible result flows.
