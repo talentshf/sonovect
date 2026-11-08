@@ -1,6 +1,6 @@
 # Configuration and model selection
 
-Sonovect v0.2.0. Deployment selects components; jobs select execution. Jobs default to speech only. Setup writes a new mode-0600 configuration with a random token, never prints the token, and refuses overwrites.
+Sonovect v0.3.0. Deployment selects components; jobs select execution. Jobs default to speech only. Setup writes a new mode-0600 configuration with a random token, never prints the token, and refuses overwrites.
 
 ## Recommended choices
 
@@ -201,7 +201,7 @@ The Mandarin supplement does not qualify stable emotion recognition: the default
 
 `sonovect ready --details` uses the existing service token to include component checks. `sonovect ready` keeps its JSON summary and exits 1 for an expected not-ready result. No new environment variable or credential is required. The 6-second readiness deadline, 250-millisecond diagnostic database wait, 2-second API report cache and health client's 8-second wait are bounded independently of inference/job timeouts. See [readiness](readiness.md).
 
-## Optional VibeVoice and realtime routes (unreleased)
+## Optional VibeVoice-ASR and realtime routes
 
 [Setup and boundaries](vibevoice-realtime.md). `--route vibevoice` uses an external model service without downloading weights; optional analysis is unsupported. `sonovect stream FILE` or `sonovect stream --stdin` accepts live audio, with `--language` and `--hotword`. Prepare the isolated realtime runtime without downgrading file-worker dependencies.
 

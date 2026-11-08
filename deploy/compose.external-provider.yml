@@ -2,7 +2,7 @@
 name: sonovect
 
 x-core: &core
-  image: ${SONOVECT_IMAGE:-sonovect:0.2.0}
+  image: ${SONOVECT_IMAGE:-sonovect:0.3.0}
   build:
     context: ..
     target: core
@@ -35,7 +35,7 @@ services:
       retries: 3
   worker:
     <<: *core
-    image: ${SONOVECT_WORKER_IMAGE:-sonovect-worker:0.2.0}
+    image: ${SONOVECT_WORKER_IMAGE:-sonovect-worker:0.3.0}
     build: {context: .., target: media-worker}
     command: [sonovect-worker]
     stop_grace_period: 90s

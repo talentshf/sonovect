@@ -8,6 +8,10 @@ Supported container recipes target Linux amd64/Python 3.12. Install Docker and C
 | `compose.qwen.yml` | Compact Qwen: 2 base containers + optional shared CPU analysis + optional MOSS |
 | `compose.distributed.yml` / `compose.distributed.qwen.yml` | Explicit advanced split-service CPU/Qwen layouts, selected with `--layout distributed` |
 | `compose.external-provider.yml` | API/media worker against an explicitly compatible existing private coordinator |
+| `compose.vibevoice.yml` | Optional file adapter against an operator-managed VibeVoice-ASR vLLM endpoint |
+| `compose.realtime.vibevoice.yml` | On-demand VibeVoice-ASR Streaming 1.5B process; explicit qualified image, no automatic restart |
+
+For the separate Qwen/VibeVoice-ASR realtime runtimes, setup, limits and foreground start/stop commands, see the [optional runtime guide](../docs/vibevoice-realtime.md). These do not join the default file deployment.
 
 ```sh
 python -m pip install '.[mcp]'

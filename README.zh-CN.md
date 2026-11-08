@@ -3,15 +3,15 @@
 
 [English](README.md) · [完整配置](docs/configuration.zh-CN.md) · [部署](deploy/README.md) · [测试参考](docs/quality.zh-CN.md) · [智能体接入](docs/agent-setup.zh-CN.md) · [交流讨论](https://github.com/talentshf/sonovect/discussions) · [参与贡献](CONTRIBUTING.md#中文)
 
-[![Checks](https://github.com/talentshf/sonovect/actions/workflows/checks.yml/badge.svg)](https://github.com/talentshf/sonovect/actions/workflows/checks.yml) · [Apache-2.0](LICENSE) · Python 3.12+ · [v0.2.0 发行介绍](docs/release-v0.2.0.md)
+[![Checks](https://github.com/talentshf/sonovect/actions/workflows/checks.yml/badge.svg)](https://github.com/talentshf/sonovect/actions/workflows/checks.yml) · [Apache-2.0](LICENSE) · Python 3.12+ · [v0.3.0 发行介绍](docs/release-v0.3.0.md)
 
 # 把录音和视频音轨，变成文字、字幕和声音数据
 
-**Sonovect v0.2.0 是本地部署的音视频转写与声音分析服务。** 上传文件，选择要做的处理，再按任务编号取回结果。语音正文、声音分析和任务状态分别读取，便于人直接使用，也便于软件和助手继续处理。
+**Sonovect v0.3.0 是本地部署的音视频转写与声音分析服务，支持 Qwen3-ASR、FunASR，以及可选的微软 VibeVoice-ASR。** 上传文件，选择要做的处理，再按任务编号取回结果。语音正文、声音分析和任务状态分别读取，便于人直接使用，也便于软件和助手继续处理。
 
-v0.2.0 另提供默认关闭的 [DashScope（百炼服务协议）兼容异步文件接口](docs/filetrans-compatibility.zh-CN.md)，供应用提交受控音频地址并按原任务编号恢复结果。
+v0.3.0 另提供默认关闭的 [DashScope（百炼服务协议）兼容异步文件接口](docs/filetrans-compatibility.zh-CN.md)，供应用提交受控音频地址并按原任务编号恢复结果。
 
-**开发源码新增：** 服务与 CLI（命令行）可选 Qwen 或 VibeVoice Streaming 1.5B（流式小版）实时识别。**1.5B 作为备选，独立环境按需运行，不自动重启、不加入默认常驻部署；文件转写默认仍为 Qwen。** 这些扩展尚未包含在 v0.2.0 正式发行中，见[实时识别与独立的 VibeVoice 文件适配](docs/vibevoice-realtime.zh-CN.md)。
+**v0.3.0 新增：** 服务与 CLI（命令行）可选 Qwen 或 VibeVoice-ASR Streaming 1.5B（流式小版）实时识别。**1.5B 作为备选，独立环境按需运行，不自动重启、不加入默认常驻部署；文件转写默认仍为 Qwen。** 发行包含适配代码及配方，显卡运行环境和模型另行准备，见[实时识别与独立的 VibeVoice-ASR 文件适配](docs/vibevoice-realtime.zh-CN.md)。
 
 ## 能做什么
 
@@ -74,7 +74,7 @@ flowchart TD
 
 默认采用文件任务方式，没有浏览器操作台。环境音可能误报、漏报，输出窗口不等于精确事件边界；人声情绪和描述保持实验性质，需复核。匿名编号只在本次录音内有效，情绪预测和信号数值不能用于断言真实心理状态、身份或健康。具体限制见[测试参考](docs/quality.zh-CN.md)。
 
-## 可选实时识别（开发源码）
+## 可选实时识别
 
 `sonovect stream` 接收单声道16kHz、16位整数 WAV（音频容器），或持续输入的 PCM（原始采样），逐次输出可替换草稿，结束后返回定稿。Qwen 路线提供文字；VibeVoice Streaming 1.5B 还保留模型原生匿名说话人标签，不提供时间戳。当前没有浏览器录音页面。
 

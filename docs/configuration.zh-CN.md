@@ -2,7 +2,7 @@
 
 可选的[标准异步文件转写接口](filetrans-compatibility.zh-CN.md)默认关闭。`SONOVECT_COMPAT_MODEL` 为单个模型名，`SONOVECT_COMPAT_PUBLIC_URL` 为对外 HTTPS 加密地址，`SONOVECT_COMPAT_INPUT_HOSTS` 为逗号分隔的输入域名精确列表；三项均默认不设置。`SONOVECT_COMPAT_SIGNING_KEY_FILE` 为进程内独立持久签名文件，`SONOVECT_COMPAT_SIGNING_KEY_HOST_FILE` 为可选容器覆盖方案所用的宿主文件。`SONOVECT_COMPAT_DOWNLOAD_TIMEOUT` 默认 300 秒，`SONOVECT_COMPAT_LINK_SECONDS` 默认 3600 秒，`SONOVECT_COMPAT_MAX_QUEUED` 默认 32 个排队及处理中任务。详细权限、组合部署和恢复规则见接口说明。
 
-Sonovect v0.2.0。部署时选组件，任务时选是否运行；默认任务只转写。配置生成器不安装宿主依赖、不启动服务、不覆盖已有文件；凭据仅写入权限0600的新配置，不打印。
+Sonovect v0.3.0。部署时选组件，任务时选是否运行；默认任务只转写。配置生成器不安装宿主依赖、不启动服务、不覆盖已有文件；凭据仅写入权限0600的新配置，不打印。
 
 ## 推荐组合
 
@@ -185,7 +185,7 @@ SQLite（嵌入式数据库）的临时写锁冲突会让工作进程等待后�
 
 `sonovect ready --details` 使用现有服务令牌读取各组件检查；不加该参数时返回摘要。未就绪也会输出 JSON（结构化文本），退出码为 1，不再只显示泛化请求失败。无需新增环境变量或凭据。就绪报告总截止 6 秒、诊断数据库等锁 250 毫秒、接口报告缓存 2 秒、健康客户端等待 8 秒，均与推理和任务超时分开。后端只共享进行中的采集，不叠加已完成缓存的保留时间。详见[就绪诊断](readiness.md)。
 
-## 可选 VibeVoice 与实时路线（未发行）
+## 可选 VibeVoice-ASR 与实时路线
 
 [完整配置与边界](vibevoice-realtime.zh-CN.md)。`--route vibevoice` 选择外部模型服务，不下载权重；附加分析暂不支持。`sonovect stream FILE` 或 `sonovect stream --stdin` 接收实时音频，沿用 `--language` 和 `--hotword`。实时依赖单独准备，不降低文件工作器版本。
 

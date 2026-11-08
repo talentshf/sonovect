@@ -1,6 +1,7 @@
 # VibeVoice file recognition and optional live transcription
 
-These are independent, opt-in extensions. The existing file route and its
+These independent, opt-in adapters are included in v0.3.0. Model assets and
+isolated GPU runtimes are prepared separately. The existing file route and its
 durable task/recovery contract remain the default. Source-level support does
 not establish GPU capacity, recognition quality, or a production release.
 
@@ -25,7 +26,7 @@ SONOVECT_ENV_FILE=.env.vibevoice docker compose --env-file deploy/.env.vibevoice
 
 Build matching candidate core/media-worker images before starting this recipe;
 set `SONOVECT_IMAGE` and `SONOVECT_WORKER_IMAGE` to those reviewed images.
-The existing v0.2.0 images do not contain this unreleased adapter.
+The existing v0.2.0 images do not contain this adapter.
 The recipe has two Sonovect containers **plus the external GPU model service**;
 setup's zero download count applies only to local model assets, not to upstream
 weights. The original BF16 weights are approximately 17.35 GB (16.2 GiB).
@@ -157,7 +158,8 @@ pins every file's size and digest. It is a different checkpoint/runtime from
 the original offline VibeVoice backend above; do not interchange their paths.
 
 Keep this route as an **on-demand alternative** to the default Qwen file
-service. It is not part of the default deployment or the v0.2.0 release.
+service. The adapter and recipe ship in v0.3.0; this runtime is not part of the
+default deployment and no prebuilt realtime image is distributed.
 The isolated container has `restart: 'no'`; launch it in the foreground and
 remove it on exit. The model remains loaded between sessions in that process,
 so stop the process when finished to release its GPU allocations.

@@ -1,8 +1,10 @@
 # HTTP API
 
-API version: `/v1`. Product version:0.2.0. Authentication is an operator-supplied bearer token. An installation is one trust domain: one token can access all its jobs. Do not expose model-service ports.
+API version: `/v1`. Product version:0.3.0. Authentication is an operator-supplied bearer token. An installation is one trust domain: one token can access all its jobs. Do not expose model-service ports.
 
 An opt-in [DashScope-compatible asynchronous file interface](filetrans-compatibility.md) provides `/api/v1` submission, polling and signed results over the same task store. It is a single-file protocol subset; enable it explicitly with the documented controlled input hosts and persistent signing key.
+
+The optional authenticated WebSocket `/v1/realtime` supports Qwen and VibeVoice-ASR Streaming 1.5B in a separate runtime. It is disabled by default, with transient client-owned sessions rather than durable file jobs. See the [realtime protocol, limits and runtime setup](vibevoice-realtime.md).
 
 | Method | Path | Behavior |
 | --- | --- | --- |

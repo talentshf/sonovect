@@ -5,8 +5,8 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "sonovect"
 dynamic = ["version"]
-description = "Self-hosted ASR for audio and video soundtracks with FunASR results and separate sound analysis"
-keywords = ["asr", "speech-to-text", "self-hosted", "local-asr", "funasr", "qwen3-asr", "speaker-diarization", "video-transcription", "audio-event-detection", "mcp"]
+description = "Self-hosted Qwen3-ASR, FunASR and optional VibeVoice-ASR with file jobs, live transcription and sound analysis"
+keywords = ["asr", "vibevoice-asr", "streaming-asr", "speech-to-text", "self-hosted", "local-asr", "funasr", "qwen3-asr", "speaker-diarization", "video-transcription", "audio-event-detection", "mcp"]
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
@@ -27,7 +27,7 @@ mcp = ["mcp>=2.3,<3"]
 stream-client = ["websockets>=15,<17"]
 funasr = ["funasr==1.4.16", "torch==2.14.1", "torchaudio==2.11.0", "transformers==5.20.2", "modelscope==1.40.2"]
 evaluation = ["rapidfuzz>=3.14,<4"]
-test = ["rapidfuzz>=3.14,<4", "jsonschema>=4,<5", "numpy>=1.26,<3", "scipy>=1.14,<2", "librosa==1.0.0", "soxr>=1.1,<2"]
+test = ["websockets>=15,<17", "rapidfuzz>=3.14,<4", "jsonschema>=4,<5", "numpy>=1.26,<3", "scipy>=1.14,<2", "librosa==1.0.0", "soxr>=1.1,<2"]
 
 [project.scripts]
 sonovect = "sonovect.cli:main"

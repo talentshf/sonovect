@@ -26,10 +26,13 @@ and no-new-privileges. They are not system-login or host-administration images.
 
 ## Current dependency and OS checks
 
-Sonovect v0.2.0 uses reviewed role-specific Linux amd64/Python3.12 locks: Torch2.14.1
+Sonovect v0.3.0 retains the reviewed role-specific file-runtime locks for Linux amd64/Python3.12: Torch2.14.1
 (CPU or official cu132), CPU TorchAudio2.11.0, Transformers5.20.2,
 FunASR1.4.16 and ModelScope1.40.2. MOSS is an explicitly identified derived
 inference package. Demo UI frameworks are not installed by maintained recipes.
+Optional Qwen/VibeVoice-ASR realtime adapters require separately prepared runtimes.
+The file-image assessment does not attest those runtimes; their operators must
+qualify the actual dependencies and image before exposing a realtime service.
 Keep raw installed-package Python audit receipts; the
 [Python audit check](scripts/check_dependency_audit.py) rejects new findings,
 skipped packages and scoped version drift.

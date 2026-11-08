@@ -1,6 +1,6 @@
 # VibeVoice 文件转写与可选实时识别
 
-以下扩展均为可选的未发行能力。默认文件任务、原任务编号查询和恢复方式保持；代码测试不能替代模型质量、显存和部署验收。[英文完整合同](vibevoice-realtime.md)提供对应上游链接。
+以下可选适配代码及配方已纳入 v0.3.0，模型和隔离的显卡运行环境另行准备。默认文件任务、原任务编号查询和恢复方式保持；代码测试不能替代模型质量、显存和部署验收。[英文完整合同](vibevoice-realtime.md)提供对应上游链接。
 
 ## VibeVoice 文件路线
 
@@ -8,7 +8,7 @@
 
 需要先准备私有上游服务，设置 `SONOVECT_PROVIDER_URL` 为其根地址，不带 `/v1`；服务模型名默认为 `vibevoice`，选定权重修订为 `d0c9efdb8d614685062c04425d91e01b6f37d944`。上游应保持私网访问；如已启用密钥认证，设置 `SONOVECT_PROVIDER_TOKEN_FILE` 指向其原生受限密钥文件，并在两个核心容器中只读挂载。不要把凭据放入网址，Sonovect 自身仍使用现有令牌认证。任务记录中的修订来自管理员配置；模型列表只能核实服务名称，真实加载修订必须单独回读。
 
-生成器不会下载模型或启动服务。两个 Sonovect 容器之外，还需要外部显卡推理服务；原版权重约 17.35GB。Compose（容器编排）必须显式设置从本候选源码构建的 `SONOVECT_IMAGE` 和 `SONOVECT_WORKER_IMAGE`，旧 v0.2.0 镜像不含新代码。配置解析示例：
+生成器不会下载模型或启动服务。两个 Sonovect 容器之外，还需要外部显卡推理服务；原版权重约 17.35GB。Compose（容器编排）必须显式设置从匹配发行源码构建的 `SONOVECT_IMAGE` 和 `SONOVECT_WORKER_IMAGE`，旧 v0.2.0 镜像不含新代码。配置解析示例：
 
 ```sh
 SONOVECT_ENV_FILE=.env.vibevoice docker compose --env-file deploy/.env.vibevoice -f deploy/compose.vibevoice.yml config --quiet
@@ -66,7 +66,7 @@ WebSocket（双向连接）地址为 `/v1/realtime`，令牌仅通过 `Authoriza
 
 选定 `microsoft/VibeVoice-ASR-Streaming-1.5B` 的固定修订 `4262d23d8a539a6530cf64fbd0b1751ef9a30853`。所需完整文件共5,644,393,692字节，其中权重约5.63GB；模型清单记录每个文件的大小和摘要。这与上面的原版离线模型分别准备，不能互换目录。
 
-本路线作为默认 Qwen 文件服务的**备选，按需运行，不常驻部署**，也未包含在 v0.2.0 正式发行中。独立容器设置 `restart: 'no'`（不自动重启），用前台临时容器运行，退出后删除。模型会在进程内跨会话保留，需要停止进程才能释放显存。
+本路线作为默认 Qwen 文件服务的**备选，按需运行，不常驻部署**。v0.3.0 包含适配代码及配方，不分发预构建实时镜像，也不加入默认部署。独立容器设置 `restart: 'no'`（不自动重启），用前台临时容器运行，退出后删除。模型会在进程内跨会话保留，需要停止进程才能释放显存。
 
 ```sh
 sonovect setup --route vibevoice-1.5b --write deploy/.env.vibevoice-15
