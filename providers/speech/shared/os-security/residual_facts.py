@@ -50,6 +50,26 @@ def openssl_tls_probe():
             'tls_ciphers': sorted({row['name'] for row in ssl.create_default_context().get_ciphers()})}
 
 
+def openssl_backport_probe():
+    import json
+    root = Path('/usr/local/share/sonovect-os-security/source')
+    receipt = root / 'openssl-verification.json'
+    if not receipt.is_file():
+        return {'verified': False}
+    record = json.loads(receipt.read_text())
+    lock = root / 'recipe/openssl-source-lock.json'
+    expected = record.get('libraries', {})
+    return {'verified': bool(expected) and all(Path(name).is_file()
+                and hashlib.sha256(Path(name).read_bytes()).hexdigest() == digest
+                for name, digest in expected.items()),
+            'source_version': record['source_version'],
+            'lock_sha256': hashlib.sha256(lock.read_bytes()).hexdigest(),
+            'receipt_lock_sha256': record['lock_sha256'],
+            'upstream_tests_passed': record['upstream_tests_passed'],
+            'peer_probe': record['peer_probe'],
+            'cves': sorted({row['cve'] for row in record['patches']})}
+
+
 def sqlite_store_probe():
     """Observe the shipped caller and its defensive connection, never a live DB."""
     try:
@@ -142,6 +162,7 @@ def collect():
             'no_new_privileges': next(line.split()[1] for line in status.splitlines() if line.startswith('NoNewPrivs:')),
             'sqlite_runtime': sqlite3.sqlite_version,
             'openssl_tls': openssl_tls_probe(),
+            'openssl_backport': openssl_backport_probe(),
             'sqlite_store': sqlite_store_probe(),
             'cpp_templates': {
                 'parallel_algorithm_exports': [name for name in defined if '__gnu_parallel' in name and '_Settings' not in name],

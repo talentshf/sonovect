@@ -1,5 +1,7 @@
 # Security evidence
 
+- [0.4.1 OpenSSL source fixes](release-041-advisories-20261115.md): official 3.5 fixes, upstream tests and actual-library verification.
+
 - [v0.2.0 dependency update](release-020-advisories-20261107.md): fixed SQLite/zlib sources, removed APT entry points, retained Perl absence and manually reviewed page changes.
 - [OS advisory assessment](os-assessment.md): exact source versions, individual advisory decisions and retained service-boundary limitations.
 - [ASR runtime advisory review](asr-runtime-advisories-20261102.md): new SQLite/C++ findings, actual caller/connection/export evidence and qualification limits.

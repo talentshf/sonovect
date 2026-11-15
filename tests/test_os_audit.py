@@ -207,24 +207,26 @@ class GettextBoundaryTests(unittest.TestCase):
 class Release040BoundaryTests(unittest.TestCase):
     fixture = OSAuditTests.fixture
 
-    def test_openssl_needs_exact_binding_libraries_and_restricted_transport(self):
-        audit,facts=self.fixture('CVE-2026-88822','openssl','3.5.7-1~deb13u3')
-        audit['Results'][0]['Vulnerabilities'][0]['Severity']='MEDIUM'
-        proof=module.POLICY['CVE-2026-88822']['proof']
-        facts['residual']={'uid':10001,'effective_capabilities':'0000000000000000','no_new_privileges':'1',
-            'commands':{k:[] for k in ('sh','bash','dash','perl','openssl')},
-            'libraries':{name:{'sha256':value} for name,value in proof['libraries'].items()},
-            'openssl_tls':{'stdlib_ssl_sha256':proof['stdlib_ssl_sha256'],'non_tls_crypto_imports':[],
-                           'tls_ciphers':['TLS_AES_256_GCM_SHA384']}}
-        self.assertFalse(module.classify(audit,facts)['unresolved_lower_severity'])
-        for field,value in [('stdlib_ssl_sha256','changed'),('non_tls_crypto_imports',['CMS_encrypt']),
-                            ('tls_ciphers',[]),('tls_ciphers',['AES-256-GCM-SIV'])]:
-            bad=copy.deepcopy(facts);bad['residual']['openssl_tls'][field]=value
-            self.assertTrue(module.classify(audit,bad)['unresolved_lower_severity'])
-        bad=copy.deepcopy(facts);bad['residual']['libraries']['libcrypto.so.3']['sha256']='changed'
-        self.assertTrue(module.classify(audit,bad)['unresolved_lower_severity'])
-        bad=copy.deepcopy(facts);bad['residual']['commands']['openssl']=['/usr/bin/openssl']
-        self.assertTrue(module.classify(audit,bad)['unresolved_lower_severity'])
+    def test_openssl_requires_patched_source_tests_and_matching_library_bytes(self):
+        cid = 'CVE-2026-88822'
+        rule = module.POLICY[cid]
+        audit, facts = self.fixture(cid, 'openssl', rule['source_version'])
+        audit['Results'][0]['Vulnerabilities'][0]['Severity'] = 'MEDIUM'
+        facts['residual'] = {'openssl_backport': dict(verified=True, upstream_tests_passed=True,
+            peer_probe={'127.0.0.1': True, '::1': True},
+            source_version=rule['source_version'], lock_sha256=rule['proof']['lock_sha256'],
+            receipt_lock_sha256=rule['proof']['lock_sha256'], cves=rule['proof']['cves'])}
+        result = module.classify(audit, facts)
+        self.assertEqual(result['reviewed_lower_severity'][0]['status'], 'fixed-by-source-backport')
+        for field, value in [('verified', False), ('upstream_tests_passed', False),
+                ('peer_probe', {'127.0.0.1': True, '::1': False}),
+                ('source_version', '3.5.7-1~deb13u3'), ('lock_sha256', 'wrong'),
+                ('receipt_lock_sha256', 'wrong'), ('cves', [cid])]:
+            bad = copy.deepcopy(facts)
+            bad['residual']['openssl_backport'][field] = value
+            self.assertTrue(module.classify(audit, bad)['unresolved_lower_severity'])
+        facts['packages'][0]['source_version'] = '3.5.7-1~deb13u3'
+        self.assertTrue(module.classify(audit, facts)['unresolved_lower_severity'])
 
     def test_new_unknown_glibc_finding_is_not_downgraded_or_accepted_without_digest(self):
         audit,facts=self.fixture('CVE-2026-100290','glibc','2.43-7~sonovect13.1')

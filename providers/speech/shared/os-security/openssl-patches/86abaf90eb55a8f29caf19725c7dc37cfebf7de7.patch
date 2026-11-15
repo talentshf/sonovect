@@ -1,0 +1,206 @@
+From 86abaf90eb55a8f29caf19725c7dc37cfebf7de7 Mon Sep 17 00:00:00 2001
+From: Norbert Pocs <norbertp@openssl.org>
+Date: Wed, 23 Sep 2026 14:09:04 +0200
+Subject: [PATCH] Add test vectors for CVE-2026-95692
+
+Test vectors provided by: Billy Bob Brumley <bbb@iki.fi>
+
+Co-Authored-by: Billy Bob Brumley <bbb.iki.fi>
+Signed-off-by: Norbert Pocs <norbertp@openssl.org>
+Reviewed-by: Eugene Syromiatnikov <esyr@openssl.org>
+Reviewed-by: Andrew Dinh <andrewd@openssl.org>
+Merge-date: Sun Nov  8 12:50:50 2026
+Merged-from: https://github.com/openssl/openssl/pull/33512
+(cherry picked from commit 47de2567ec604c5ca8a9eb1a785bceef46e047c0)
+---
+ .../30-test_evp_data/evpciph_aes_gcm_siv.txt  | 179 ++++++++++++++++++
+ 1 file changed, 179 insertions(+)
+
+diff --git a/test/recipes/30-test_evp_data/evpciph_aes_gcm_siv.txt b/test/recipes/30-test_evp_data/evpciph_aes_gcm_siv.txt
+index bbb1bb6c40548..5aef2c41faf64 100644
+--- a/test/recipes/30-test_evp_data/evpciph_aes_gcm_siv.txt
++++ b/test/recipes/30-test_evp_data/evpciph_aes_gcm_siv.txt
+@@ -497,4 +497,183 @@ Tag = ffffffff000000000000000000000000
+ Plaintext = eb3640277c7ffd1303c7a542d02d3e4c0000000000000000
+ Ciphertext = 18ce4f0b8cb4d0cac65fea8f79257b20888e53e72299e56d
+ 
++#
++# AES-GCM-SIV: EVP_CTRL_AEAD_SET_IVLEN is accepted and ignored.
++#
++
++Title = AES-128-GCM-SIV: nonce length handling (RFC 8452 vector as control)
++
++# positive control, 12-byte nonce
++Cipher = AES-128-GCM-SIV
++Key = 01000000000000000000000000000000
++IV = 030000000000000000000000
++AAD = 01
++Tag = 8F8936EC039E4E4BB97EBD8C4457441F
++Plaintext = 02000000000000000000000000000000
++Ciphertext = E2B0C5DA79A901C1745F700525CB335B
++
++# nonce extended to 13 bytes with 00: decrypts today, must be rejected
++# context-commitment failure (weak existential forgery)
++Cipher = AES-128-GCM-SIV
++Key = 01000000000000000000000000000000
++IV = 03000000000000000000000000
++AAD = 01
++Tag = 8F8936EC039E4E4BB97EBD8C4457441F
++Plaintext = 02000000000000000000000000000000
++Ciphertext = E2B0C5DA79A901C1745F700525CB335B
++Operation = DECRYPT
++Result = INVALID_IV_LENGTH
++
++# nonce extended to 13 bytes with FF: the extra byte's value is irrelevant
++# context-commitment failure (weak existential forgery)
++Cipher = AES-128-GCM-SIV
++Key = 01000000000000000000000000000000
++IV = 030000000000000000000000FF
++AAD = 01
++Tag = 8F8936EC039E4E4BB97EBD8C4457441F
++Plaintext = 02000000000000000000000000000000
++Ciphertext = E2B0C5DA79A901C1745F700525CB335B
++Operation = DECRYPT
++Result = INVALID_IV_LENGTH
+ 
++# nonce extended to 16 bytes: decrypts today, must be rejected
++# context-commitment failure (weak existential forgery)
++Cipher = AES-128-GCM-SIV
++Key = 01000000000000000000000000000000
++IV = 030000000000000000000000DEADBEEF
++AAD = 01
++Tag = 8F8936EC039E4E4BB97EBD8C4457441F
++Plaintext = 02000000000000000000000000000000
++Ciphertext = E2B0C5DA79A901C1745F700525CB335B
++Operation = DECRYPT
++Result = INVALID_IV_LENGTH
++
++# nonce truncated to 11 bytes: reads one byte past the buffer today
++# OOB read
++Cipher = AES-128-GCM-SIV
++Key = 01000000000000000000000000000000
++IV = 0300000000000000000000
++AAD = 01
++Tag = 8F8936EC039E4E4BB97EBD8C4457441F
++Plaintext = 02000000000000000000000000000000
++Ciphertext = E2B0C5DA79A901C1745F700525CB335B
++Operation = DECRYPT
++Result = INVALID_IV_LENGTH
++
++Title = AES-192-GCM-SIV: nonce length handling, rando control (no standard defines this key size)
++
++# positive control, 12-byte nonce
++Cipher = AES-192-GCM-SIV
++Key = 000102030405060708090A0B0C0D0E0F1011121314151617
++IV = 000102030405060708090A0B
++AAD = 303132333435363738393A3B3C3D3E3F
++Tag = ED44FCA5381C03662EB8CC4DC5024647
++Plaintext = 4145532D47434D2D534956206E6F6E6365207472756E636174696F6E2064656D6F
++Ciphertext = 81F48DC3776F93AE97A4A0E9B6859BED557B25C3BE81C34B080ADDB94098EDAB8E
++
++# nonce extended to 13 bytes with 00: decrypts today, must be rejected
++# context-commitment failure (weak existential forgery)
++Cipher = AES-192-GCM-SIV
++Key = 000102030405060708090A0B0C0D0E0F1011121314151617
++IV = 000102030405060708090A0B00
++AAD = 303132333435363738393A3B3C3D3E3F
++Tag = ED44FCA5381C03662EB8CC4DC5024647
++Plaintext = 4145532D47434D2D534956206E6F6E6365207472756E636174696F6E2064656D6F
++Ciphertext = 81F48DC3776F93AE97A4A0E9B6859BED557B25C3BE81C34B080ADDB94098EDAB8E
++Operation = DECRYPT
++Result = INVALID_IV_LENGTH
++
++# nonce extended to 13 bytes with FF: the extra byte's value is irrelevant
++# context-commitment failure (weak existential forgery)
++Cipher = AES-192-GCM-SIV
++Key = 000102030405060708090A0B0C0D0E0F1011121314151617
++IV = 000102030405060708090A0BFF
++AAD = 303132333435363738393A3B3C3D3E3F
++Tag = ED44FCA5381C03662EB8CC4DC5024647
++Plaintext = 4145532D47434D2D534956206E6F6E6365207472756E636174696F6E2064656D6F
++Ciphertext = 81F48DC3776F93AE97A4A0E9B6859BED557B25C3BE81C34B080ADDB94098EDAB8E
++Operation = DECRYPT
++Result = INVALID_IV_LENGTH
++
++# nonce extended to 16 bytes: decrypts today, must be rejected
++# context-commitment failure (weak existential forgery)
++Cipher = AES-192-GCM-SIV
++Key = 000102030405060708090A0B0C0D0E0F1011121314151617
++IV = 000102030405060708090A0BDEADBEEF
++AAD = 303132333435363738393A3B3C3D3E3F
++Tag = ED44FCA5381C03662EB8CC4DC5024647
++Plaintext = 4145532D47434D2D534956206E6F6E6365207472756E636174696F6E2064656D6F
++Ciphertext = 81F48DC3776F93AE97A4A0E9B6859BED557B25C3BE81C34B080ADDB94098EDAB8E
++Operation = DECRYPT
++Result = INVALID_IV_LENGTH
++
++# nonce truncated to 11 bytes: reads one byte past the buffer today
++# OOB read
++Cipher = AES-192-GCM-SIV
++Key = 000102030405060708090A0B0C0D0E0F1011121314151617
++IV = 000102030405060708090A
++AAD = 303132333435363738393A3B3C3D3E3F
++Tag = ED44FCA5381C03662EB8CC4DC5024647
++Plaintext = 4145532D47434D2D534956206E6F6E6365207472756E636174696F6E2064656D6F
++Ciphertext = 81F48DC3776F93AE97A4A0E9B6859BED557B25C3BE81C34B080ADDB94098EDAB8E
++Operation = DECRYPT
++Result = INVALID_IV_LENGTH
++
++Title = AES-256-GCM-SIV: nonce length handling (RFC 8452 vector as control)
++
++# positive control, 12-byte nonce
++Cipher = AES-256-GCM-SIV
++Key = 0100000000000000000000000000000000000000000000000000000000000000
++IV = 030000000000000000000000
++AAD = 01
++Tag = B292D28FF61189E8E49F3875EF91AFF7
++Plaintext = 02000000000000000000000000000000
++Ciphertext = C91545823CC24F17DBB0E9E807D5EC17
++
++# nonce extended to 13 bytes with 00: decrypts today, must be rejected
++# context-commitment failure (weak existential forgery)
++Cipher = AES-256-GCM-SIV
++Key = 0100000000000000000000000000000000000000000000000000000000000000
++IV = 03000000000000000000000000
++AAD = 01
++Tag = B292D28FF61189E8E49F3875EF91AFF7
++Plaintext = 02000000000000000000000000000000
++Ciphertext = C91545823CC24F17DBB0E9E807D5EC17
++Operation = DECRYPT
++Result = INVALID_IV_LENGTH
++
++# nonce extended to 13 bytes with FF: the extra byte's value is irrelevant
++# context-commitment failure (weak existential forgery)
++Cipher = AES-256-GCM-SIV
++Key = 0100000000000000000000000000000000000000000000000000000000000000
++IV = 030000000000000000000000FF
++AAD = 01
++Tag = B292D28FF61189E8E49F3875EF91AFF7
++Plaintext = 02000000000000000000000000000000
++Ciphertext = C91545823CC24F17DBB0E9E807D5EC17
++Operation = DECRYPT
++Result = INVALID_IV_LENGTH
++
++# nonce extended to 16 bytes: decrypts today, must be rejected
++# context-commitment failure (weak existential forgery)
++Cipher = AES-256-GCM-SIV
++Key = 0100000000000000000000000000000000000000000000000000000000000000
++IV = 030000000000000000000000DEADBEEF
++AAD = 01
++Tag = B292D28FF61189E8E49F3875EF91AFF7
++Plaintext = 02000000000000000000000000000000
++Ciphertext = C91545823CC24F17DBB0E9E807D5EC17
++Operation = DECRYPT
++Result = INVALID_IV_LENGTH
++
++# nonce truncated to 11 bytes: reads one byte past the buffer today
++# OOB read
++Cipher = AES-256-GCM-SIV
++Key = 0100000000000000000000000000000000000000000000000000000000000000
++IV = 0300000000000000000000
++AAD = 01
++Tag = B292D28FF61189E8E49F3875EF91AFF7
++Plaintext = 02000000000000000000000000000000
++Ciphertext = C91545823CC24F17DBB0E9E807D5EC17
++Operation = DECRYPT
++Result = INVALID_IV_LENGTH

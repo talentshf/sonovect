@@ -18,6 +18,12 @@ RUN python /opt/os-security/additional.py build zlib
 RUN python /opt/os-security/additional.py build sqlite3
 RUN DEB_GCC_VERSION=-14 python /opt/os-security/additional.py build glibc
 RUN python /opt/os-security/additional.py finalize
+
+FROM os-security-build AS os-security-fixed
+RUN apt-get -o Acquire::Retries=0 update && apt-get -o Acquire::Retries=0 install -y --no-install-recommends libzstd-dev
+COPY --chmod=644 providers/speech/shared/os-security/openssl-security.py providers/speech/shared/os-security/openssl-peer-probe.py providers/speech/shared/os-security/openssl-source-lock.json /opt/os-security/
+COPY --chmod=644 providers/speech/shared/os-security/openssl-patches/ /opt/os-security/openssl-patches/
+RUN python /opt/os-security/openssl-security.py
 COPY --chmod=644 providers/speech/shared/os-security/install.sh providers/speech/shared/os-security/facts.py providers/speech/shared/os-security/residual_facts.py providers/speech/shared/os-security/minimize.py providers/speech/shared/os-security/advisory-policy.json /os-security/source/recipe/
 COPY --chmod=644 Dockerfile /os-security/source/recipe/project.Dockerfile
 COPY --chmod=644 providers/speech/shared/os-security/REBUILD.md /os-security/source/recipe/REBUILD.md
@@ -69,11 +75,11 @@ USER root
 COPY --from=package-build /wheels/ /tmp/sonovect-wheels/
 RUN pip install --no-cache-dir --no-index --no-deps /tmp/sonovect-wheels/*.whl && rm -rf /tmp/sonovect-wheels
 ENV LC_ALL=C.UTF-8 LANGUAGE=C.UTF-8
-COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
+COPY --from=os-security-fixed /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
 RUN ["python", "/usr/local/share/sonovect-os-security/source/recipe/facts.py", "--verify"]
-ARG VERSION=0.4.0
+ARG VERSION=0.4.1
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0" org.opencontainers.image.description="Self-hosted ASR for audio and video soundtracks, with separate sound analysis."
 EXPOSE 8096
@@ -85,11 +91,11 @@ USER root
 COPY --from=package-build /wheels/ /tmp/sonovect-wheels/
 RUN pip install --no-cache-dir --no-index --no-deps /tmp/sonovect-wheels/*.whl && rm -rf /tmp/sonovect-wheels
 ENV LC_ALL=C.UTF-8 LANGUAGE=C.UTF-8
-COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
+COPY --from=os-security-fixed /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
 RUN ["python", "/usr/local/share/sonovect-os-security/source/recipe/facts.py", "--verify"]
-ARG VERSION=0.4.0
+ARG VERSION=0.4.1
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect media worker" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0"
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 CMD ["sonovect-health", "worker"]
@@ -100,11 +106,11 @@ USER root
 COPY --from=package-build /wheels/ /tmp/sonovect-wheels/
 RUN pip install --no-cache-dir --no-index --no-deps /tmp/sonovect-wheels/*.whl && rm -rf /tmp/sonovect-wheels
 ENV LC_ALL=C.UTF-8 LANGUAGE=C.UTF-8
-COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
+COPY --from=os-security-fixed /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
 RUN ["python", "/usr/local/share/sonovect-os-security/source/recipe/facts.py", "--verify"]
-ARG VERSION=0.4.0
+ARG VERSION=0.4.1
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect native worker" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0"
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 CMD ["sonovect-health", "worker"]
@@ -119,11 +125,11 @@ COPY --chmod=644 providers/speech/shared/runtime_config.py providers/speech/shar
 COPY --chmod=644 sonovect/assets.py /app/sonovect_assets.py
 COPY --chmod=644 sonovect/model-catalog.json /app/model-catalog.json
 ENV LC_ALL=C.UTF-8 LANGUAGE=C.UTF-8
-COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
+COPY --from=os-security-fixed /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
 RUN ["python", "/usr/local/share/sonovect-os-security/source/recipe/facts.py", "--verify"]
-ARG VERSION=0.4.0
+ARG VERSION=0.4.1
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect experimental CPU vocal worker" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0"
 EXPOSE 8085
@@ -140,11 +146,11 @@ RUN pip install --no-cache-dir --no-index --no-deps /tmp/sonovect-wheels/*.whl &
 COPY --chmod=644 providers/speech/measurement-worker/*.py /app/
 COPY --chmod=644 providers/speech/shared/runtime_config.py providers/speech/shared/container_health.py providers/speech/shared/health_probe.py /app/
 ENV LC_ALL=C.UTF-8 LANGUAGE=C.UTF-8
-COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
+COPY --from=os-security-fixed /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
 RUN ["python", "/usr/local/share/sonovect-os-security/source/recipe/facts.py", "--verify"]
-ARG VERSION=0.4.0
+ARG VERSION=0.4.1
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect weight-free measurements" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0"
 ENV OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 NUMBA_CACHE_DIR=/tmp/numba-cache
@@ -188,12 +194,12 @@ COPY --chmod=644 providers/speech/shared/runtime_config.py providers/speech/shar
 
 RUN ["python", "-c", "import os; from pathlib import Path; root=Path('/opt/sonovect'); root.chmod(0o755); [(Path(d).chmod(0o755)) for d,_,_ in os.walk(root)]"]
 ENV LC_ALL=C.UTF-8 LANGUAGE=C.UTF-8
-COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
+COPY --from=os-security-fixed /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
 RUN ["python", "-c", "import os; from pathlib import Path; root=Path('/opt/sonovect/providers'); assert all(p.is_file() and os.access(p.parent, os.X_OK) for p in [root/'events/app.py',root/'vocal/vocal_app.py',root/'measurements/measurement_app.py'])"]
 RUN ["python", "/usr/local/share/sonovect-os-security/source/recipe/facts.py", "--verify"]
-ARG VERSION=0.4.0
+ARG VERSION=0.4.1
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect local CPU analysis" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0"
 ENV OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 NUMBA_CACHE_DIR=/tmp/numba-cache

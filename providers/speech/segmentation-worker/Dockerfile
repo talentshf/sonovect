@@ -18,6 +18,12 @@ RUN python /opt/os-security/additional.py build zlib
 RUN python /opt/os-security/additional.py build sqlite3
 RUN DEB_GCC_VERSION=-14 python /opt/os-security/additional.py build glibc
 RUN python /opt/os-security/additional.py finalize
+
+FROM os-security-build AS os-security-fixed
+RUN apt-get -o Acquire::Retries=0 update && apt-get -o Acquire::Retries=0 install -y --no-install-recommends libzstd-dev
+COPY --chmod=644 providers/speech/shared/os-security/openssl-security.py providers/speech/shared/os-security/openssl-peer-probe.py providers/speech/shared/os-security/openssl-source-lock.json /opt/os-security/
+COPY --chmod=644 providers/speech/shared/os-security/openssl-patches/ /opt/os-security/openssl-patches/
+RUN python /opt/os-security/openssl-security.py
 COPY --chmod=644 providers/speech/shared/os-security/install.sh providers/speech/shared/os-security/facts.py providers/speech/shared/os-security/residual_facts.py providers/speech/shared/os-security/minimize.py providers/speech/shared/os-security/advisory-policy.json /os-security/source/recipe/
 COPY --chmod=644 Dockerfile /os-security/source/recipe/project.Dockerfile
 COPY --chmod=644 providers/speech/shared/os-security/REBUILD.md /os-security/source/recipe/REBUILD.md
@@ -42,9 +48,9 @@ COPY --chmod=644 sonovect/assets.py ./sonovect_assets.py
 COPY --chmod=644 sonovect/model-catalog.json ./model-catalog.json
 RUN groupadd --gid 10001 sonovect && useradd --uid 10001 --gid 10001 --create-home sonovect && mkdir -p /models && chown -R 10001:10001 /home/sonovect /models
 ENV LC_ALL=C.UTF-8 LANGUAGE=C.UTF-8
-COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
+COPY --from=os-security-fixed /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
-ARG VERSION=0.4.0
+ARG VERSION=0.4.1
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect segmentation-worker" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0"
 USER 10001:10001

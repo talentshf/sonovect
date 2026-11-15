@@ -1264,98 +1264,113 @@
     },
     "CVE-2026-88822": {
       "source": "openssl",
-      "source_version": "3.5.7-1~deb13u3",
+      "source_version": "3.5.7-1~deb13u3+sonovect13.1",
       "severity": "MEDIUM",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2026-88822",
         "https://openssl-library.org/news/secadv/20261110.txt"
       ],
-      "status": "reviewed-service-boundary",
+      "status": "fixed-by-source-backport",
       "proof": {
-        "type": "openssl-tls-service-boundary",
-        "libraries": {
-          "libssl.so.3": "9592038e92d1f41affcbb625334d0b6e788714c889104fa6d5b107cf9fd657f2",
-          "libcrypto.so.3": "8ae56f0a9481280a68c19f59809cd242a07a91ad7142944d21a878221992244b"
-        },
-        "stdlib_ssl_sha256": "6891800dbb9144863d3e1fbcf812694035533c6872a29575f857d5163a8b5c7e"
+        "type": "openssl-fixed-backport",
+        "lock_sha256": "76edf0322d49a02fe4e1311ad2c9325e7a72767339250f6b37dec41c318d54a0",
+        "cves": [
+          "CVE-2026-107496",
+          "CVE-2026-88822",
+          "CVE-2026-88823",
+          "CVE-2026-95691",
+          "CVE-2026-95692"
+        ]
       },
-      "reason": "QUIC automatic peer detection may disclose uninitialized stack bytes. The maintained application exposes bounded media and typed options, not CMS encryption, QUIC or arbitrary EVP/AES-GCM-SIV operations. Its standard-library TLS binding has no observed CMS/QUIC/general-cipher imports or SIV TLS ciphers; the openssl CLI and shells are removed. Exact libssl/libcrypto and stdlib binding digests, unprivileged restrictions and observed TLS profile are required. This is a scoped application boundary, not a library fix or a proof about every native/wheel-bundled caller. Upstream public fixes are scheduled for a later release; arbitrary operator code, HTTP/3, new crypto callers and independent runtimes require renewed assessment. Raw MEDIUM matches remain visible."
+      "reason": "Official OpenSSL 3.5 branch security fixes and regression tests, rebuilt from hash-locked Debian sources. Qualification requires the exact source lock, successful upstream tests and matching installed library bytes."
     },
     "CVE-2026-88823": {
       "source": "openssl",
-      "source_version": "3.5.7-1~deb13u3",
+      "source_version": "3.5.7-1~deb13u3+sonovect13.1",
       "severity": "MEDIUM",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2026-88823",
         "https://openssl-library.org/news/secadv/20261110.txt"
       ],
-      "status": "reviewed-service-boundary",
+      "status": "fixed-by-source-backport",
       "proof": {
-        "type": "openssl-tls-service-boundary",
-        "libraries": {
-          "libssl.so.3": "9592038e92d1f41affcbb625334d0b6e788714c889104fa6d5b107cf9fd657f2",
-          "libcrypto.so.3": "8ae56f0a9481280a68c19f59809cd242a07a91ad7142944d21a878221992244b"
-        },
-        "stdlib_ssl_sha256": "6891800dbb9144863d3e1fbcf812694035533c6872a29575f857d5163a8b5c7e"
+        "type": "openssl-fixed-backport",
+        "lock_sha256": "76edf0322d49a02fe4e1311ad2c9325e7a72767339250f6b37dec41c318d54a0",
+        "cves": [
+          "CVE-2026-107496",
+          "CVE-2026-88822",
+          "CVE-2026-88823",
+          "CVE-2026-95691",
+          "CVE-2026-95692"
+        ]
       },
-      "reason": "AES-GCM-SIV empty incremental AAD can invalidate authentication. The maintained application exposes bounded media and typed options, not CMS encryption, QUIC or arbitrary EVP/AES-GCM-SIV operations. Its standard-library TLS binding has no observed CMS/QUIC/general-cipher imports or SIV TLS ciphers; the openssl CLI and shells are removed. Exact libssl/libcrypto and stdlib binding digests, unprivileged restrictions and observed TLS profile are required. This is a scoped application boundary, not a library fix or a proof about every native/wheel-bundled caller. Upstream public fixes are scheduled for a later release; arbitrary operator code, HTTP/3, new crypto callers and independent runtimes require renewed assessment. Raw MEDIUM matches remain visible."
+      "reason": "Official OpenSSL 3.5 branch security fixes and regression tests, rebuilt from hash-locked Debian sources. Qualification requires the exact source lock, successful upstream tests and matching installed library bytes."
     },
     "CVE-2026-95691": {
       "source": "openssl",
-      "source_version": "3.5.7-1~deb13u3",
+      "source_version": "3.5.7-1~deb13u3+sonovect13.1",
       "severity": "MEDIUM",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2026-95691",
         "https://openssl-library.org/news/secadv/20261110.txt"
       ],
-      "status": "reviewed-service-boundary",
+      "status": "fixed-by-source-backport",
       "proof": {
-        "type": "openssl-tls-service-boundary",
-        "libraries": {
-          "libssl.so.3": "9592038e92d1f41affcbb625334d0b6e788714c889104fa6d5b107cf9fd657f2",
-          "libcrypto.so.3": "8ae56f0a9481280a68c19f59809cd242a07a91ad7142944d21a878221992244b"
-        },
-        "stdlib_ssl_sha256": "6891800dbb9144863d3e1fbcf812694035533c6872a29575f857d5163a8b5c7e"
+        "type": "openssl-fixed-backport",
+        "lock_sha256": "76edf0322d49a02fe4e1311ad2c9325e7a72767339250f6b37dec41c318d54a0",
+        "cves": [
+          "CVE-2026-107496",
+          "CVE-2026-88822",
+          "CVE-2026-88823",
+          "CVE-2026-95691",
+          "CVE-2026-95692"
+        ]
       },
-      "reason": "QUIC CRYPTO retransmission can cause use-after-free and a small disclosure. The maintained application exposes bounded media and typed options, not CMS encryption, QUIC or arbitrary EVP/AES-GCM-SIV operations. Its standard-library TLS binding has no observed CMS/QUIC/general-cipher imports or SIV TLS ciphers; the openssl CLI and shells are removed. Exact libssl/libcrypto and stdlib binding digests, unprivileged restrictions and observed TLS profile are required. This is a scoped application boundary, not a library fix or a proof about every native/wheel-bundled caller. Upstream public fixes are scheduled for a later release; arbitrary operator code, HTTP/3, new crypto callers and independent runtimes require renewed assessment. Raw MEDIUM matches remain visible."
+      "reason": "Official OpenSSL 3.5 branch security fixes and regression tests, rebuilt from hash-locked Debian sources. Qualification requires the exact source lock, successful upstream tests and matching installed library bytes."
     },
     "CVE-2026-95692": {
       "source": "openssl",
-      "source_version": "3.5.7-1~deb13u3",
+      "source_version": "3.5.7-1~deb13u3+sonovect13.1",
       "severity": "MEDIUM",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2026-95692",
         "https://openssl-library.org/news/secadv/20261110.txt"
       ],
-      "status": "reviewed-service-boundary",
+      "status": "fixed-by-source-backport",
       "proof": {
-        "type": "openssl-tls-service-boundary",
-        "libraries": {
-          "libssl.so.3": "9592038e92d1f41affcbb625334d0b6e788714c889104fa6d5b107cf9fd657f2",
-          "libcrypto.so.3": "8ae56f0a9481280a68c19f59809cd242a07a91ad7142944d21a878221992244b"
-        },
-        "stdlib_ssl_sha256": "6891800dbb9144863d3e1fbcf812694035533c6872a29575f857d5163a8b5c7e"
+        "type": "openssl-fixed-backport",
+        "lock_sha256": "76edf0322d49a02fe4e1311ad2c9325e7a72767339250f6b37dec41c318d54a0",
+        "cves": [
+          "CVE-2026-107496",
+          "CVE-2026-88822",
+          "CVE-2026-88823",
+          "CVE-2026-95691",
+          "CVE-2026-95692"
+        ]
       },
-      "reason": "AES-GCM-SIV invalid IV lengths can overread or fail to bind the IV. The maintained application exposes bounded media and typed options, not CMS encryption, QUIC or arbitrary EVP/AES-GCM-SIV operations. Its standard-library TLS binding has no observed CMS/QUIC/general-cipher imports or SIV TLS ciphers; the openssl CLI and shells are removed. Exact libssl/libcrypto and stdlib binding digests, unprivileged restrictions and observed TLS profile are required. This is a scoped application boundary, not a library fix or a proof about every native/wheel-bundled caller. Upstream public fixes are scheduled for a later release; arbitrary operator code, HTTP/3, new crypto callers and independent runtimes require renewed assessment. Raw MEDIUM matches remain visible."
+      "reason": "Official OpenSSL 3.5 branch security fixes and regression tests, rebuilt from hash-locked Debian sources. Qualification requires the exact source lock, successful upstream tests and matching installed library bytes."
     },
     "CVE-2026-107496": {
       "source": "openssl",
-      "source_version": "3.5.7-1~deb13u3",
+      "source_version": "3.5.7-1~deb13u3+sonovect13.1",
       "severity": "MEDIUM",
       "references": [
         "https://security-tracker.debian.org/tracker/CVE-2026-107496",
         "https://openssl-library.org/news/secadv/20261110.txt"
       ],
-      "status": "reviewed-service-boundary",
+      "status": "fixed-by-source-backport",
       "proof": {
-        "type": "openssl-tls-service-boundary",
-        "libraries": {
-          "libssl.so.3": "9592038e92d1f41affcbb625334d0b6e788714c889104fa6d5b107cf9fd657f2",
-          "libcrypto.so.3": "8ae56f0a9481280a68c19f59809cd242a07a91ad7142944d21a878221992244b"
-        },
-        "stdlib_ssl_sha256": "6891800dbb9144863d3e1fbcf812694035533c6872a29575f857d5163a8b5c7e"
+        "type": "openssl-fixed-backport",
+        "lock_sha256": "76edf0322d49a02fe4e1311ad2c9325e7a72767339250f6b37dec41c318d54a0",
+        "cves": [
+          "CVE-2026-107496",
+          "CVE-2026-88822",
+          "CVE-2026-88823",
+          "CVE-2026-95691",
+          "CVE-2026-95692"
+        ]
       },
-      "reason": "CMS encryption with an attacker-controlled order-1 EC group can hang. The maintained application exposes bounded media and typed options, not CMS encryption, QUIC or arbitrary EVP/AES-GCM-SIV operations. Its standard-library TLS binding has no observed CMS/QUIC/general-cipher imports or SIV TLS ciphers; the openssl CLI and shells are removed. Exact libssl/libcrypto and stdlib binding digests, unprivileged restrictions and observed TLS profile are required. This is a scoped application boundary, not a library fix or a proof about every native/wheel-bundled caller. Upstream public fixes are scheduled for a later release; arbitrary operator code, HTTP/3, new crypto callers and independent runtimes require renewed assessment. Raw MEDIUM matches remain visible."
+      "reason": "Official OpenSSL 3.5 branch security fixes and regression tests, rebuilt from hash-locked Debian sources. Qualification requires the exact source lock, successful upstream tests and matching installed library bytes."
     }
   }
 }

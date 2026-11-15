@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 0.4.1 — 2026-11-15
+
+- Backport the five November OpenSSL fixes from its official 3.5 branch; include upstream regression tests and corresponding source, run the package test suite, and qualify actual installed library bytes instead of relying on a TLS-only applicability exception.
+- Retire the obsolete 0.3 runtime overlay and its duplicate transport lock. Full role Dockerfiles remain the maintained build path.
+
 ## 0.4.0 — 2026-11-15
 
 - Require OpenTelemetry API1.45.2 in maintained locks and MCP clients; assess newly observed OS findings against exact image evidence, remove unused crypto/source-unpacking CLI code, and retain explicit upstream limitations.

@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "component": "openssl",
+  "upstream_debian_version": "3.5.7-1~deb13u3",
+  "version": "3.5.7-1~deb13u3+sonovect13.1",
+  "directory": "openssl-3.5.7",
+  "files": [
+    {
+      "name": "openssl_3.5.7-1~deb13u3.dsc",
+      "size": 2710,
+      "sha256": "9cdb0d9daf0773ca5c0f3f5ea1fc59b1106a99e005a5c048948b826e8d3b47e1",
+      "url": "https://security.debian.org/debian-security/pool/updates/main/o/openssl/openssl_3.5.7-1~deb13u3.dsc"
+    },
+    {
+      "name": "openssl_3.5.7.orig.tar.gz",
+      "size": 53153930,
+      "sha256": "a8c0d28a529ca480f9f36cf5792e2cd21984552a3c8e4aa11a24aa31aeac98e8",
+      "url": "https://security.debian.org/debian-security/pool/updates/main/o/openssl/openssl_3.5.7.orig.tar.gz"
+    },
+    {
+      "name": "openssl_3.5.7.orig.tar.gz.asc",
+      "size": 833,
+      "sha256": "d3d082bee3f658c31db53af625eceecf29d777c7010394bed5787ebcc98abdf2",
+      "url": "https://security.debian.org/debian-security/pool/updates/main/o/openssl/openssl_3.5.7.orig.tar.gz.asc"
+    },
+    {
+      "name": "openssl_3.5.7-1~deb13u3.debian.tar.xz",
+      "size": 147344,
+      "sha256": "0a427fdc3e773f4119a7dd5b36d1f0903a163cf4ea15d812bb823b251ff1cbc5",
+      "url": "https://security.debian.org/debian-security/pool/updates/main/o/openssl/openssl_3.5.7-1~deb13u3.debian.tar.xz"
+    }
+  ],
+  "patches": [
+    {
+      "cve": "CVE-2026-88823",
+      "commit": "159e1de0c448d7b9f09ad768c8e141def4aa1eb4",
+      "title": "AES-GCM-SIV: no-op on zero-length update and clear stale AAD on reuse",
+      "patch_sha256": "a945077c0a978dbfe5af5e4f7174a2151466547f8fb94562f395baa7b6b7c147",
+      "files": [
+        "providers/implementations/ciphers/cipher_aes_gcm_siv.c",
+        "providers/implementations/ciphers/cipher_aes_gcm_siv_hw.c"
+      ],
+      "url": "https://github.com/openssl/openssl/commit/159e1de0c448d7b9f09ad768c8e141def4aa1eb4.patch",
+      "file": "159e1de0c448d7b9f09ad768c8e141def4aa1eb4.patch",
+      "upstream_main_commit": "ce58c02c5ba30efc0d020bb79a38d8a0b679cbea"
+    },
+    {
+      "cve": "CVE-2026-88823",
+      "commit": "9d0d29bcf98ae5c1fb91653ba635e993260176d8",
+      "title": "test/evp_extra_test.c: add tests for CVE-2026-88823",
+      "patch_sha256": "c7885d44f2659d97c0fc71fcdc8a6ef04cbe2ccdd36a72c28e7dfd1452033f2d",
+      "files": [
+        "test/evp_extra_test.c"
+      ],
+      "url": "https://github.com/openssl/openssl/commit/9d0d29bcf98ae5c1fb91653ba635e993260176d8.patch",
+      "file": "9d0d29bcf98ae5c1fb91653ba635e993260176d8.patch",
+      "upstream_main_commit": "385707450376d8611905cf48a03be62ef98b1f6a",
+      "applied_file": "9d0d29bc-debian-test.patch",
+      "applied_sha256": "6fc122ef200c96d798f0ee0b322866369372ee35c09eb9d38c1bbe1c900f3fad",
+      "adaptation": "Only test insertion context moved to Debian 3.5.7: all 401 added function lines and five registrations unchanged; no production code changes."
+    },
+    {
+      "cve": "CVE-2026-88822",
+      "commit": "1a73dc590cbad62d6f0329ea4779eadaa8d8fd75",
+      "title": "crypto/bio/bss_dgram.c: initialise variable in BIO_CTRL_DGRAM_DETECT_PEER_ADDR",
+      "patch_sha256": "50f7cc52fb146703379ca043d17e204c4fda99c684efe3db6d6f3ae1d175bd2a",
+      "files": [
+        "crypto/bio/bss_dgram.c"
+      ],
+      "url": "https://github.com/openssl/openssl/commit/1a73dc590cbad62d6f0329ea4779eadaa8d8fd75.patch",
+      "file": "1a73dc590cbad62d6f0329ea4779eadaa8d8fd75.patch",
+      "upstream_main_commit": "6cfe188ea9aea3515bb528ac234fbae76aa6588a"
+    },
+    {
+      "cve": "CVE-2026-107496",
+      "commit": "a0051cfe699bf5a047bc1c4faef65f80f7987366",
+      "title": "crypto/ec/ec_key.c: Reject invalid group order during key generation",
+      "patch_sha256": "77d3759d279c71af59629c4a0fa82d8272a099762f2fa9e3f66d7ca5ed544157",
+      "files": [
+        "crypto/ec/ec_key.c",
+        "test/ectest.c"
+      ],
+      "url": "https://github.com/openssl/openssl/commit/a0051cfe699bf5a047bc1c4faef65f80f7987366.patch",
+      "file": "a0051cfe699bf5a047bc1c4faef65f80f7987366.patch",
+      "upstream_main_commit": "a957a4bfc0b9691b20c9036b6ecc110f89f8d15c"
+    },
+    {
+      "cve": "CVE-2026-95692",
+      "commit": "257a3427aa0ef8d9dd2ef5b3e2d1c021a221b116",
+      "title": "Reject unsupported IV lengths for AES-GCM-SIV",
+      "patch_sha256": "0e328604c0038de6629a29322ae5f02d2f5f5128c2625b57ca64262efab99e05",
+      "files": [
+        "providers/implementations/ciphers/cipher_aes_gcm_siv.c",
+        "providers/implementations/ciphers/cipher_aes_gcm_siv.inc.in"
+      ],
+      "url": "https://github.com/openssl/openssl/commit/257a3427aa0ef8d9dd2ef5b3e2d1c021a221b116.patch",
+      "file": "257a3427aa0ef8d9dd2ef5b3e2d1c021a221b116.patch",
+      "upstream_main_commit": "b8997895c2e8eb0f3f39189f6c0861c1aa51c268"
+    },
+    {
+      "cve": "CVE-2026-95692",
+      "commit": "86abaf90eb55a8f29caf19725c7dc37cfebf7de7",
+      "title": "Add test vectors for CVE-2026-95692",
+      "patch_sha256": "94ee9be7e136f081f49315d1afa2c2650b0cd32c20d00a456056c7bcb143fd54",
+      "files": [
+        "test/recipes/30-test_evp_data/evpciph_aes_gcm_siv.txt"
+      ],
+      "url": "https://github.com/openssl/openssl/commit/86abaf90eb55a8f29caf19725c7dc37cfebf7de7.patch",
+      "file": "86abaf90eb55a8f29caf19725c7dc37cfebf7de7.patch",
+      "upstream_main_commit": "47de2567ec604c5ca8a9eb1a785bceef46e047c0"
+    },
+    {
+      "cve": "CVE-2026-95691",
+      "commit": "f6244675833e097c2429a40d1b206d95385bd42f",
+      "title": "QUIC: covering CRYPTO frame retransmission may induce use-after-free in record layer",
+      "patch_sha256": "93d8e82fdc995172a6d5cc6952491658106191bd5ac221d34596adbddfcd1afe",
+      "files": [
+        "include/internal/quic_strm_reas.h",
+        "ssl/quic/quic_rstream.c",
+        "ssl/quic/quic_strm_reas.c"
+      ],
+      "url": "https://github.com/openssl/openssl/commit/f6244675833e097c2429a40d1b206d95385bd42f.patch",
+      "file": "f6244675833e097c2429a40d1b206d95385bd42f.patch",
+      "upstream_main_commit": "54e283610044c828aab832000bbf3654e5abc9b5"
+    },
+    {
+      "cve": "CVE-2026-95691",
+      "commit": "bada6a2dd781ec875d4ae6d3b200fed1ef664988",
+      "title": "test/quic_stream_test.c: add a test for CVE-2026-95691",
+      "patch_sha256": "551d3d8cc734846b68b8f43c2773875d8fed64ab1d089bd962490fc6391fee79",
+      "files": [
+        "test/quic_stream_test.c"
+      ],
+      "url": "https://github.com/openssl/openssl/commit/bada6a2dd781ec875d4ae6d3b200fed1ef664988.patch",
+      "file": "bada6a2dd781ec875d4ae6d3b200fed1ef664988.patch",
+      "upstream_main_commit": "9fb911d3fa1e3ff355355165d6979ea6006f6a52"
+    }
+  ],
+  "branch": "openssl-3.5"
+}
