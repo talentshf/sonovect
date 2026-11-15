@@ -1,7 +1,24 @@
 """Keep supported environment, recipe and command controls in both references."""
 import ast,json,re,sys
 from pathlib import Path
+from packaging.requirements import Requirement
+from packaging.utils import canonicalize_name
 ROOT=Path(__file__).resolve().parents[1]
+
+def check_locked_constraints():
+    def requirements(path):
+        return [Requirement(line.strip()) for line in path.read_text().splitlines()
+                if line.strip() and not line.lstrip().startswith('#')]
+    constraints={canonicalize_name(row.name):row.specifier
+                 for row in requirements(ROOT/'providers/speech/constraints.txt')}
+    for path in [ROOT/'requirements.lock', *(ROOT/'providers/speech').glob('*/requirements.lock')]:
+        for row in requirements(path):
+            name=canonicalize_name(row.name)
+            if name not in constraints:continue
+            pins=list(row.specifier)
+            assert len(pins)==1 and pins[0].operator=='==',str(path)+': expected exact pin for '+name
+            assert constraints[name].contains(pins[0].version,prereleases=True),(
+                str(path.relative_to(ROOT))+': '+str(row)+' conflicts with shared constraint '+str(constraints[name]))
 def inventory():
     roles={}
     for role in ['api','segmentation-worker','qwen-worker','moss-worker','event-worker','vocal-worker','measurement-worker','understanding-worker']:
@@ -33,6 +50,7 @@ def environment_names():
                 names.add(literals[arg.left.id]+arg.right.value)
     return names
 if __name__=='__main__':
+    check_locked_constraints()
     path=ROOT/'docs/runtime-options.json'
     if '--write' in sys.argv:path.write_text(json.dumps(inventory(),indent=2)+'\n')
     assert json.loads(path.read_text())==inventory(),'run python scripts/check_configuration.py --write'
