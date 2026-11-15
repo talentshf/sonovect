@@ -30,3 +30,16 @@ async def analyze(files:Annotated[list[UploadFile],File()]):
   events=await asyncio.to_thread(detector.detect,audio,16000)
   outputs.append({"engine":detector.engine,"duration_ms":round(len(audio)*1000/16000),"events":events,"parse_valid":True,"events_valid":True})
  return outputs[0] if len(outputs)==1 else {"results":outputs}
+
+@app.post("/classify")
+async def classify(file:Annotated[UploadFile,File()],top_k:int=5):
+ if not 1<=top_k<=527:raise HTTPException(422,"invalid_top_k")
+ data=await file.read(268435457)
+ if len(data)>268435456:raise HTTPException(413,"normalized_audio_limit")
+ try:
+  with wave.open(io.BytesIO(data),"rb") as w:
+   if (w.getframerate(),w.getnchannels(),w.getsampwidth(),w.getcomptype())!=(16000,1,2,"NONE"):raise ValueError()
+   audio=np.frombuffer(w.readframes(w.getnframes()),dtype="<i2").astype(np.float32)/32768.0
+  scores=await asyncio.to_thread(detector.classify,audio,16000,top_k)
+ except (ValueError,wave.Error,EOFError):raise HTTPException(422,"invalid_classification_audio") from None
+ return {"scores":scores,"engine":detector.engine,"aggregation":"duration-weighted-window-mean-sigmoid","window_seconds":detector.window_seconds}

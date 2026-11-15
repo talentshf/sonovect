@@ -3,7 +3,7 @@
   "info": {
     "title": "Sonovect",
     "description": "Self-hosted ASR for audio and video soundtracks, FunASR speech results and separate sound analysis.",
-    "version": "0.3.0"
+    "version": "0.4.0"
   },
   "paths": {
     "/health": {
@@ -44,6 +44,64 @@
                 "schema": {
                   "$ref": "#/components/schemas/Summary"
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/models/ast-audioset": {
+      "post": {
+        "summary": "Classification",
+        "operationId": "classification_models_ast_audioset_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/chat/completions": {
+      "post": {
+        "summary": "Understand",
+        "operationId": "understand_v1_chat_completions_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/listen": {
+      "post": {
+        "summary": "File",
+        "operationId": "file_v1_listen_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           }
@@ -304,6 +362,90 @@
                   },
                   "title": "Response Analysis V1 Jobs  Job Id  Analysis Get"
                 }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/jobs/{job_id}/evidence": {
+      "get": {
+        "summary": "Evidence",
+        "operationId": "evidence_v1_jobs__job_id__evidence_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/jobs/{job_id}/translation": {
+      "get": {
+        "summary": "Translation",
+        "operationId": "translation_v1_jobs__job_id__translation_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           },
@@ -672,10 +814,410 @@
           }
         }
       }
+    },
+    "/v1/models": {
+      "get": {
+        "summary": "Models",
+        "operationId": "models_v1_models_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/audio/transcriptions": {
+      "post": {
+        "summary": "Transcribe",
+        "operationId": "transcribe_v1_audio_transcriptions_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_transcribe_v1_audio_transcriptions_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/audio/translations": {
+      "post": {
+        "summary": "Translation",
+        "operationId": "translation_v1_audio_translations_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_translation_v1_audio_translations_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/jobs/{job_id}/events": {
+      "get": {
+        "summary": "Events",
+        "operationId": "events_v1_jobs__job_id__events_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "After"
+            }
+          },
+          {
+            "name": "last-event-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Last-Event-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/jobs/{job_id}/attempts": {
+      "get": {
+        "summary": "Attempts",
+        "operationId": "attempts_v1_jobs__job_id__attempts_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/jobs/{job_id}/notification": {
+      "get": {
+        "summary": "Notification",
+        "operationId": "notification_v1_jobs__job_id__notification_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/jobs/{job_id}/notification/retry": {
+      "post": {
+        "summary": "Retry Notification",
+        "operationId": "retry_notification_v1_jobs__job_id__notification_retry_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "AlignedWord": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "start_ms": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Start Ms"
+          },
+          "end_ms": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "End Ms"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text",
+          "start_ms",
+          "end_ms"
+        ],
+        "title": "AlignedWord"
+      },
+      "Alignment": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "text_source": {
+            "type": "string",
+            "const": "user",
+            "title": "Text Source"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language"
+          },
+          "words": {
+            "items": {
+              "$ref": "#/components/schemas/AlignedWord"
+            },
+            "type": "array",
+            "title": "Words"
+          },
+          "engine": {
+            "$ref": "#/components/schemas/ModelIdentity"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text",
+          "text_source",
+          "language",
+          "words",
+          "engine"
+        ],
+        "title": "Alignment"
+      },
       "Analysis": {
         "properties": {
           "schema_version": {
@@ -705,6 +1247,36 @@
             "type": "object",
             "title": "Stages"
           },
+          "alignment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Alignment"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "classification": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Classification"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "understanding": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AudioAnswer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "events": {
             "items": {
               "$ref": "#/components/schemas/Observation"
@@ -732,6 +1304,20 @@
             },
             "type": "array",
             "title": "Measurements"
+          },
+          "speech_regions": {
+            "items": {
+              "$ref": "#/components/schemas/AudioInterval"
+            },
+            "type": "array",
+            "title": "Speech Regions"
+          },
+          "speaker_turns": {
+            "items": {
+              "$ref": "#/components/schemas/SpeakerInterval"
+            },
+            "type": "array",
+            "title": "Speaker Turns"
           },
           "quality": {
             "$ref": "#/components/schemas/Quality"
@@ -800,6 +1386,99 @@
         ],
         "title": "AnalysisStage"
       },
+      "AudioAnswer": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "engine": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelIdentity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "identity_source": {
+            "type": "string",
+            "enum": [
+              "operator-configuration",
+              "engine-response"
+            ],
+            "title": "Identity Source"
+          },
+          "finish_reason": {
+            "type": "string",
+            "enum": [
+              "stop",
+              "length"
+            ],
+            "title": "Finish Reason",
+            "default": "stop"
+          },
+          "usage": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Usage"
+          },
+          "input": {
+            "type": "string",
+            "const": "audio",
+            "title": "Input"
+          },
+          "requires_review": {
+            "type": "boolean",
+            "title": "Requires Review"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text",
+          "model",
+          "identity_source",
+          "input",
+          "requires_review"
+        ],
+        "title": "AudioAnswer"
+      },
+      "AudioInterval": {
+        "properties": {
+          "start_ms": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Start Ms"
+          },
+          "end_ms": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "End Ms"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "start_ms",
+          "end_ms"
+        ],
+        "title": "AudioInterval"
+      },
       "Body_submit_v1_jobs_post": {
         "properties": {
           "files": {
@@ -815,6 +1494,18 @@
             "maxLength": 20000,
             "title": "Options",
             "default": "{}"
+          },
+          "callback_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Callback Url"
           }
         },
         "type": "object",
@@ -822,6 +1513,90 @@
           "files"
         ],
         "title": "Body_submit_v1_jobs_post"
+      },
+      "Body_transcribe_v1_audio_transcriptions_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "default": ""
+          },
+          "response_format": {
+            "type": "string",
+            "title": "Response Format",
+            "default": "json"
+          },
+          "temperature": {
+            "type": "number",
+            "title": "Temperature",
+            "default": 0
+          },
+          "stream": {
+            "type": "boolean",
+            "title": "Stream",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "file",
+          "model"
+        ],
+        "title": "Body_transcribe_v1_audio_transcriptions_post"
+      },
+      "Body_translation_v1_audio_translations_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "default": ""
+          },
+          "response_format": {
+            "type": "string",
+            "title": "Response Format",
+            "default": "json"
+          },
+          "temperature": {
+            "type": "number",
+            "title": "Temperature",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "file",
+          "model"
+        ],
+        "title": "Body_translation_v1_audio_translations_post"
       },
       "ChannelTranscript": {
         "properties": {
@@ -863,7 +1638,8 @@
               "speech.asr",
               "speech.configuration",
               "speech.provider",
-              "speech.segmentation"
+              "speech.segmentation",
+              "speech.understanding"
             ],
             "title": "Component"
           },
@@ -955,6 +1731,58 @@
         ],
         "title": "Check"
       },
+      "ClassScore": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Score"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "score"
+        ],
+        "title": "ClassScore"
+      },
+      "Classification": {
+        "properties": {
+          "scores": {
+            "items": {
+              "$ref": "#/components/schemas/ClassScore"
+            },
+            "type": "array",
+            "title": "Scores"
+          },
+          "engine": {
+            "$ref": "#/components/schemas/ModelIdentity"
+          },
+          "aggregation": {
+            "type": "string",
+            "title": "Aggregation"
+          },
+          "window_seconds": {
+            "type": "number",
+            "title": "Window Seconds"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "scores",
+          "engine",
+          "aggregation",
+          "window_seconds"
+        ],
+        "title": "Classification"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -1003,7 +1831,8 @@
               "speech.asr",
               "speech.configuration",
               "speech.provider",
-              "speech.segmentation"
+              "speech.segmentation",
+              "speech.understanding"
             ],
             "title": "Component"
           },
@@ -1286,7 +2115,8 @@
               "speech.asr",
               "speech.configuration",
               "speech.provider",
-              "speech.segmentation"
+              "speech.segmentation",
+              "speech.understanding"
             ],
             "title": "Component"
           },
@@ -1376,6 +2206,38 @@
           "transcripts"
         ],
         "title": "ResultFile"
+      },
+      "SpeakerInterval": {
+        "properties": {
+          "start_ms": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Start Ms"
+          },
+          "end_ms": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "End Ms"
+          },
+          "speaker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speaker"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "start_ms",
+          "end_ms"
+        ],
+        "title": "SpeakerInterval"
       },
       "Submission": {
         "properties": {
@@ -1503,7 +2365,8 @@
               "speech.asr",
               "speech.configuration",
               "speech.provider",
-              "speech.segmentation"
+              "speech.segmentation",
+              "speech.understanding"
             ],
             "title": "Component"
           },

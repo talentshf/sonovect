@@ -86,7 +86,7 @@ def validate_configuration(config):
             raise ValueError('unsafe_container_privileges:'+name)
         if not any(x in {'no-new-privileges:true', 'no-new-privileges=true'} for x in service.get('security_opt', [])):
             raise ValueError('missing_no_new_privileges:'+name)
-        if name != 'api' and service.get('ports'):
+        if name not in {'api','wyoming'} and service.get('ports'):
             raise ValueError('private_model_or_worker_port_published:'+name)
         user = service.get('user')
         if user and str(user) not in {'10001', '10001:10001'}:
@@ -113,7 +113,7 @@ def main():
     parser.add_argument('--evidence', type=Path)
     parser.add_argument('--images', type=Path)
     parser.add_argument('--revision')
-    parser.add_argument('--version', default='0.3.0')
+    parser.add_argument('--version', default='0.4.0')
     parser.add_argument('--output', type=Path)
     parser.add_argument('--compose-config', type=Path, help='Resolved standard Compose JSON; environment values are never printed')
     args = parser.parse_args()

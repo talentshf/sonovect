@@ -2,45 +2,39 @@
 
 ## English
 
-**Cloud-class speech recognition. Your own hardware.**
+**Your speech processing service, connected your way.**
 
-Sonovect is a self-hosted ASR service for recordings and video soundtracks. Turn your CPU or NVIDIA GPU into a local transcription service with Qwen3-ASR or FunASR, timestamps, anonymous speakers and subtitles. Add AST sound events, experimental vocal analysis or pitch/energy measurements independently, with separate structured results.
+Sonovect turns your own hardware into a shared service for transcription, translation into text and sound understanding. Connect existing applications through standard protocol subsets, let an agent handle a recording, or automate file batches. Request text, subtitles, anonymous speakers, translations or separate sound results as needed.
 
-Optional Microsoft **VibeVoice-ASR** support adds an external file adapter and **VibeVoice-ASR Streaming 1.5B** live recognition through the service and CLI. The 1.5B route is an on-demand alternative in a separate runtime, without automatic restart; Qwen remains the default file route. Live speaker labels have no aligned timestamps. See the [runtime guide](vibevoice-realtime.md) for preparation and measured limits.
+Ordinary transcription avoids unrequested speaker features, alignment and analysis. Applications can use OpenAI-compatible file/audio endpoints, shared-model transcription sessions, Deepgram, FunASR offline turns, Hugging Face audio classification, optional DashScope file tasks or a Wyoming home-device bridge. CLI and stdio MCP expose the same processing options and recoverable jobs.
 
-Choose the models you need, prepare their fixed assets and load them on request. A typical deployment uses two or three containers. Applications and agents share the same HTTP, CLI and MCP task workflow; the included Sonovect skill explains feature selection, submission and result retrieval.
-
-The same-audio [reference comparison](quality.md) shows local Qwen1.7B matching the tested cloud services on English and making fewer errors on the Mandarin meeting. Results retain their dates, configurations and denominators; environmental sounds and experimental emotions have separate evaluations.
+Speech, translation and observations remain separate. Real streamed events report completed chunks/turns; signed callbacks require an explicit receiver. Audio-question answers and emotional observations require review. The operator selects local models or configured upstreams; protocol compatibility is not a promise to implement every vendor option.
 
 ## 中文
 
-**用自己的硬件，部署可媲美云端的语音识别服务。**
+**自己的语音处理服务，多种标准方式接入。**
 
-Sonovect 是面向录音和视频音轨的本地 ASR（自动语音识别）服务。利用已有 CPU（处理器）或 NVIDIA GPU（显卡），通过 Qwen3-ASR 或 FunASR 完成转写，输出时间戳、匿名说话人和字幕。环境音、实验人声分析、音高能量分别选择、独立输出，方便应用和智能体读取。
+Sonovect 利用自己的硬件，统一提供转写、翻译成文字和声音理解。可以在现有软件里配置标准接口，让智能体处理录音，或通过命令行批量调用；按需取得文字、字幕、匿名说话人、译文和独立的声音分析。
 
-可选的微软 **VibeVoice-ASR** 支持包含独立文件适配及 **VibeVoice-ASR Streaming 1.5B**（流式小版）服务、命令行实时识别。1.5B 作为备选，在独立环境按需运行、不自动重启；默认文件路线仍为 Qwen。实时说话人标签不带对齐时间，准备方式和实测限制见[运行指南](vibevoice-realtime.zh-CN.md)。
+普通转写跳过未请求的说话人、对齐和分析。软件通过 OpenAI 兼容文件/音频接口及实时分段、Deepgram（语音接口）、FunASR（离线识别协议）、Hugging Face（声音分类接口）、可选百炼异步文件协议或 Wyoming（家庭设备语音协议）接入。CLI（命令行）和 MCP（模型上下文协议）提供相同处理选项及可找回的任务。
 
-按选型下载固定模型、按请求加载运行，常用部署只需两到三个容器。HTTP（网络接口）、CLI（命令行）和 MCP（模型上下文协议）共用一套任务流程，附带的 Sonovect skill（技能）说明选功能、交任务和读结果的方法。
-
-已有[同素材参考测试](quality.zh-CN.md)中，本地 Qwen1.7B 的英文结果与所测云端服务相当，中文会议字符错误更少。说明保留测试日期、配置和分母；环境音及实验情绪的结果另列。
+原文、译文和声音观察分开保存。流式事件返回真正完成的片段；主动通知需配置接收方。声音问答和情绪观察需要复核。推理使用部署者选定的本地模型或上游服务，不把协议兼容描述成支持所有厂商参数。
 
 ## GitHub About / 仓库简介
 
-> Self-hosted ASR: VibeVoice-ASR / VibeVoice Streaming 1.5B, Qwen3-ASR & FunASR | 本地语音识别、实时转写、说话人、字幕与独立声音分析。Docker · HTTP · CLI · MCP.
+> Self-hosted speech processing: transcription, text translation & sound understanding. OpenAI-compatible APIs · Deepgram · FunASR · Wyoming · CLI · MCP.
 
 Repository / 仓库：<https://github.com/talentshf/sonovect>
 
-The README is the product landing page: choose English or 中文, compare configurations, inspect dated benchmarks, deploy, then connect an agent. No separate website is required. / 项目首页即介绍页：中英文切换、配置比较、测试参考、部署和智能体接入集中可达，无需另建网站。
+The bilingual README is the product introduction. See [connections](connections.md), [0.4.0 scope](release-v0.4.0.md), and [distribution status](../PUBLICATION.md). / 中英文首页就是产品介绍；接入方式、当前能力和正式发行分别说明。
 
 ## Topics / 搜索主题
 
 ```text
-asr speech-recognition speech-to-text self-hosted local-asr offline-asr
-funasr qwen3-asr vibevoice vibevoice-asr streaming-asr speaker-diarization
-audio-event-detection video-transcription subtitles mcp docker audio-analysis
-emotion-recognition ai-agent
+speech-to-text speech-recognition self-hosted transcription audio-analysis
+speech-translation audio-understanding openai-compatible deepgram funasr
+qwen3-asr speaker-diarization subtitles streaming-asr home-assistant
+wyoming-protocol audio-classification mcp docker ai-agent
 ```
 
-These 20 topics describe implemented interfaces and optional capabilities; emotion recognition remains experimental. Public discovery begins after the repository is made public. No promise of search ranking, popularity or broader quality superiority is implied.
-
-这20个主题覆盖已有接口与可选功能；情绪识别保持实验标识。仓库公开后才面向公众被搜索发现，不承诺搜索排名或所有场景的质量优势。
+These topics describe available interfaces and optional capabilities, not every vendor feature or broad model-quality guarantees. / 主题描述现有接口和可选能力，不承诺支持厂商全部功能或所有场景的准确率。

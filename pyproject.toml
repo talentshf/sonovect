@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "sonovect"
 dynamic = ["version"]
-description = "Self-hosted Qwen3-ASR, FunASR and optional VibeVoice-ASR with file jobs, live transcription and sound analysis"
+description = "Self-hosted speech processing: transcription, text translation and sound understanding with standard APIs, CLI and MCP"
 keywords = ["asr", "vibevoice-asr", "streaming-asr", "speech-to-text", "self-hosted", "local-asr", "funasr", "qwen3-asr", "speaker-diarization", "video-transcription", "audio-event-detection", "mcp"]
 readme = "README.md"
 license = "Apache-2.0"
@@ -13,7 +13,7 @@ license-files = ["LICENSE", "NOTICE"]
 requires-python = ">=3.12"
 authors = [{name = "Sonovect contributors"}]
 classifiers = ["Development Status :: 4 - Beta", "Programming Language :: Python :: 3", "Topic :: Multimedia :: Sound/Audio :: Speech"]
-dependencies = ["certifi>=2026.10.19", "fastapi>=0.150,<1", "starlette>=1.9,<2", "httpx>=0.28,<1", "pydantic>=2.12,<3", "python-multipart>=0.0.32,<1", "uvicorn>=0.54,<1"]
+dependencies = ["certifi>=2026.10.19", "httpx>=0.28,<1", "pydantic>=2.12,<3"]
 
 [project.urls]
 Homepage = "https://github.com/talentshf/sonovect"
@@ -23,17 +23,20 @@ Issues = "https://github.com/talentshf/sonovect/issues"
 Changelog = "https://github.com/talentshf/sonovect/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
+server = ["fastapi>=0.150,<1", "starlette>=1.9,<2", "python-multipart>=0.0.32,<1", "uvicorn>=0.54,<1", "websockets>=15,<17"]
 mcp = ["mcp>=2.3,<3"]
+wyoming = ["wyoming==1.11.0"]
 stream-client = ["websockets>=15,<17"]
 funasr = ["funasr==1.4.16", "torch==2.14.1", "torchaudio==2.11.0", "transformers==5.20.2", "modelscope==1.40.2"]
 evaluation = ["rapidfuzz>=3.14,<4"]
-test = ["websockets>=15,<17", "rapidfuzz>=3.14,<4", "jsonschema>=4,<5", "numpy>=1.26,<3", "scipy>=1.14,<2", "librosa==1.0.0", "soxr>=1.1,<2"]
+test = ["openai>=2,<4", "websockets>=15,<17", "rapidfuzz>=3.14,<4", "jsonschema>=4,<5", "numpy>=1.26,<3", "scipy>=1.14,<2", "librosa==1.0.0", "soxr>=1.1,<2"]
 
 [project.scripts]
 sonovect = "sonovect.cli:main"
 sonovect-worker = "sonovect.worker:main"
 sonovect-runtime = "sonovect.runtime:main"
 sonovect-health = "sonovect.health:main"
+sonovect-wyoming = "sonovect.wyoming:main"
 sonovect-mcp = "sonovect.mcp_server:main"
 sonovect-evaluate = "sonovect.evaluation:main"
 

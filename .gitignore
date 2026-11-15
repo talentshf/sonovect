@@ -12,6 +12,7 @@ build/
 *.egg-info/
 node_modules/
 .venv/
+.venv-test/
 work/
 *.sqlite3*
 *.wav

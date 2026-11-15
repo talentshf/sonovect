@@ -53,28 +53,73 @@ class SpeechBackend:
         return identity
 
     def process(self, path: Path, key: str, options: dict):
+        return self.process_stream(path, key, options)
+
+    def process_stream(self, path: Path, key: str, options: dict, progress=None):
         measure = measurements_requested(options)
         endpoint = "/transcribe/full" if options["analyze_sound"] or options.get("analyze_voice", False) or measure else "/transcribe"
         data = {"language": options["language"] or "auto", "speaker_identity": "false",
-                "context": " ".join(options["hotwords"]),
+                "context": "\n".join(v for v in (options.get("context", ""),
+                    "Vocabulary: " + ", ".join(options["hotwords"]) if options["hotwords"] else "") if v),
+                "speakers": str(options["speakers"]).lower(),
+                "transcribe": str(options.get("transcribe", True)).lower(),
+                "detect_speech": str(options.get("detect_speech", False)).lower(),
+                "return_time_stamps": str(options.get("timestamps", "none") == "word" or options["speakers"]).lower(),
                 "analyze_sound": str(options["analyze_sound"]).lower(),
                 "analyze_voice": str(options.get("analyze_voice", False)).lower()}
         if measure:
             data["measure_voice"] = "true"
-        with path.open("rb") as audio, httpx.Client(timeout=self.settings.provider_timeout, trust_env=False) as client:
-            response = client.post(self.settings.provider_url + endpoint,
+        from .upstreams import provider_headers
+        with path.open("rb") as audio, httpx.Client(timeout=self.settings.provider_timeout, trust_env=False,headers=provider_headers(self.settings)) as client:
+            if progress is not None:
+                data["stream"] = "true"
+                with client.stream("POST", self.settings.provider_url + endpoint,
+                        files={"files": ("audio.wav", audio, "application/octet-stream")}, data=data) as response:
+                    response.raise_for_status()
+                    value = None
+                    for line in response.iter_lines():
+                        if not line:
+                            continue
+                        event = response_event(line)
+                        if event["type"] == "progress":
+                            update=event["data"]
+                            if update.get("stage")=="speech.completed":
+                                completed=speech_result(update["value"],key,options["speakers"])
+                                progress({"stage":"speech.completed","result":completed,"text":completed["text"],
+                                          "evidence":speech_evidence(update["value"],completed)})
+                            else:
+                                progress(update)
+                        elif event["type"] == "result":
+                            value = event["data"]
+                        else:
+                            raise BackendError("provider_stream_failed")
+                    if value is None:
+                        raise BackendError("provider_stream_incomplete")
+            else:
+                response = client.post(self.settings.provider_url + endpoint,
                                    files={"files": ("audio.wav", audio, "application/octet-stream")}, data=data)
-            response.raise_for_status()
-            value = response.json()
+                response.raise_for_status()
+                value = response.json()
         if "results" in value:
             if len(value["results"]) != 1:
                 raise BackendError("invalid_provider_result_count")
             value = value["results"][0]
-        if value.get("enrichment", {}).get("lanes", {}).get("speech", {}).get("state") != "completed":
+        if options.get("transcribe", True) and value.get("enrichment", {}).get("lanes", {}).get("speech", {}).get("state") != "completed":
             raise BackendError("speech_processing_failed")
-        result = speech_result(value, key, options["speakers"])
-        return Recognition(result, acoustic_result(value, key, options["analyze_sound"], options.get("analyze_voice", False), measure),
-                           speech_evidence(value, result))
+        result = speech_result(value, key, options["speakers"]) if options.get("transcribe", True) else None
+        analysis = acoustic_result(value, key, options["analyze_sound"], options.get("analyze_voice", False), measure)
+        if options.get("detect_speech") or (options["speakers"] and not options.get("transcribe", True)):
+            from .results import interval_analysis
+            analysis = interval_analysis(analysis, value, options.get("detect_speech", False), options["speakers"])
+        return Recognition(result, analysis, speech_evidence(value, result) if result is not None else {})
+
+
+def response_event(line):
+    import json
+    value = json.loads(line)
+    if not isinstance(value, dict) or value.get("type") not in {"progress", "result", "error"}:
+        raise BackendError("invalid_provider_stream")
+    return value
 
 
 class FunASRBackend:
@@ -111,7 +156,7 @@ class FunASRBackend:
                 if self.settings.measurements_enabled or (self.settings.voice_enabled and self.settings.voice_backend == "emotion2vec"):
                     from .vocal_context import capture_vad
                     capture_vad(self.models[speakers])
-            kwargs = {"sentence_timestamp": True, "return_spk_res": speakers,
+            kwargs = {"sentence_timestamp": options.get("timestamps", "word") != "none" or speakers, "return_spk_res": speakers,
                       "return_spk_center": False, "batch_size": 1}
             if options["language"]:
                 kwargs["language"] = options["language"]

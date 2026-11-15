@@ -32,6 +32,39 @@
         "title": "Stages",
         "type": "object"
       },
+      "alignment": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Alignment"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "classification": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Classification"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "understanding": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/AudioAnswer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
       "events": {
         "items": {
           "$ref": "#/$defs/Observation"
@@ -58,6 +91,20 @@
           "$ref": "#/$defs/VoiceMeasurement"
         },
         "title": "Measurements",
+        "type": "array"
+      },
+      "speech_regions": {
+        "items": {
+          "$ref": "#/$defs/AudioInterval"
+        },
+        "title": "Speech Regions",
+        "type": "array"
+      },
+      "speaker_turns": {
+        "items": {
+          "$ref": "#/$defs/SpeakerInterval"
+        },
+        "title": "Speaker Turns",
         "type": "array"
       },
       "quality": {
@@ -99,6 +146,69 @@
     "type": "object"
   },
   "$defs": {
+    "AlignedWord": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "start_ms": {
+          "minimum": 0,
+          "title": "Start Ms",
+          "type": "integer"
+        },
+        "end_ms": {
+          "minimum": 0,
+          "title": "End Ms",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "text",
+        "start_ms",
+        "end_ms"
+      ],
+      "title": "AlignedWord",
+      "type": "object"
+    },
+    "Alignment": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "text_source": {
+          "const": "user",
+          "title": "Text Source",
+          "type": "string"
+        },
+        "language": {
+          "title": "Language",
+          "type": "string"
+        },
+        "words": {
+          "items": {
+            "$ref": "#/$defs/AlignedWord"
+          },
+          "title": "Words",
+          "type": "array"
+        },
+        "engine": {
+          "$ref": "#/$defs/ModelIdentity"
+        }
+      },
+      "required": [
+        "text",
+        "text_source",
+        "language",
+        "words",
+        "engine"
+      ],
+      "title": "Alignment",
+      "type": "object"
+    },
     "AnalysisStage": {
       "additionalProperties": false,
       "properties": {
@@ -128,6 +238,153 @@
         "status"
       ],
       "title": "AnalysisStage",
+      "type": "object"
+    },
+    "AudioAnswer": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "engine": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ModelIdentity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "identity_source": {
+          "enum": [
+            "operator-configuration",
+            "engine-response"
+          ],
+          "title": "Identity Source",
+          "type": "string"
+        },
+        "finish_reason": {
+          "default": "stop",
+          "enum": [
+            "stop",
+            "length"
+          ],
+          "title": "Finish Reason",
+          "type": "string"
+        },
+        "usage": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Usage"
+        },
+        "input": {
+          "const": "audio",
+          "title": "Input",
+          "type": "string"
+        },
+        "requires_review": {
+          "title": "Requires Review",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "text",
+        "model",
+        "identity_source",
+        "input",
+        "requires_review"
+      ],
+      "title": "AudioAnswer",
+      "type": "object"
+    },
+    "AudioInterval": {
+      "additionalProperties": false,
+      "properties": {
+        "start_ms": {
+          "minimum": 0,
+          "title": "Start Ms",
+          "type": "integer"
+        },
+        "end_ms": {
+          "minimum": 0,
+          "title": "End Ms",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start_ms",
+        "end_ms"
+      ],
+      "title": "AudioInterval",
+      "type": "object"
+    },
+    "ClassScore": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "score": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Score",
+          "type": "number"
+        }
+      },
+      "required": [
+        "label",
+        "score"
+      ],
+      "title": "ClassScore",
+      "type": "object"
+    },
+    "Classification": {
+      "additionalProperties": false,
+      "properties": {
+        "scores": {
+          "items": {
+            "$ref": "#/$defs/ClassScore"
+          },
+          "title": "Scores",
+          "type": "array"
+        },
+        "engine": {
+          "$ref": "#/$defs/ModelIdentity"
+        },
+        "aggregation": {
+          "title": "Aggregation",
+          "type": "string"
+        },
+        "window_seconds": {
+          "title": "Window Seconds",
+          "type": "number"
+        }
+      },
+      "required": [
+        "scores",
+        "engine",
+        "aggregation",
+        "window_seconds"
+      ],
+      "title": "Classification",
       "type": "object"
     },
     "ModelIdentity": {
@@ -267,6 +524,39 @@
         }
       },
       "title": "Quality",
+      "type": "object"
+    },
+    "SpeakerInterval": {
+      "additionalProperties": false,
+      "properties": {
+        "start_ms": {
+          "minimum": 0,
+          "title": "Start Ms",
+          "type": "integer"
+        },
+        "end_ms": {
+          "minimum": 0,
+          "title": "End Ms",
+          "type": "integer"
+        },
+        "speaker": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Speaker"
+        }
+      },
+      "required": [
+        "start_ms",
+        "end_ms"
+      ],
+      "title": "SpeakerInterval",
       "type": "object"
     },
     "VoiceMeasurement": {

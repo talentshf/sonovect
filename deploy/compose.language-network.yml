@@ -1,0 +1,8 @@
+# Reach a local language service through its existing consumer network.
+services:
+  worker:
+    networks: [default, language-model]
+networks:
+  language-model:
+    external: true
+    name: ${SONOVECT_LANGUAGE_NETWORK:?Set the existing language-service consumer network}

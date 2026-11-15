@@ -62,6 +62,8 @@ def staged_acoustic_result(value, key, selected):
     raw = value.get("enrichment", {}).get("acoustic_analysis", value)
     result = Analysis(key=key, status="not_requested", stages={}, engines={},
         quality=Quality(duration_ms=value.get("duration_ms"), speech_ms=coverage.get("speech_ms")))
+    if "low_text_density" in value.get("quality_warnings", []):
+        result.quality.warnings.append("low_text_density")
     for name, requested in selected:
         if not requested:
             result.stages[name] = AnalysisStage(status="not_requested")
@@ -103,16 +105,47 @@ def staged_acoustic_result(value, key, selected):
     return result.model_dump(mode="json", exclude_none=True)
 
 
+def interval_analysis(analysis, value, detect_speech, speakers):
+    """Publish independently requested intervals from actual segmentation evidence."""
+    from .models import AnalysisStage, AudioInterval, SpeakerInterval, ModelIdentity
+    result = Analysis.model_validate(analysis)
+    for name, requested, field, cls in [
+            ("speech_activity", detect_speech, "speech_regions", AudioInterval),
+            ("diarization", speakers, "speaker_turns", SpeakerInterval)]:
+        if not requested:
+            continue
+        try:
+            items = [cls.model_validate({k: x[k] for k in cls.model_fields if k in x}) for x in value[field]]
+            if result.quality.duration_ms is not None and any(x.end_ms > result.quality.duration_ms for x in items):
+                raise ValueError("interval_outside_media")
+            setattr(result, field, items)
+            identity = value.get("enrichment", {}).get("vad" if name == "speech_activity" else "diarization", {})
+            if identity.get("model") and identity.get("revision"):
+                if result.engines is None:
+                    result.engines = {}
+                result.engines[name] = ModelIdentity(model=identity["model"], revision=identity["revision"])
+            result.stages[name] = AnalysisStage(status="completed")
+        except (KeyError, TypeError, ValueError):
+            result.stages[name] = AnalysisStage(status="failed", error=name + "_failed")
+    states = [x.status for x in result.stages.values() if x.status != "not_requested"]
+    result.status = "completed" if all(s == "completed" for s in states) else "failed" if all(s == "failed" for s in states) else "partial"
+    return result.model_dump(mode="json", exclude_none=True)
+
+
 def as_text(results: list[dict]) -> str:
     return "\n".join(item["text"] for item in results)
 
 
-def as_srt(results: list[dict]) -> str:
+def as_srt(results: list[dict], evidence=None) -> str:
     if len(results) != 1:
         raise ValueError("SRT requires exactly one source; recordings have independent clocks")
     sentences = results[0].get("sentence_info")
     if sentences is None:
         raise ValueError("Sentence timing is unavailable")
+    if evidence and len(evidence)==1:
+        from .subtitles import cues
+        aligned=cues(evidence[0])
+        if aligned:sentences=aligned
     def stamp(ms):
         seconds, milli = divmod(ms, 1000)
         minutes, second = divmod(seconds, 60)

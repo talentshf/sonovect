@@ -26,7 +26,7 @@ CODES = frozenset({
     "probe_timeout", "diagnostic_internal_error", "not_configured", "not_applicable", "dependency_failed",
 })
 COMPONENTS = frozenset({"service", "queue.database", "queue.worker", "speech.provider",
-    "speech.configuration", "speech.asr", "speech.segmentation", "analysis.events",
+    "speech.configuration", "speech.understanding", "speech.asr", "speech.segmentation", "analysis.events",
     "analysis.vocal", "analysis.measurements"})
 Code = Literal[*sorted(CODES)]
 Component = Literal[*sorted(COMPONENTS)]

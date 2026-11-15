@@ -24,6 +24,17 @@ class AcousticRouteTests(unittest.TestCase):
    ns,calls,control=self.pipeline();asyncio.run(ns['_pipeline_once']([object()],'en',True,e,False,'proper-name',v))
    self.assertEqual([x[0] for x in calls],expected)
    self.assertEqual(calls[1][2]['context'],'proper-name');self.assertEqual(control.await_count,int(v))
+ def test_independent_events_skip_both_asr_and_segmentation(self):
+  ns,calls,control=self.pipeline()
+  result=asyncio.run(ns['_pipeline_once']([object()],'auto',True,True,speakers=False,transcribe_speech=False))
+  self.assertEqual([c[0] for c in calls],['events'])
+  self.assertFalse(result['transcribe_speech']);control.assert_not_awaited()
+  ns['_release_sound_before_speech'].assert_not_awaited()
+ def test_independent_vad_skips_asr_and_speaker_computation(self):
+  ns,calls,_=self.pipeline()
+  asyncio.run(ns['_pipeline_once']([object()],'auto',True,False,speakers=False,transcribe_speech=False,detect_speech=True))
+  self.assertEqual([c[0] for c in calls],['seg'])
+  self.assertFalse(calls[0][2]['speakers'])
  def test_event_failure_still_runs_requested_vocal_stage(self):
   ns,calls,_=self.pipeline(True);x=asyncio.run(ns['_pipeline_once']([object()],'en',True,True,voice=True))
   self.assertEqual([c[0] for c in calls],['seg','asr','events','moss']);self.assertEqual(x['events_error'],'stage_failed');self.assertIsNone(x['acoustic_error'])

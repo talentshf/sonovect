@@ -1,5 +1,7 @@
 # Configuration and model selection
 
+Standard file transcription uses `SONOVECT_SERVED_MODEL` (optional explicit model ID; otherwise the configured engine's default) and `SONOVECT_SYNC_TIMEOUT` (default 120 seconds). A wait timeout preserves the task and returns its ID in `X-Sonovect-Job-ID`. Qwen defaults to 1800 idle seconds; optional alignment loads only when requested or needed for speaker attribution.
+
 Sonovect v0.3.0. Deployment selects components; jobs select execution. Jobs default to speech only. Setup writes a new mode-0600 configuration with a random token, never prints the token, and refuses overwrites.
 
 ## Recommended choices
@@ -213,13 +215,60 @@ The Mandarin supplement does not qualify stable emotion recognition: the default
 | `SONOVECT_VIBEVOICE_MAX_TOKENS` | `32768` | Generation limit; truncated output fails |
 | `SONOVECT_PROVIDER_TOKEN_FILE` | `unset` | Optional upstream bearer secret file, mounted read-only |
 | `SONOVECT_REALTIME_ENABLED` | `false` | Enable optional live service in this process |
-| `SONOVECT_REALTIME_MODEL_PATH` | `unset` | Local SDK-format Qwen checkpoint, separate from -hf file weights |
-| `SONOVECT_REALTIME_MAX_SECONDS` | `300` | Audio duration/session; single process/session |
+| `SONOVECT_REALTIME_MODEL_PATH` | `unset` | Local SDK-format Qwen checkpoint for the explicit experimental qwen engine only |
+| `SONOVECT_REALTIME_MAX_SECONDS` | `300` | Session wall time; shared engine bounds are listed below |
 | `SONOVECT_REALTIME_IDLE_SECONDS` | `30` | Receive idle timeout in seconds |
 | `SONOVECT_REALTIME_GPU_MEMORY_UTILIZATION` | `0.35` | vLLM reservation fraction, validated in (0,0.9] |
 
 ### VibeVoice Streaming 1.5B
 
-`--route vibevoice-1.5b` generates an independent live-service configuration, using `deploy/compose.realtime.vibevoice.yml` and the candidate image selected by `SONOVECT_REALTIME_IMAGE`. `SONOVECT_REALTIME_PORT` defaults to 8097; `SONOVECT_MODELS_DIR` is the read-only model root. `SONOVECT_REALTIME_BACKEND` selects `qwen` (unchanged default) or `vibevoice-1.5b`. `SONOVECT_REALTIME_DEVICE` defaults to `cuda:0`; `cpu` is also supported for functional checks without a realtime speed guarantee. Input stays 16kHz PCM, resampled continuously to 24kHz. The maximum is 480 seconds (default 300). Model-emitted `speaker_segments` use anonymous session-local IDs without word timestamps. Use `sonovect models prepare vibevoice-stream-1.5b --cache ...`; the model catalog pins the revision and every file digest.
+`--route vibevoice-1.5b` generates an independent live-service configuration, using `deploy/compose.realtime.vibevoice.yml` and the candidate image selected by `SONOVECT_REALTIME_IMAGE`. `SONOVECT_REALTIME_PORT` defaults to 8097; `SONOVECT_MODELS_DIR` is the read-only model root. `SONOVECT_REALTIME_BACKEND` selects `shared` (current default), `qwen` or `vibevoice-1.5b`. `SONOVECT_REALTIME_DEVICE` defaults to `cuda:0`; `cpu` is also supported for functional checks without a realtime speed guarantee. Input stays 16kHz PCM, resampled continuously to 24kHz. The maximum is 480 seconds (default 300). Model-emitted `speaker_segments` use anonymous session-local IDs without word timestamps. Use `sonovect models prepare vibevoice-stream-1.5b --cache ...`; the model catalog pins the revision and every file digest.
 
 `TORCH_DISABLE_NATIVE_JIT` defaults to 1 in the optional realtime container. This uses the verified native non-JIT fallback on a slim runtime without a C compiler. An image with a complete compiler toolchain can explicitly set 0 and requalify; the production file worker is unchanged.
+
+Processing controls: `--speakers` / `--no-speakers`, `--timestamps none|segment|word`, `--transcribe` / `--no-transcribe`, `--detect-speech`. Defaults are text only; independent analysis disables transcription explicitly.
+
+Standard one-call transcription: `sonovect transcribe FILE --model MODEL --prompt CONTEXT`. Context hints recognition spelling, not instructions. `SONOVECT_CALLBACK_HOSTS` enables explicitly allowlisted HTTPS completion receivers on port 443; default disabled, no redirects.
+
+`--callback-url` selects a preconfigured receiver; it does not enable arbitrary outgoing destinations.
+
+## Service center controls (0.4)
+
+`SONOVECT_REALTIME_BACKEND=shared` is the default. It uses the existing speech owner without extra model weights or a vLLM reservation. OpenAI transcription sessions use 24kHz mono PCM16, manual `input_audio_buffer.commit`, append deltas and a completed item. CLI `stream` uses this contract and commits 10-second input chunks. `SONOVECT_REALTIME_MAX_SESSIONS` defaults to 4 across the OpenAI/Deepgram/FunASR sockets; `SONOVECT_REALTIME_MAX_TURN_SECONDS` defaults to 60. Native experimental `qwen` and `vibevoice-1.5b` engines remain explicitly selected, separately provisioned alternatives using their previous protocol. `SONOVECT_REALTIME_MODEL_PATH`, `SONOVECT_REALTIME_DEVICE` and `SONOVECT_REALTIME_GPU_MEMORY_UTILIZATION` apply only to those experimental engines.
+
+| Control | Default | Purpose |
+| --- | --- | --- |
+| `SONOVECT_MAX_QUEUED` | `64` | Bound all admitted queued/running jobs; full admission returns 429 |
+| `SONOVECT_TRANSLATION_URL` | unset | Operator's OpenAI text base URL, ending `/v1` |
+| `SONOVECT_TRANSLATION_MODEL` | unset | Selected text translation model |
+| `SONOVECT_TRANSLATION_TOKEN_FILE` | unset | Optional native mounted credential file |
+| `SONOVECT_TRANSLATION_EXTRA_BODY` | `{}` | Optional `reasoning_effort` / `keep_alive` provider settings |
+| `SONOVECT_UNDERSTANDING_URL` | unset | Real audio-input Chat Completions base URL |
+| `SONOVECT_UNDERSTANDING_MODEL` | unset | Selected audio-input model, not the speech transcription model |
+| `SONOVECT_UNDERSTANDING_TOKEN_FILE` | unset | Optional native mounted credential file |
+| `SONOVECT_UNDERSTANDING_EXTRA_BODY` | `{}` | Optional `reasoning_effort` / `keep_alive` |
+| `SONOVECT_UNDERSTANDING_MAX_SECONDS` | `60` | Normalized audio duration bound for audio questions |
+| `SONOVECT_OMNI_ENABLED` / `OMNI_ENABLED` | `false` | Opt in to the bundled, text-output-only Qwen Omni Thinker process |
+| `OMNI_SERVED_MODEL` | `qwen2.5-omni` | Native understanding model name |
+| `OMNI_MODEL_CACHE` | `/models/omni` | Readonly Hugging Face cache containing `qwen-omni-7b` |
+| `OMNI_DEVICE` | `cuda:0` | Selected GPU; CPU inference is not provided |
+| `OMNI_MAX_SECONDS` | `60` | Native 0–60 second input bound |
+
+Omni uses the pinned Transformers runtime already included in the Qwen unit. Mount its prepared cache at `/models/omni`, set `SONOVECT_OMNI_ENABLED=true`, and point `SONOVECT_UNDERSTANDING_URL` to the coordinator's `/v1` with `SONOVECT_UNDERSTANDING_MODEL=qwen2.5-omni`. The coordinator serializes GPU ownership, releases ASR before Omni, and Omni releases its weights after each request. A later ASR call can therefore be cold. Never run the native understanding port as an independent public service. Translation may use a local text server; deployers select and qualify that model. An upstream URL/model pair is required, credentials are optional and never caller-selected.
+
+New job/CLI controls: `--translate-to`, `--translation-context`, `--classify-audio`, `--classify-top-k`, `--audio-question`, `--alignment-text`. Supplied-text alignment requires `--no-transcribe --language` and at most 90 seconds of audio. It loads only the aligner when ASR is absent. Translation keeps the source transcript; translated segment times refer to the source speech, without invented target-word times. Use `sonovect translation JOB_ID` for the separate artifact.
+
+Wyoming is an optional LAN bridge: install `sonovect[wyoming]`, then `sonovect-wyoming --uri tcp://127.0.0.1:10300 --model qwen3-asr --max-seconds 60`. It uses `SONOVECT_URL` and native token configuration to call the same file service; it does not load another ASR model. The upstream Wyoming protocol has no authentication: bind only to a trusted local network or a Unix socket. `deploy/Dockerfile.wyoming` pins the official protocol wheel with its SHA256.
+
+`--channel-mode mix|independent` selects downmix or independent channels (maximum8).
+
+`SONOVECT_REALTIME_VAD_ENABLED=false` opts out of server speech endpoints by default. Enable it only with the FireRedVAD CPU service. When enabled, new OpenAI sessions default to `server_vad`; clients can select `turn_detection=null` for manual commits. `threshold` maps to real neural speech posteriors, `prefix_padding_ms` accepts0–1000, and `silence_duration_ms`100–2000. A rolling two-second window is checked every250ms, requiring100ms positive speech evidence; neither speaker models nor GPU ASR run for these checks. Long continuous turns are bounded by the configured turn limit. Deepgram live then defaults to300ms endpointing; set `endpointing=false` for explicit Finalize. Noise reduction, semantic VAD and interim word guesses are not provided.
+
+`SONOVECT_WYOMING_PORT` defaults to10300; enable the optional `deploy/compose.wyoming.yml` profile with the existing trusted `SONOVECT_BIND`.
+
+When a local text service is on another Docker consumer network, add `deploy/compose.language-network.yml` and set `SONOVECT_LANGUAGE_NETWORK` to that existing network. Use its service DNS address in `TRANSLATION_BACKEND_URL` for shared GPU compute, or `SONOVECT_TRANSLATION_URL` for independent compute; do not assume a container can hairpin through the host's LAN-published port. Only the queue worker needs this network. Mutating speech-coordinator requests require the service token whenever `SONOVECT_TOKEN` is configured; `SONOVECT_PROVIDER_TOKEN_FILE` can override that credential. Native understanding at the configured speech provider reuses the same internal credential. Health/model metadata remain read-only; model subprocesses stay on loopback in compact deployments.
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `TRANSLATION_BACKEND_URL` | unset | Local translation backend, called only after releasing this service GPU models |
+| `TRANSLATION_BACKEND_TOKEN_FILE` | unset | Optional credential file for the local translation backend |

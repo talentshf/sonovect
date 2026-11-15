@@ -96,3 +96,24 @@ class EventDetector:
     @property
     def engine(self):
         return {'model': MODEL_ID, 'revision': REVISION}
+
+    def classify(self, waveform, sample_rate=16000, top_k=5):
+        """Unfiltered AudioSet sigmoid scores, duration-weighted over <=10s windows."""
+        if sample_rate != 16000 or not 1 <= top_k <= 527 or not len(waveform):
+            raise ValueError('invalid_classification_input')
+        import torch
+        with self._lock:
+            self._load()
+            total, weight = None, 0
+            for chunk, start, end in analysis_windows(waveform, sample_rate, self.window_seconds):
+                inputs=self._extractor(chunk,sampling_rate=sample_rate,return_tensors='pt')
+                with torch.inference_mode():
+                    scores=self._model(**inputs).logits.sigmoid()[0].cpu()
+                duration=end-start
+                total=scores*duration if total is None else total+scores*duration
+                weight+=duration
+            if not weight:
+                raise ValueError('classification_audio_too_short')
+            values=(total/weight).tolist()
+            ranked=sorted(range(len(values)),key=lambda i:(-values[i],i))[:top_k]
+            return [{'label':self._model.config.id2label[i],'score':float(values[i])} for i in ranked]

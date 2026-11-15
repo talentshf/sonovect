@@ -1,3 +1,4 @@
+import httpx
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from pathlib import Path
@@ -179,29 +180,21 @@ class JobTests(unittest.TestCase):
             con.execute("UPDATE jobs SET lease_until=0 WHERE id=?", (job["id"],))
         self.assertIsNone(self.worker.store.claim("recovered")["_queue_seconds"])
 
-    def test_client_wait_observes_short_jobs_then_caps_polling_and_deadline(self):
-        client = Client(token="test-secret-only")
-        clock = [0.0]
-        def sleep(seconds):
-            clock[0] += seconds
+    def test_client_wait_consumes_completion_events_without_resubmitting(self):
+        calls=[]
+        def handle(request):
+            calls.append((request.method,request.url.path))
+            if request.url.path.endswith('/events'):
+                return httpx.Response(200,headers={"content-type":"text/event-stream"},text='data: {"type":"job.succeeded"}\n\n')
+            return httpx.Response(200,json={"status":"queued" if len(calls)==1 else "succeeded"})
+        client=Client(token="test-secret-only",transport=httpx.MockTransport(handle))
         try:
-            with patch.object(client, "status", side_effect=[{"status": "queued"}] * 6 + [{"status": "succeeded"}]), \
-                 patch("sonovect.client.time.monotonic", side_effect=lambda: clock[0]), \
-                 patch("sonovect.client.time.sleep", side_effect=sleep) as pause:
-                self.assertEqual(client.wait("test", poll=1)["status"], "succeeded")
-                self.assertEqual([x.args[0] for x in pause.call_args_list], [0.1, 0.2, 0.4, 0.8, 1, 1])
-            clock[0] = 0
-            with patch.object(client, "status", return_value={"status": "running"}), \
-                 patch("sonovect.client.time.monotonic", side_effect=lambda: clock[0]), \
-                 patch("sonovect.client.time.sleep", side_effect=sleep):
-                with self.assertRaises(TimeoutError):
-                    client.wait("test", timeout=0.15)
-                self.assertAlmostEqual(clock[0], 0.15)
-            for kwargs in ({"poll": 0}, {"poll": float("nan")}, {"timeout": -1}):
-                with self.assertRaises(ValueError):
-                    client.wait("test", **kwargs)
-        finally:
-            client.close()
+            self.assertEqual(client.wait("test")["status"],"succeeded")
+            self.assertEqual(calls,[("GET","/v1/jobs/test"),("GET","/v1/jobs/test/events"),("GET","/v1/jobs/test")])
+            for timeout in (0,float("nan"),-1):
+                with self.assertRaises(ValueError):client.wait("test",timeout=timeout)
+        finally:client.close()
+
 
     def test_faster_idle_queue_does_not_repeat_retention_scans(self):
         with patch.object(self.worker.store, "prune", wraps=self.worker.store.prune) as prune:
@@ -245,6 +238,85 @@ class JobTests(unittest.TestCase):
                 client.export(job["id"], folder)
         finally:
             client.close()
+
+    def test_retry_preserves_successful_sources_and_attempt_evidence(self):
+        calls = []
+        original = self.backend.process
+        failing = True
+        def process(path, key, options):
+            calls.append(key)
+            if key == "audio_0001" and failing:
+                raise RuntimeError("unavailable")
+            return original(path, key, options)
+        self.backend.process = process
+        job_id = self.submit((b"audio", b"audio")).json()["id"]
+        self.worker.run_once()
+        self.assertEqual(self.worker.store.public(job_id)["status"], "partial")
+        failing = False
+        self.worker.store.retry(job_id)
+        self.worker.run_once()
+        self.assertEqual(calls, ["audio_0000", "audio_0001", "audio_0001"])
+        attempts = self.client.get(f"/v1/jobs/{job_id}/attempts").json()["attempts"]
+        self.assertEqual([a["state"] for a in attempts], ["partial", "succeeded"])
+        self.assertEqual(len(attempts[0]["result"]), 1)
+        self.assertEqual(len(attempts[1]["result"]), 2)
+        self.assertNotIn(self.temporary.name, json.dumps(attempts))
+
+    def test_process_interruption_recovers_saved_sources(self):
+        original = self.backend.process
+        calls = []
+        def process(path, key, options):
+            calls.append(key)
+            if key == "audio_0001" and len(calls) == 2:
+                raise KeyboardInterrupt()
+            return original(path, key, options)
+        self.backend.process = process
+        job_id = self.submit((b"audio", b"audio")).json()["id"]
+        with self.assertRaises(KeyboardInterrupt):
+            self.worker.run_once()
+        self.assertEqual(len(self.worker.store.get(job_id)["result"]), 1)
+        with self.worker.store.connect() as con:
+            con.execute("UPDATE jobs SET lease_until=0 WHERE id=?", (job_id,))
+        Worker(self.settings, self.backend).run_once()
+        self.assertEqual(calls, ["audio_0000", "audio_0001", "audio_0001"])
+        self.assertEqual(self.worker.store.public(job_id)["status"], "succeeded")
+
+    def test_terminal_events_replay_and_notification_retry_do_not_reprocess(self):
+        from sonovect.delivery import deliver_one
+        import hmac
+        settings = replace(self.settings, callback_hosts=("receiver.example",))
+        with TestClient(create_app(settings)) as client:
+            response = client.post("/v1/jobs", files={"files": ("audio.wav", self._audio())},
+                data={"callback_url": "https://receiver.example/completed"},
+                headers={"Authorization": "Bearer " + settings.token})
+        job_id = response.json()["id"]
+        self.worker.run_once()
+        calls = []
+        def sender(url, body, headers, settings):
+            signed = headers["Sonovect-Timestamp"].encode() + b"." + body
+            self.assertEqual(headers["Sonovect-Signature"], "v1=" + hmac.new(settings.token.encode(), signed, hashlib.sha256).hexdigest())
+            self.assertEqual(json.loads(body)["type"], "job.succeeded")
+            self.assertEqual(self.worker.store.public(job_id)["status"], "succeeded")
+            calls.append(body)
+            return 503 if len(calls) == 1 else 204
+        self.assertTrue(deliver_one(self.worker.store, sender))
+        self.assertEqual(self.client.get(f"/v1/jobs/{job_id}/notification").json()["state"], "pending")
+        self.client.post(f"/v1/jobs/{job_id}/notification/retry")
+        self.assertTrue(deliver_one(self.worker.store, sender))
+        self.assertEqual(calls[0], calls[1])
+        events = self.worker.store.events(job_id)
+        response = self.client.get(f"/v1/jobs/{job_id}/events", headers={"Last-Event-ID": str(events[-2]["id"])})
+        self.assertIn("event: job.succeeded", response.text)
+        self.assertNotIn("event: job.running", response.text)
+        self.assertFalse(self.worker.run_once())
+
+    @staticmethod
+    def _audio():
+        buffer = io.BytesIO()
+        with wave.open(buffer, "wb") as audio:
+            audio.setnchannels(1); audio.setsampwidth(2); audio.setframerate(16000)
+            audio.writeframes(b"\0\0" * 1600)
+        return buffer.getvalue()
 
 
 if __name__ == "__main__":

@@ -21,3 +21,13 @@ The API authenticates, validates and admits durable jobs. The speech container o
 AST always owns environmental tags. One vocal backend is selected per deployment: CPU emotion2vec or independent GPU MOSS. Numerical processing requires no weights and reuses existing speech intervals. Qwen unload is confirmed before MOSS starts; MOSS releases its GPU model after requests by default. Combining containers does not reduce weight size or promise lower latency. Internal HTTP serialization remains between isolated model processes.
 
 Speech and analysis artifacts are separate, immutable on retrieval and checked during export. Models, job data, configuration and source have separate storage responsibilities. This repository contains current product source, docs, contracts, tests and `skills/sonovect`; private planning and retired development material live outside the product tree.
+
+## Service center processing
+
+Standard OpenAI, Deepgram, FunASR offline and HF adapters translate supported requests into the same processing contracts. File adapters use durable jobs; live committed speech turns use bounded ephemeral sessions and the existing speech owner. Wyoming is an optional protocol bridge, not another recognition worker.
+
+The default file plan is speech activity plus recognition, without speaker features, forced alignment or auxiliary analysis. Requested word/speaker processing and independent channels are explicit. Supplied-text alignment can omit recognition. Translation persists source speech before calling the operator-selected text service; audio questions send real normalized audio to the selected audio-input model. Results stay in separate layers.
+
+A compact Qwen worker can host the pinned text-only Omni Thinker. It and the configured local text-translation proxy hold the same GPU coordination lock and confirm release of their own incompatible models before use. External model credentials/addresses are operator configuration, never caller-selected URLs. CPU analysis-only jobs avoid this GPU lock. File/turn transcription shares one ASR owner; this does not make a non-online decoder produce word drafts.
+
+Stage checkpoints, attempt history and replayable SSE preserve completed work. An independent signed-notification outbox retries delivery without rerunning inference. Queue admission, uploads, session counts and turn lengths are bounded. Completion publication, transport delivery and user/agent wake remain separate states.

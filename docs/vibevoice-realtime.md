@@ -1,3 +1,5 @@
+> 0.4: The `sonovect stream` CLI now uses the shared OpenAI24kHz contract. The16kHz private protocols below describe only explicitly selected experimental engines; use their protocol-specific clients.
+
 # VibeVoice file recognition and optional live transcription
 
 These independent, opt-in adapters are included in v0.3.0. Model assets and

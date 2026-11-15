@@ -61,9 +61,21 @@ class Store:
             # Additive migration. Compatibility states are namespaced so an
             # older worker cannot claim or retry a URL-backed task after rollback.
             columns = {row[1] for row in con.execute("PRAGMA table_info(jobs)")}
-            for name in ("protocol", "engine", "evidence"):
+            for name in ("protocol", "engine", "evidence", "translation"):
                 if name not in columns:
                     con.execute(f"ALTER TABLE jobs ADD COLUMN {name} TEXT")
+            con.execute("""CREATE TABLE IF NOT EXISTS job_events (
+                sequence INTEGER PRIMARY KEY AUTOINCREMENT, job_id TEXT NOT NULL,
+                attempt INTEGER NOT NULL, created REAL NOT NULL, kind TEXT NOT NULL, payload TEXT NOT NULL
+            )""")
+            con.execute("CREATE INDEX IF NOT EXISTS job_events_job ON job_events(job_id,sequence)")
+            con.execute("""CREATE TABLE IF NOT EXISTS job_attempts (
+                job_id TEXT NOT NULL, attempt INTEGER NOT NULL, snapshot TEXT NOT NULL,
+                PRIMARY KEY(job_id,attempt))""")
+            con.execute("""CREATE TABLE IF NOT EXISTS job_callbacks (
+                job_id TEXT PRIMARY KEY, url TEXT NOT NULL, sequence INTEGER,
+                state TEXT NOT NULL DEFAULT 'waiting', attempts INTEGER NOT NULL DEFAULT 0,
+                next_delivery REAL NOT NULL DEFAULT 0, last_status INTEGER)""")
         os.chmod(self.database, 0o600)
 
     @contextmanager
@@ -145,7 +157,7 @@ class Store:
         value = dict(row)
         for name in ("options", "sources", "result", "analysis"):
             value[name] = json.loads(value[name]) if value[name] is not None else None
-        for name in ("engine", "evidence"):
+        for name in ("engine", "evidence", "translation"):
             value[name] = json.loads(value[name]) if value[name] else None
         if value["protocol"] and value["state"].startswith("compat_"):
             value["state"] = value["state"][7:]
@@ -158,7 +170,7 @@ class Store:
                 "finished_at": iso(row["finished"]), "expires_at": iso(row["expires"]),
                 "options": row["options"], "error": row["error"],
                 "sources": [{k: v for k, v in source.items()
-                             if k in {"key", "sha256", "size", "status", "error", "media"}} for source in row["sources"]]}
+                             if k in {"key", "sha256", "size", "status", "error", "media", "channel"}} for source in row["sources"]]}
 
     def admit_remote(self, url, options, engine, key=None, checksum=None):
         identity = {"options": options, "model": self.settings.compat_model, "vocabulary": engine.get("vocabulary", {}),
@@ -174,6 +186,8 @@ class Store:
                     return old["id"], False
             if con.execute("SELECT count(*) FROM jobs WHERE state IN ('compat_queued','compat_running')").fetchone()[0] >= self.settings.compat_max_queued:
                 raise Conflict("compatible_queue_full")
+            if con.execute("SELECT count(*) FROM jobs WHERE state IN ('queued','running','compat_queued','compat_running')").fetchone()[0] >= self.settings.max_queued:
+                raise Conflict("queue_full")
             job_id, now = uuid.uuid4().hex, time.time()
             folder = self.root / "inputs" / job_id
             folder.mkdir(mode=0o700)
@@ -195,8 +209,11 @@ class Store:
                            (json.dumps(sources), job_id, owner)).rowcount != 1:
                 raise Conflict("job_ownership_lost")
 
-    def admit(self, sources, options, key=None):
-        fingerprint = hashlib.sha256(encoded({"options": options, "inputs": [s["sha256"] for s in sources]})).hexdigest()
+    def admit(self, sources, options, key=None, callback_url=None):
+        identity = {"options": options, "inputs": [s["sha256"] for s in sources]}
+        if callback_url:
+            identity["callback"] = callback_url
+        fingerprint = hashlib.sha256(encoded(identity)).hexdigest()
         with self.connect() as con:
             con.execute("BEGIN IMMEDIATE")
             if key:
@@ -205,6 +222,8 @@ class Store:
                     if old["fingerprint"] != fingerprint:
                         raise Conflict("idempotency_key_reused_with_different_input")
                     return old["id"], False
+            if con.execute("SELECT count(*) FROM jobs WHERE state IN ('queued','running','compat_queued','compat_running')").fetchone()[0] >= self.settings.max_queued:
+                raise Conflict("queue_full")
             job_id, now = uuid.uuid4().hex, time.time()
             folder = self.root / "inputs" / job_id
             folder.mkdir(mode=0o700)
@@ -220,10 +239,65 @@ class Store:
                     (id,state,created,updated,options,sources,idempotency_key,fingerprint)
                     VALUES (?,?,?,?,?,?,?,?)""",
                     (job_id, "queued", now, now, json.dumps(options), json.dumps(staged), key, fingerprint))
+                if callback_url:
+                    con.execute("INSERT INTO job_callbacks(job_id,url) VALUES (?,?)", (job_id, callback_url))
+                self._event(con, job_id, 1, "job.queued", {"status": "queued"})
             except BaseException:
                 shutil.rmtree(folder)
                 raise
         return job_id, True
+
+    @staticmethod
+    def _event(con, job_id, attempt, kind, payload):
+        cursor = con.execute("INSERT INTO job_events(job_id,attempt,created,kind,payload) VALUES (?,?,?,?,?)",
+                             (job_id, attempt, time.time(), kind, json.dumps(payload, ensure_ascii=False)))
+        if kind in {"job.succeeded", "job.partial", "job.failed", "job.cancelled"}:
+            con.execute("UPDATE job_callbacks SET sequence=?,state='pending',attempts=0,next_delivery=0,last_status=NULL WHERE job_id=?",
+                        (cursor.lastrowid, job_id))
+        return cursor.lastrowid
+
+    def events(self, job_id, after=0):
+        with self.connect() as con:
+            if con.execute("SELECT id FROM jobs WHERE id=?", (job_id,)).fetchone() is None:
+                raise KeyError(job_id)
+            return [{"id": row["sequence"], "job_id": job_id, "attempt": row["attempt"],
+                     "created_at": iso(row["created"]), "type": row["kind"], "data": json.loads(row["payload"])}
+                    for row in con.execute("SELECT * FROM job_events WHERE job_id=? AND sequence>? ORDER BY sequence LIMIT 500",
+                                           (job_id, after))]
+
+    def progress(self, job_id, owner, payload):
+        with self.connect() as con:
+            con.execute("BEGIN IMMEDIATE")
+            row = con.execute("SELECT attempt FROM jobs WHERE id=? AND lease_owner=? AND state IN ('running','compat_running')", (job_id, owner)).fetchone()
+            if row is not None:
+                self._event(con, job_id, row["attempt"], "transcript.partial", payload)
+
+    def attempts(self, job_id):
+        job = self.get(job_id)
+        with self.connect() as con:
+            old = [json.loads(row[0]) for row in con.execute("SELECT snapshot FROM job_attempts WHERE job_id=? ORDER BY attempt", (job_id,))]
+        return old + [{key: job[key] for key in ("attempt", "state", "sources", "result", "analysis", "translation", "error")}]
+
+    def expand_sources(self, job_id, owner, sources):
+        with self.connect() as con:
+            return con.execute("UPDATE jobs SET sources=? WHERE id=? AND state='running' AND lease_owner=?",
+                (json.dumps(sources),job_id,owner)).rowcount == 1
+
+    def checkpoint(self, job_id, owner, sources, result, analysis, evidence, source_key, translation=None, stage=None):
+        """Persist each finished source before processing the next one."""
+        with self.connect() as con:
+            con.execute("BEGIN IMMEDIATE")
+            row = con.execute("SELECT attempt FROM jobs WHERE id=? AND lease_owner=? AND state IN ('running','compat_running')", (job_id, owner)).fetchone()
+            if row is None:
+                return False
+            con.execute("UPDATE jobs SET sources=?,result=?,analysis=?,evidence=?,translation=coalesce(?,translation),updated=? WHERE id=?",
+                        (json.dumps(sources), json.dumps(result, ensure_ascii=False), json.dumps(analysis, ensure_ascii=False),
+                         json.dumps(evidence, ensure_ascii=False), json.dumps(translation, ensure_ascii=False) if translation is not None else None, time.time(), job_id))
+            status = next(s["status"] for s in sources if s["key"] == source_key)
+            stage_failed=next((x for x in analysis if x["key"]==source_key),{}).get("stages",{}).get(stage,{}).get("status")=="failed" if stage else False
+            kind = ("stage.failed" if stage_failed else "stage.completed") if stage else "source.completed" if status in TERMINAL else "source.progress"
+            self._event(con, job_id, row["attempt"], kind, {"source": source_key, "status": status, **({"stage": stage} if stage else {})})
+        return True
 
     def claim(self, owner):
         now = time.time()
@@ -244,6 +318,8 @@ class Store:
                 return None
             con.execute("UPDATE jobs SET state=CASE WHEN protocol IS NULL THEN 'running' ELSE 'compat_running' END,updated=?,lease_owner=?,lease_until=? WHERE id=?",
                         (now, owner, now + self.settings.lease_seconds, row["id"]))
+            attempt = con.execute("SELECT attempt FROM jobs WHERE id=?", (row["id"],)).fetchone()[0]
+            self._event(con, row["id"], attempt, "job.running", {"status": "running"})
         job = self.get(row["id"])
         # Private telemetry, never persisted in results or public job schemas.
         # A reclaimed running lease has no comparable queue entry time.
@@ -255,15 +331,20 @@ class Store:
             return con.execute("""UPDATE jobs SET lease_until=? WHERE id=? AND lease_owner=?
                 AND state IN ('running','cancelled','compat_running','compat_cancelled')""", (time.time() + self.settings.lease_seconds, job_id, owner)).rowcount == 1
 
-    def finish(self, job_id, owner, state, sources, result, analysis, error=None, evidence=None):
+    def finish(self, job_id, owner, state, sources, result, analysis, error=None, evidence=None, translation=None):
         now = time.time()
         with self.connect() as con:
-            changed = con.execute("""UPDATE jobs SET state=CASE WHEN protocol IS NULL THEN ? ELSE 'compat_'||? END,sources=?,result=?,analysis=?,error=?,evidence=?,
+            con.execute("BEGIN IMMEDIATE")
+            changed = con.execute("""UPDATE jobs SET state=CASE WHEN protocol IS NULL THEN ? ELSE 'compat_'||? END,sources=?,result=?,analysis=?,error=?,evidence=?,translation=coalesce(?,translation),
                 updated=?,finished=?,expires=?,input_expires=?,lease_owner=NULL,lease_until=NULL
                 WHERE id=? AND state IN ('running','compat_running') AND lease_owner=?""",
                 (state, state, json.dumps(sources), json.dumps(result, ensure_ascii=False), json.dumps(analysis, ensure_ascii=False),
-                 error, json.dumps(evidence, ensure_ascii=False) if evidence is not None else None, now, now, now + self.settings.result_ttl_hours * 3600,
+                 error, json.dumps(evidence, ensure_ascii=False) if evidence is not None else None,
+                 json.dumps(translation, ensure_ascii=False) if translation is not None else None, now, now, now + self.settings.result_ttl_hours * 3600,
                  now + self.settings.input_ttl_hours * 3600, job_id, owner)).rowcount
+            if changed:
+                attempt = con.execute("SELECT attempt FROM jobs WHERE id=?", (job_id,)).fetchone()[0]
+                self._event(con, job_id, attempt, "job." + state, {"status": state, "error": error})
             if not changed:
                 con.execute("UPDATE jobs SET lease_owner=NULL,lease_until=NULL WHERE id=? AND state IN ('cancelled','compat_cancelled') AND lease_owner=?", (job_id, owner))
         return bool(changed)
@@ -271,9 +352,13 @@ class Store:
     def cancel(self, job_id):
         now = time.time()
         with self.connect() as con:
-            con.execute("""UPDATE jobs SET state=CASE WHEN protocol IS NULL THEN 'cancelled' ELSE 'compat_cancelled' END,updated=?,finished=?,expires=?,input_expires=?
+            con.execute("BEGIN IMMEDIATE")
+            changed = con.execute("""UPDATE jobs SET state=CASE WHEN protocol IS NULL THEN 'cancelled' ELSE 'compat_cancelled' END,updated=?,finished=?,expires=?,input_expires=?
                 WHERE id=? AND state IN ('queued','running','compat_queued','compat_running')""",
-                (now, now, now + self.settings.result_ttl_hours * 3600, now + self.settings.input_ttl_hours * 3600, job_id))
+                (now, now, now + self.settings.result_ttl_hours * 3600, now + self.settings.input_ttl_hours * 3600, job_id)).rowcount
+            if changed:
+                attempt = con.execute("SELECT attempt FROM jobs WHERE id=?", (job_id,)).fetchone()[0]
+                self._event(con, job_id, attempt, "job.cancelled", {"status": "cancelled"})
         return self.public(job_id)
 
     def retry(self, job_id):
@@ -289,13 +374,18 @@ class Store:
             sources = json.loads(row["sources"])
             if row["input_expires"] is None or row["input_expires"] <= time.time() or any(not Path(s["path"]).is_file() for s in sources):
                 raise Conflict("input_expired_submit_new_job")
+            snapshot = {k: row[k] for k in ("attempt", "state", "error")}
+            snapshot.update({k: json.loads(row[k]) if row[k] else None for k in ("sources", "result", "analysis", "translation")})
+            con.execute("INSERT INTO job_attempts(job_id,attempt,snapshot) VALUES (?,?,?)", (job_id, row["attempt"], json.dumps(snapshot, ensure_ascii=False)))
             for source in sources:
+                if source["status"] == "succeeded":
+                    continue
                 source["status"] = "queued"
                 source.pop("error", None)
-                source.pop("media", None)
             con.execute("""UPDATE jobs SET state='queued',updated=?,finished=NULL,expires=NULL,
-                input_expires=NULL,result=NULL,analysis=NULL,error=NULL,sources=?,attempt=attempt+1 WHERE id=?""",
+                input_expires=NULL,error=NULL,sources=?,attempt=attempt+1 WHERE id=?""",
                 (time.time(), json.dumps(sources), job_id))
+            self._event(con, job_id, row["attempt"] + 1, "job.queued", {"status": "queued"})
         return self.public(job_id)
 
     def prune(self):
@@ -322,6 +412,8 @@ class Store:
                     if not folder.exists():
                         con.execute("UPDATE jobs SET input_expires=0 WHERE id=?", (row["id"],))
                 if row["expires"] and row["expires"] <= now and row["state"] not in {"expired", "compat_expired"}:
-                    con.execute("UPDATE jobs SET state=CASE WHEN protocol IS NULL THEN 'expired' ELSE 'compat_expired' END,result=NULL,analysis=NULL,evidence=NULL,engine=NULL,options='{}',sources='[]',error=NULL,updated=? WHERE id=?", (now, row["id"]))
+                    con.execute("UPDATE jobs SET state=CASE WHEN protocol IS NULL THEN 'expired' ELSE 'compat_expired' END,result=NULL,analysis=NULL,evidence=NULL,translation=NULL,engine=NULL,options='{}',sources='[]',error=NULL,updated=? WHERE id=?", (now, row["id"]))
+                    for table in ("job_attempts", "job_events", "job_callbacks"):
+                        con.execute(f"DELETE FROM {table} WHERE job_id=?", (row["id"],))
                     count += 1
         return count

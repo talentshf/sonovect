@@ -1,127 +1,51 @@
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/brand/butterfly-dark.svg"><img src="assets/brand/butterfly-color.svg" alt="Sonovect purple butterfly" width="240"></picture></p>
 <p align="center"><strong>Sonovect · Sound, structured.</strong></p>
 
-[中文](README.zh-CN.md) · [Configuration](docs/configuration.md) · [Deploy](deploy/README.md) · [Benchmarks](docs/quality.md) · [Agent setup](docs/agent-setup.md) · [Discussions](https://github.com/talentshf/sonovect/discussions) · [Contribute](CONTRIBUTING.md)
+[中文](README.zh-CN.md) · [Connect an application](docs/connections.md) · [Deployment](deploy/README.md) · [Agent setup](docs/agent-setup.md) · [Measured quality](docs/quality.md)
 
-[![Checks](https://github.com/talentshf/sonovect/actions/workflows/checks.yml/badge.svg)](https://github.com/talentshf/sonovect/actions/workflows/checks.yml) · [Apache-2.0](LICENSE) · Python 3.12+ · [v0.3.0 release notes](docs/release-v0.3.0.md)
+[![Checks](https://github.com/talentshf/sonovect/actions/workflows/checks.yml/badge.svg)](https://github.com/talentshf/sonovect/actions/workflows/checks.yml) · [Apache-2.0](LICENSE) · Python 3.12+ · [0.4.0 source guide](docs/release-v0.4.0.md)
 
-# Turn recordings and video soundtracks into text, subtitles and sound data
+# Your speech processing service, connected your way
 
-**Sonovect v0.3.0 is a self-hosted ASR and sound-analysis service with Qwen3-ASR, FunASR and optional Microsoft VibeVoice-ASR.** Upload files, choose the processing you need and retrieve results by job ID. Speech, acoustic analysis and job status are separate outputs for people, applications and assistants.
+**Sonovect is a self-hosted service for transcription, translation into text and sound understanding.** Connect an application through a familiar API, ask an agent to process a recording, or submit files from the command line. Receive the text, subtitles, translation or separate sound analysis you requested.
 
-v0.3.0 also offers an opt-in [DashScope-compatible asynchronous file interface](docs/filetrans-compatibility.md) for applications that submit managed audio URLs and recover results by the original task ID.
+Ordinary transcription keeps the path short: speaker features, forced alignment and optional sound analysis run only when requested. Qwen recognition stays loaded for 30 idle minutes by default. Heavy local translation or understanding work coordinates its own model handoff on a shared GPU.
 
-**New in v0.3.0:** optional Qwen and VibeVoice-ASR Streaming 1.5B live recognition through the service and CLI. VibeVoice 1.5B is an **on-demand alternative**, with a separate runtime and no automatic restart; Qwen remains the default file-transcription route. The release includes the adapters and recipes; GPU runtimes and model assets are prepared separately. See [live recognition and the separate VibeVoice-ASR file adapter](docs/vibevoice-realtime.md).
+The main branch contains 0.4.0. The latest separately packaged GitHub release remains [v0.3.0](PUBLICATION.md); see [0.4.0 scope and limits](docs/release-v0.4.0.md) before choosing a deployment. No speech generation is included.
 
-## What it does
+## Choose the result
 
-| Function | What you get | Per-job default |
-| --- | --- | --- |
-| Speech transcription | Recognized text, with optional language and term hints | On |
-| Timing and subtitles | Available word and sentence timing; plain text and SRT subtitles | With transcription, where the model provides evidence |
-| Speaker separation | Anonymous speaker IDs within each recording | On; can be disabled |
-| Environmental sounds | Closed-vocabulary labels, analysis windows and available scores | Off; explicitly requested |
-| Experimental vocals | Emotion labels or vocal descriptions from the selected backend | Off; explicitly requested |
-| Pitch and energy | Pitch in Hz and relative energy in dBFS, with windows and availability states | Off; explicitly requested |
-
-**Jobs default to speech only; the three optional analysis switches are independent.** The operator selects available capabilities at deployment; callers select which ones to run per job. AST classifies environmental sounds. Vocals use either emotion2vec emotions or MOSS descriptions. Pitch and energy need no emotion model.
-
-## From file to result
-
-```mermaid
-flowchart TD
-    A["Audio or video files + job options"] --> B["Validate uploads and create a job ID"]
-    B --> C["Queue processing, extract audio track and decode"]
-    C --> D["Transcribe speech<br/>Align timing and anonymous speakers"]
-    C --> E["Optional analysis<br/>Events, vocals, pitch and energy"]
-    D --> F["Speech results<br/>Structured data, text, subtitles"]
-    E --> G["Separate acoustic results<br/>Stage states and provenance"]
-    F --> H["Read by the original job ID<br/>or export with hash verification"]
-    G --> H
-```
-
-Inputs include WAV, FLAC, MP3, M4A/AAC, OGG/Opus and AIFF audio, plus MP4, MOV, MKV, WebM and AVI video. Video processing uses only the selected audio track. An upstream tool must download web links to files first. Content probing determines format; codec support depends on the media worker.
-
-A complete export contains three files:
-
-- `result.json`: speech text, available timestamps, sentences and anonymous speakers in FunASR-compatible JSON.
-- `analysis.json`: separate events, vocals and numerical measurements, with stage states and model or algorithm identities. Sound tags do not enter transcript text.
-- `manifest.json`: output metadata and hashes for checking export integrity. Read progress and errors from job status separately.
-
-Text, subtitles and structured speech are views of the same recognition; reading and exporting do not rerun models. Each source keeps its own timeline. SRT requires one successful source with sentence timing; missing timing or speaker evidence is omitted. See [result format](#result-format) below and the full [output contract](docs/results.md).
-
-## Product characteristics
-
-| Characteristic | What it means in use |
+| What you need | What Sonovect provides |
 | --- | --- |
-| Run on your own hardware | Choose CPU or NVIDIA GPU; after selected assets are prepared, run recognition locally and control media, results and retention |
-| Combine only the capabilities you need | Prepare selected models and run requested stages; models are chosen at deployment rather than per job |
-| Track jobs and retain successful work | Receive a durable job ID; check status, cancel or explicitly retry. Optional-stage failures retain valid speech and successful siblings |
-| Separate, verifiable outputs | Keep speech apart from sound analysis, with stage states and provenance; export into a new directory and verify hashes |
-| Multiple entry points, one workflow | HTTP API, CLI and MCP use the same service; discover capabilities and use readiness diagnostics to identify failed components |
+| A quick voice message | One-call transcription and automatic language detection |
+| Long recordings or a batch of files | Durable jobs, event waiting, recoverable task IDs and explicit retry |
+| Subtitles or precise timing | SRT/VTT, segment or word timing, supplied-text alignment |
+| Conversations and separate channels | Recording-local anonymous speakers and independent channel transcription |
+| A translation | English through the standard audio-translation API; other targets through job options; source text retained |
+| Microphone input | Shared-model transcription sessions with manual or neural speech endpoints |
+| Sound analysis | Independent speech activity, environment events, AudioSet class scores, pitch and energy |
+| A question about a sound | Configured audio-input model answering in text; answers require review |
 
-Defaults: **16 files per job, 256 MiB aggregate upload and two decoded hours per source**. Channels downmix to mono rather than speaker identities. After terminal state, inputs default to **24 hours** of retention and results to **7 days**, configurable.
+Emotion/vocal observations remain experimental. Availability follows the selected backend and models; [capability discovery](docs/api.md) reports actual options, language support and limits.
 
-## Where it fits
+## Connect existing tools
 
-| Scenario | What Sonovect provides | How to use the output |
+| Client ecosystem | Entry point | Supported behavior |
 | --- | --- | --- |
-| Meetings, interviews and recorded lessons | Transcripts, anonymous speakers and available timing | Check against the audio and quote sources; a downstream assistant prepares summaries, minutes and action items |
-| Video, podcasts and subtitle preparation | Text and exportable subtitles from a selected audio track | Edit transcripts and subtitles; another tool handles video frames |
-| Environmental-audio collections | Sound labels and scores over analysis windows | Build a material index and review predictions against the recording |
-| Voice research and experiments | Pitch and relative energy over speech intervals, plus optional experimental vocal outputs | Compare signal features while retaining methods, windows and experimental provenance |
-| Assistants and automated workflows | Queryable file jobs, structured results and artifact manifests | Collect or download files upstream, process sound here and organize or ask questions about content downstream |
+| OpenAI-compatible applications | `/v1/audio/transcriptions`, `/v1/audio/translations`, `/v1/chat/completions` | Files, subtitles, English translation, one-audio text question |
+| OpenAI Realtime | `/v1/realtime?intent=transcription` | Committed-turn transcription; manual or neural endpoints |
+| Deepgram clients | `/v1/listen` | Uploaded files and final-turn WebSockets; optional independent channels |
+| FunASR clients | `/v1/funasr` | Offline PCM turns; no online/two-pass emulation |
+| Home Assistant | Optional Wyoming TCP bridge | Native ASR protocol on a trusted local network |
+| Hugging Face clients | `/models/ast-audioset` | AudioSet classification scores |
+| Long-recording applications | Optional DashScope-compatible `/api/v1` | Controlled URL-backed asynchronous file jobs |
+| Agents and automation | CLI, stdio MCP and the included skill | The same processing options, task state and artifacts |
 
-The default service processes file jobs without a browser UI. Environmental labels can have false positives and misses, and analysis windows are not exact event boundaries. Vocal emotions and descriptions remain experimental and require review. Speaker IDs are recording-local; predictions and measurements do not establish psychological state, identity or health. See [benchmarks and limitations](docs/quality.md).
+These are documented protocol subsets, not calls to those vendors' cloud services. Inference uses the models and upstreams configured by the operator. See the [connection checklist](docs/connections.md) for addresses, authentication and restrictions.
 
-## Optional live recognition
+## Start locally
 
-`sonovect stream` accepts a mono 16 kHz PCM16 WAV file or live PCM on stdin, and emits replaceable text drafts followed by a final result. The Qwen route provides text; VibeVoice Streaming 1.5B also preserves native anonymous speaker labels, without timestamps. There is no browser recording interface.
-
-The 1.5B route needs approximately **5.64 GB of model assets**. A short English sample on an RTX3090 / 24 GiB reached **5.14 GiB of peak PyTorch reserved memory**, excluding other GPU allocations. This is a short-sample measurement, not a long-session capacity guarantee; Chinese meeting quality and speaker accuracy remain unqualified. The [runtime guide](docs/vibevoice-realtime.md#vibevoice-streaming-15b) documents the Chinese sample error and the limits of this check.
-
-Run its separate container explicitly when needed, in the foreground with automatic removal on exit. It does not join the default file deployment; stopping the process releases the loaded model. Prepare and qualify the isolated image before use.
-
-## Transcription quality reference
-
-Reference results from the existing same-audio comparison:
-
-| Same audio, measured 2026-10-21; fewer errors is better | Local Qwen1.7B | Bailian Fun-ASR | Bailian Qwen3-ASR |
-| --- | ---: | ---: | ---: |
-| 39-minute Mandarin meeting, 8073 reference characters | **7.42% CER** | 8.40% | 7.78% |
-| 12 English clips, 241 reference words | **0 word errors** | 1 word error | **0 word errors** |
-
-All three received identical mono audio and the same scoring rules. Local hardware was an RTX3090 / 24GiB. These are reference results for the measured material; see [benchmarks](docs/quality.md) for configuration, non-speech behavior and reproduction. Events and experimental emotions are evaluated separately.
-
-## Deploy in 2–3 containers
-
-Both speech routes use **two base containers**: the job API/queue and the speech worker. Add **one CPU analysis container** for any combination of AST, emotion2vec and measurements. MOSS is a separate optional GPU container, bringing a full installation to four. Selecting only measurements uses a lightweight image without Torch, FunASR or emotion weights.
-
-| Selection | Containers |
-| --- | ---: |
-| CPU or Qwen speech only | 2 |
-| Speech + any CPU analysis combination | 3 |
-| Speech + MOSS, without CPU analysis | 3 |
-| Speech + CPU analysis + MOSS | 4 |
-
-The default `--layout compact` keeps model processes isolated inside these units; only selected analysis processes start and weights load on request. `--layout distributed` retains independent service scaling. Setup prints the exact recipe, container count, model identities and download size before preparation.
-
-## Choose a route
-
-| Need | Deployment selection | Job flag |
-| --- | --- | --- |
-| Chinese CPU start | `--route cpu --sound none --voice none` | Speech only |
-| Multilingual GPU | `--route qwen --speech 1.7b` | Speech only |
-| Events | `--sound ast` | `--analyze-sound` |
-| CPU experimental emotions | `--voice emotion2vec` | `--analyze-voice` |
-| GPU open vocal descriptions | `--voice 4b` / `--voice 8b` | `--analyze-voice` |
-| Weight-free pitch/energy | `--measurements` | `--measure-voice` |
-
-Setup defaults to Qwen 1.7B, compact deployment, AST, no vocals and no measurements; all three per-job analysis flags default false. One vocal backend is selected per deployment. AST never delegates event calculation to MOSS. Numeric measurements need no emotion weights. Qwen 0.6B, native configuration variants, VAD, thresholds and every parameter are in [configuration](docs/configuration.md).
-
-## Quick start
-
-Use Python 3.12+, Docker and Compose. From the source directory, start with the native CPU recipe:
+Use Python 3.12+, Docker and Compose. In the source checkout, this CPU example needs no GPU:
 
 ```sh
 python -m pip install '.[mcp]'
@@ -131,36 +55,31 @@ python scripts/prepare_deployment.py --compose deploy/compose.yml
 docker compose --env-file deploy/.env -f deploy/compose.yml up -d
 ```
 
-Setup writes a random token to a new mode-0600 file. Configure the client's `SONOVECT_URL` and `SONOVECT_TOKEN_FILE` or token environment as in [agent setup](docs/agent-setup.md); the client does not automatically read `deploy/.env`. Qwen additionally requires supported NVIDIA runtime/driver capacity. See [deployment](deploy/README.md).
+Setup creates a protected configuration and random service token. Configure the client separately with `SONOVECT_URL` and `SONOVECT_TOKEN_FILE`; it does not read the deployment environment automatically. For Qwen GPU speech, choose `--route qwen` and the matching [deployment recipe](deploy/README.md). Translation, audio understanding and the optional bridges require their documented configuration and assets.
 
 ```sh
 sonovect capabilities
-sonovect submit clip.mp4 --analyze-sound --wait
-sonovect status JOB_ID
-sonovect result JOB_ID --format text
+sonovect transcribe voice.wav
+sonovect submit meeting.mp4 --speakers --timestamps word --wait
+sonovect submit recording.wav --translate-to en --wait
+sonovect submit sound.wav --no-transcribe --classify-audio --wait
 sonovect result JOB_ID --format srt
-sonovect analysis JOB_ID
+sonovect translation JOB_ID
 sonovect export JOB_ID new-result-directory
 ```
 
-See [usage](docs/usage.md) for job states, cancellation, explicit retry and admission deduplication. Use `sonovect capabilities` and `sonovect ready --details` for capability discovery and readiness diagnostics; readiness checks do not run inference.
+Plain transcription is the default. Independent analysis can disable transcription entirely. File-stream output returns real completed chunks; realtime output returns text after each committed speech turn, without an online word-by-word draft. Successful stages and source text survive auxiliary failures. Signed completion callbacks require an operator-configured receiver and allowlist; they do not automatically wake an agent.
 
-## Result format
+## Models and deployment
 
-`/v1/jobs/{id}/result` returns a source list, for example:
+Qwen3-ASR is the default speech route; native FunASR CPU speech and separately provisioned VibeVoice/Qwen experimental realtime runtimes remain optional. Forced alignment and speaker features load on demand. AST handles sound classification; emotion2vec or MOSS supply optional experimental vocal observations. A pinned, text-only Qwen2.5-Omni Thinker is available in the compact Qwen worker; operators can also configure compatible audio-input/text services.
 
-```json
-[{"key":"audio_0000","text":"Hello.","sentence_info":[{"text":"Hello.","start":100,"end":500,"spk":0}]}]
-```
+Typical speech deployments use two base containers and one optional CPU analysis container. A Wyoming bridge adds one small container without another recognition model. Selected weights download separately at fixed revisions; source and packages contain no model weights. [Configuration](docs/configuration.md) lists every option and [component sources](docs/model-licenses.md) records upstream identities.
 
-`/v1/jobs/{id}/analysis` uses one `audio-analysis-v1` contract with `events`, `emotions`, `voice`, `measurements`, stage states and model/algorithm identities. Sound tags never decorate transcript text. Timestamps are integer milliseconds from original media start. Measurements do not establish emotion, identity, health or calibrated physical loudness.
+## Evidence and participation
 
-## Assistant integration
+[Quality results](docs/quality.md) retain their original corpus, date and configuration. They do not establish translation, realtime or sound-question accuracy. Audio understanding can misinterpret speech or guess a sound source; numeric measurements do not establish identity, health or emotional truth.
 
-After deployment, follow [agent setup](docs/agent-setup.md) to install the client, register MCP and install the matching [Sonovect skill](skills/sonovect/SKILL.md). The skill guides feature choice, submission, waiting and result retrieval; it contains no models or credentials. This release provides a standard stdio MCP server and a portable skill package.
+Share a deployment in [Discussions](https://github.com/talentshf/sonovect/discussions), report a reproducible problem in [Issues](https://github.com/talentshf/sonovect/issues/new/choose), or [contribute](CONTRIBUTING.md). The README is the product introduction; no separate site or account is required.
 
-## Join in
-
-Help make local ASR easier to run on more hardware. Share deployment experiences in [Discussions](https://github.com/talentshf/sonovect/discussions), report a reproducible problem in [Issues](https://github.com/talentshf/sonovect/issues/new/choose), or improve a guide, translation or integration. First-time contributors are welcome; [start with the contribution guide](CONTRIBUTING.md).
-
-[Documentation](docs/README.md) · [Architecture](docs/architecture.md) · [Operations](docs/operations.md) · [Security](SECURITY.md) · [Component sources](docs/model-licenses.md) · [Contributing](CONTRIBUTING.md) · [Publication](PUBLICATION.md)
+[Documentation](docs/README.md) · [Architecture](docs/architecture.md) · [Operations](docs/operations.md) · [Security](SECURITY.md) · [Publication](PUBLICATION.md)

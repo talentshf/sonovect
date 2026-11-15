@@ -46,8 +46,9 @@ def enabled(name, environ):
 def processes(role, environ=None):
     env = os.environ if environ is None else environ
     if role == "qwen":
-        return [Process("segmentation", "app:app", 8082),
-                Process("asr", "app:app", 8081), Process("provider", "app:app", 8080, False)]
+        return [Process("segmentation", "app:app", 8082), Process("asr", "app:app", 8081),
+                *([Process("understanding", "app:app", 8087)] if enabled("OMNI_ENABLED", env) else []),
+                Process("provider", "app:app", 8080, False)]
     if role != "analysis":
         raise ValueError("unknown_runtime_role")
     selected = []
@@ -85,7 +86,7 @@ def healthy(port):
 async def runtime_report(role):
     from .readiness import check, fetch_health, report, upstream_code
     names = {"provider": "speech.provider", "asr": "speech.asr", "segmentation": "speech.segmentation",
-             "events": "analysis.events", "vocal": "analysis.vocal", "measurements": "analysis.measurements"}
+             "events": "analysis.events", "vocal": "analysis.vocal", "measurements": "analysis.measurements", "understanding":"speech.understanding"}
     async def one(spec):
         value, code = await fetch_health(f"http://127.0.0.1:{spec.port}")
         if not code:

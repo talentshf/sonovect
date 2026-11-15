@@ -1,0 +1,2 @@
+# Pure Python wheel, matching the client version exercised by the native SDK tests.
+websockets==16.1.1 --hash=sha256:6abbd3e82c731c8e531714466acd5d87b5e88ac3243465337ba71d68e23ae7e3

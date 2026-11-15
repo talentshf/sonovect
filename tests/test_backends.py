@@ -10,6 +10,23 @@ from sonovect.models import Options
 
 
 class BackendTests(unittest.TestCase):
+    def test_speech_hotwords_are_labelled_without_becoming_transcript_text(self):
+        payload = {"text": "正常发言。", "segments": [{"text": "正常发言。", "start_ms": 0, "end_ms": 100}],
+                   "enrichment": {"lanes": {"speech": {"state": "completed"}}}}
+        response = httpx.Response(200, request=httpx.Request("POST", "http://provider/transcribe"), json=payload)
+        with TemporaryDirectory() as raw:
+            path = Path(raw) / "audio.wav"
+            path.write_bytes(b"audio")
+            with patch("sonovect.backends.httpx.Client") as client:
+                post = client.return_value.__enter__.return_value.post
+                post.return_value = response
+                backend = SpeechBackend(Settings(token="backend-test", backend="speech"))
+                result, _ = backend.process(path, "a", Options(hotwords=["紫云科技", "长风模块"]).model_dump())
+                self.assertEqual(post.call_args.kwargs["data"]["context"], "Vocabulary: 紫云科技, 长风模块")
+                self.assertEqual(result["text"], "正常发言。")
+                backend.process(path, "a", Options().model_dump())
+                self.assertEqual(post.call_args.kwargs["data"]["context"], "")
+
     def test_offline_native_uses_cache_api_and_propagates_missing_cache(self):
         from sonovect.backends import native_model_source
         snapshot = Mock(return_value="/local-model-cache")
@@ -54,8 +71,8 @@ class BackendTests(unittest.TestCase):
                     patch("sonovect.backends.native_model_source", side_effect=lambda name, revision: name), \
                     patch.dict("sys.modules", {"funasr": SimpleNamespace(AutoModel=factory)}):
                 backend = FunASRBackend(Settings(token="backend-test"))
-                result, analysis = backend.process(path, "audio_0000", Options().model_dump())
-                backend.process(path, "audio_0001", Options(hotwords=["术语"]).model_dump())
+                result, analysis = backend.process(path, "audio_0000", Options(speakers=True).model_dump())
+                backend.process(path, "audio_0001", Options(speakers=True, hotwords=["术语"]).model_dump())
             self.assertEqual(factory.call_count, 1)
             self.assertFalse(factory.call_args.kwargs["trust_remote_code"])
             self.assertEqual(model.generate.call_args.kwargs["hotword"], "术语")
@@ -91,7 +108,7 @@ class BackendTests(unittest.TestCase):
             with patch.dict('sys.modules',{'funasr':SimpleNamespace(AutoModel=Mock())}), \
                     patch('sonovect.backends.httpx.Client') as client, self.assertLogs('sonovect.backends',level='ERROR') as logs:
                 client.return_value.__enter__.return_value.post.return_value=response
-                result,analysis=backend.process(path,'audio_0000',Options(analyze_voice=True).model_dump())
+                result,analysis=backend.process(path,'audio_0000',Options(analyze_voice=True,speakers=True).model_dump())
             self.assertEqual(result['text'],'保留语音。')
             self.assertEqual(analysis['stages']['vocal']['error'],'vocal_analysis_failed')
             log='\n'.join(logs.output)

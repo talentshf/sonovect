@@ -9,13 +9,7 @@ from fastapi import WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 
-class Start(BaseModel):
-    model_config = ConfigDict(extra="forbid", strict=True)
-    type: Literal["start"]
-    sample_rate: Literal[16000] = 16000
-    encoding: Literal["pcm_s16le"] = "pcm_s16le"
-    language: str | None = Field(default=None, min_length=1, max_length=32, pattern=r"^[\w-]+$")
-    hotwords: list[Annotated[str, Field(min_length=1, max_length=80)]] = Field(default_factory=list, max_length=200)
+from .stream_contract import Start
 
 
 class QwenStreamingEngine:
@@ -54,6 +48,9 @@ class QwenStreamingEngine:
 
 
 def capability(settings):
+    if settings.realtime_backend == "shared":
+        from .realtime_standard import capability as standard_capability
+        return standard_capability(settings)
     vibevoice = settings.realtime_backend == "vibevoice-1.5b"
     return {"enabled": settings.realtime_enabled, "path": "/v1/realtime",
             "protocol": "sonovect.realtime/v1", "model_family": "vibevoice-streaming-1.5b" if vibevoice else "qwen3-asr",

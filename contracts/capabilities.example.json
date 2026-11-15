@@ -1,5 +1,5 @@
 {
-  "version": "0.3.0",
+  "version": "0.4.0",
   "api_version": "v1",
   "backend": "funasr",
   "transcript": "funasr-speech-v1",
@@ -55,7 +55,11 @@
     "video_processing": "audio-track-only",
     "audio_track_index": "zero-based",
     "timeline_origin": "container_start",
-    "channel_handling": "mono-downmix",
+    "channel_handling": [
+      "mix",
+      "independent"
+    ],
+    "max_independent_channels": 8,
     "decoded_sample_rate": 16000,
     "max_media_seconds": 7200,
     "media_timeout_seconds": 300,
@@ -63,12 +67,86 @@
   },
   "processing_routes": [
     {
+      "id": "translation",
+      "available": false,
+      "options": {
+        "translate_to": "en"
+      }
+    },
+    {
+      "id": "classification",
+      "available": false,
+      "options": {
+        "transcribe": false,
+        "classify_audio": true
+      }
+    },
+    {
+      "id": "audio-question",
+      "available": false,
+      "options": {
+        "transcribe": false
+      },
+      "required_options": [
+        "audio_question"
+      ]
+    },
+    {
+      "id": "supplied-text-alignment",
+      "available": false,
+      "options": {
+        "transcribe": false
+      },
+      "required_options": [
+        "alignment_text",
+        "language"
+      ]
+    },
+    {
+      "id": "independent-channels",
+      "available": true,
+      "options": {
+        "channel_mode": "independent"
+      }
+    },
+    {
       "id": "speech",
       "available": true,
       "options": {
-        "speakers": true,
+        "speakers": false,
+        "timestamps": "none",
         "analyze_sound": false,
         "analyze_voice": false
+      }
+    },
+    {
+      "id": "speech-timed",
+      "available": true,
+      "options": {
+        "timestamps": "word"
+      }
+    },
+    {
+      "id": "speech-diarized",
+      "available": true,
+      "options": {
+        "speakers": true
+      }
+    },
+    {
+      "id": "analysis-only",
+      "available": false,
+      "options": {
+        "transcribe": false,
+        "analyze_sound": true
+      }
+    },
+    {
+      "id": "speech-activity",
+      "available": false,
+      "options": {
+        "transcribe": false,
+        "detect_speech": true
       }
     },
     {
@@ -116,10 +194,82 @@
         "default": null,
         "title": "Language"
       },
-      "speakers": {
+      "transcribe": {
         "default": true,
+        "title": "Transcribe",
+        "type": "boolean"
+      },
+      "speakers": {
+        "default": false,
         "title": "Speakers",
         "type": "boolean"
+      },
+      "detect_speech": {
+        "default": false,
+        "title": "Detect Speech",
+        "type": "boolean"
+      },
+      "timestamps": {
+        "default": "none",
+        "enum": [
+          "none",
+          "segment",
+          "word"
+        ],
+        "title": "Timestamps",
+        "type": "string"
+      },
+      "context": {
+        "default": "",
+        "description": "Recognition context, not an instruction",
+        "maxLength": 4000,
+        "title": "Context",
+        "type": "string"
+      },
+      "translate_to": {
+        "anyOf": [
+          {
+            "maxLength": 32,
+            "minLength": 2,
+            "pattern": "^[\\w-]+$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Translate To"
+      },
+      "translation_context": {
+        "default": "",
+        "maxLength": 4000,
+        "title": "Translation Context",
+        "type": "string"
+      },
+      "classify_audio": {
+        "default": false,
+        "title": "Classify Audio",
+        "type": "boolean"
+      },
+      "classify_top_k": {
+        "default": 5,
+        "maximum": 527,
+        "minimum": 1,
+        "title": "Classify Top K",
+        "type": "integer"
+      },
+      "alignment_text": {
+        "default": "",
+        "maxLength": 12000,
+        "title": "Alignment Text",
+        "type": "string"
+      },
+      "audio_question": {
+        "default": "",
+        "maxLength": 12000,
+        "title": "Audio Question",
+        "type": "string"
       },
       "analyze_sound": {
         "default": false,
@@ -149,6 +299,15 @@
         "title": "Hotwords",
         "type": "array"
       },
+      "channel_mode": {
+        "default": "mix",
+        "enum": [
+          "mix",
+          "independent"
+        ],
+        "title": "Channel Mode",
+        "type": "string"
+      },
       "audio_track": {
         "default": 0,
         "description": "Zero-based audio stream index; applies to every source in the job",
@@ -162,7 +321,11 @@
   },
   "default_options": {
     "language": null,
-    "speakers": true,
+    "transcribe": true,
+    "speakers": false,
+    "detect_speech": false,
+    "timestamps": "none",
+    "context": "",
     "analyze_sound": false,
     "analyze_voice": false,
     "measure_voice": false,
@@ -173,6 +336,7 @@
     "language": "model-dependent-hint",
     "hotwords": "model-dependent-hint",
     "speakers_false": "skip-speaker-model",
+    "timestamps_none": "skip-forced-alignment-unless-speakers-require-it",
     "analyze_sound_false": "skip-event-inference",
     "analyze_voice_false": "skip-vocal-inference",
     "measure_voice_true": "independent-numeric-stage",
@@ -206,31 +370,123 @@
   },
   "realtime": {
     "enabled": false,
-    "path": "/v1/realtime",
-    "protocol": "sonovect.realtime/v1",
-    "model_family": "qwen3-asr",
-    "sample_rate": 16000,
-    "encoding": "pcm_s16le",
+    "path": "/v1/realtime?intent=transcription",
+    "protocol": "openai-realtime-transcription",
+    "model": "paraformer-zh",
+    "model_owner": "shared-speech-provider",
+    "sample_rate": 24000,
     "channels": 1,
-    "max_frame_bytes": 64000,
+    "encoding": "pcm_s16le",
+    "turn_detection": [
+      null
+    ],
+    "commit": "client-or-neural-vad",
+    "default_turn_detection": null,
+    "partial_semantics": "append-delta-per-committed-item",
     "max_seconds": 300,
-    "idle_seconds": 30,
-    "max_sessions_per_process": 1,
-    "partial_semantics": "replace-full-text",
-    "timestamps": false,
-    "speakers": false,
-    "retention": "client-owned",
+    "max_turn_seconds": 60,
+    "max_sessions": 4,
+    "retention": "ephemeral; client-owned-results",
     "resume": false,
     "automatic_retry": false
   },
   "speech_limits": {
+    "languages": [
+      "zh"
+    ],
+    "language_quality": "upstream-support; deployment-tests-are-separate",
     "word_timestamps": true,
-    "max_media_seconds": 7200
+    "max_media_seconds": 7200,
+    "alignment_languages": null
   },
   "execution": {
     "layout": "compact",
     "mode": "queued-file-jobs",
     "streaming": false,
-    "backend_selection": "deployment"
+    "max_queued": 64,
+    "file_streaming": false,
+    "realtime_input": false,
+    "backend_selection": "deployment",
+    "source_checkpoints": true,
+    "retry_preserves_completed_stages": false,
+    "events": "/v1/jobs/{job_id}/events",
+    "completion_callback": false
+  },
+  "standard_transcription": {
+    "path": "/v1/audio/transcriptions",
+    "model": "paraformer-zh",
+    "formats": [
+      "json",
+      "text",
+      "srt",
+      "vtt",
+      "diarized_json"
+    ],
+    "file_streaming": false,
+    "stream_semantics": "completed-asr-chunks; final-transcript-matches-stored-result",
+    "sync_timeout_seconds": 120
+  },
+  "alignment": {
+    "configured": false,
+    "job_option": "alignment_text",
+    "max_seconds": 90,
+    "text_source": "user",
+    "retranscription": false
+  },
+  "protocols": {
+    "openai_file": "/v1/audio/transcriptions",
+    "openai_realtime": "/v1/realtime?intent=transcription",
+    "deepgram": {
+      "path": "/v1/listen",
+      "file_input": "uploaded-bytes",
+      "live": "linear16-mono-manual-finalize",
+      "confidence": "unavailable-omitted"
+    },
+    "funasr": {
+      "path": "/v1/funasr",
+      "modes": [
+        "offline"
+      ],
+      "formats": [
+        "pcm"
+      ],
+      "weighted_hotwords": false
+    },
+    "wyoming": {
+      "optional_bridge": true,
+      "library": "wyoming==1.11.0",
+      "authentication": "trusted-network"
+    }
+  },
+  "audio_classification": {
+    "configured": false,
+    "path": "/models/ast-audioset",
+    "aggregation": "duration-weighted-window-mean-sigmoid",
+    "speech_labels_included": true
+  },
+  "audio_understanding": {
+    "configured": false,
+    "path": "/v1/chat/completions",
+    "model": null,
+    "input": "audio",
+    "output": "text",
+    "max_seconds": 60,
+    "requires_review": true
+  },
+  "translation": {
+    "configured": false,
+    "path": "/v1/audio/translations",
+    "standard_target_language": "en",
+    "job_option": "translate_to",
+    "model": null,
+    "method": "asr-then-text-translation",
+    "formats": [
+      "json",
+      "text",
+      "srt",
+      "vtt"
+    ],
+    "timing": "source-speech-segments",
+    "word_timing": false
   }
 }

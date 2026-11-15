@@ -1,9 +1,10 @@
 # Documentation
 
-Sonovect v0.3.0 has one maintained product version, native and opt-in compatible file-task interfaces, and one analysis contract.
+Sonovect mainline is0.4.0: transcription, translation into text and sound understanding through documented standard interfaces and durable jobs. Packaged release availability is separate in [PUBLICATION.md](../PUBLICATION.md).
 
 | Need | Reference |
 | --- | --- |
+| Application connection checklist | [English / 中文](connections.md) |
 | Product and choices | [English](../README.md) · [中文](../README.zh-CN.md) |
 | Every parameter and tuning | [Configuration](configuration.md) · [中文配置](configuration.zh-CN.md) |
 | Install and prepare selected assets | [Deployment](../deploy/README.md) · [Hardware](deployment-options.md) |
@@ -21,4 +22,4 @@ Sonovect v0.3.0 has one maintained product version, native and opt-in compatible
 
 Private planning, retired development versions and raw acceptance materials are maintained outside this product repository. No machine-specific credentials, source locations or business workflows are required by the product or its skill.
 
-[Product introduction / 产品介绍](positioning.md) · [v0.3.0 release notes / 发行介绍](release-v0.3.0.md)
+[Product introduction / 产品介绍](positioning.md) · [0.4.0 source guide / 版本说明](release-v0.4.0.md)

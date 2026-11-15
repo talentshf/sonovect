@@ -53,7 +53,7 @@ class MCPTests(unittest.TestCase):
                     self.assertEqual(info.server_info.name, "sonovect")
                     listing = await session.list_tools()
                     names = {tool.name for tool in listing.tools}
-                    self.assertEqual(names, {"sonovect_ready", "sonovect_capabilities", "sonovect_submit", "sonovect_status", "sonovect_result", "sonovect_cancel", "sonovect_retry"})
+                    self.assertEqual(names, {"sonovect_ready", "sonovect_capabilities", "sonovect_submit", "sonovect_transcribe", "sonovect_status", "sonovect_result", "sonovect_cancel", "sonovect_retry"})
                     readiness = await session.call_tool("sonovect_ready", {})
                     self.assertFalse(readiness.is_error)
                     self.assertEqual(readiness.structured_content["code"], "gpu_device_access_denied")
@@ -95,14 +95,16 @@ class MCPTests(unittest.TestCase):
             def request(self, method, path):
                 from types import SimpleNamespace
                 return SimpleNamespace(json=lambda: {"max_files": 16})
-            def submit(self, paths, options, key):
-                return {"selected": options.model_dump()}
+            def submit(self, paths, options, key, callback_url=None):
+                return {"selected": options.model_dump(), "callback_url": callback_url}
         async def check(root):
             server = create_server(client=Service())
             with patch.dict(os.environ, {"SONOVECT_MCP_INPUT_ROOT": str(root)}):
-                arguments = {"paths": [str(root / "input.mp4")], "audio_track": 1, "speakers": False}
+                arguments = {"paths": [str(root / "input.mp4")], "audio_track": 1, "speakers": False,
+                             "callback_url": "https://receiver.example/completed"}
                 value = await server.call_tool("sonovect_submit", arguments)
                 self.assertEqual(value.structured_content["selected"]["audio_track"], 1)
+                self.assertEqual(value.structured_content["callback_url"], arguments["callback_url"])
                 from mcp.server.mcpserver.exceptions import ToolError
                 with self.assertRaises(ToolError):
                     await server.call_tool("sonovect_submit", {**arguments, "speakers": "false"})

@@ -4,12 +4,10 @@ from gpu_health import gpu_health
 from fastapi.responses import JSONResponse
 
 import asyncio
-import difflib
 import gc
 import json
 import logging
 import os
-import re
 import tempfile
 import threading
 import time
@@ -43,7 +41,7 @@ ALIGNER_ID = os.getenv("QWEN_ALIGNER_MODEL", "Qwen/Qwen3-ForcedAligner-0.6B-hf")
 ALIGNER_REVISION = os.getenv("QWEN_ALIGNER_REVISION", "c07281df297b9905d24a508279258cccf987a064")
 DEVICE = os.getenv("QWEN_DEVICE", "cuda:0")
 DTYPE_NAME = os.getenv("QWEN_DTYPE", "bfloat16")
-IDLE_UNLOAD_SECONDS = int(os.getenv("QWEN_IDLE_UNLOAD_SECONDS", "300"))
+IDLE_UNLOAD_SECONDS = int(os.getenv("QWEN_IDLE_UNLOAD_SECONDS", "1800"))
 MAX_NEW_TOKENS = int(os.getenv("QWEN_MAX_NEW_TOKENS", "2048"))
 MAX_BATCH_SIZE = int(os.getenv("QWEN_MAX_BATCH_SIZE", "1"))
 MAX_BATCH_AUDIO_SECONDS = float(os.getenv("QWEN_MAX_BATCH_AUDIO_SECONDS", "60"))
@@ -96,22 +94,12 @@ def _normalize_language(language: str) -> Optional[str]:
     return LANGUAGE_MAP.get(value.lower(), value)
 
 
-def _configured_context_echo(text: str) -> bool:
-    if not DEFAULT_CONTEXT or len(text) < 24:
-        return False
-    compact = lambda value: re.sub(r"[\W_]+", "", value, flags=re.UNICODE).lower()
-    candidate = compact(text)
-    configured = compact(DEFAULT_CONTEXT)
-    if len(candidate) < 20 or len(configured) < 20:
-        return False
-    return candidate in configured or difflib.SequenceMatcher(None, candidate, configured).ratio() >= 0.78
-
-
 class LazyModelManager:
     def __init__(self) -> None:
         self._lock = threading.RLock()
         self._admission_lock = threading.Lock()
         self._model: Optional[Any] = None
+        self._alignment_runtime = None
         self._last_used = 0.0
         self._last_activity = time.monotonic()
         self._loaded_at = 0.0
@@ -140,6 +128,7 @@ class LazyModelManager:
         return {
             "loaded": self._model is not None,
             "resident": self._model is not None or self._needs_cleanup,
+            "aligner_loaded": (self._model is not None and getattr(self._model, "aligner", None) is not None) or getattr(self,"_alignment_runtime",None) is not None,
             "busy": self._busy,
             "waiting_for_gpu": self._waiting_for_gpu,
             "loaded_at_epoch": round(self._loaded_at, 3) if self._loaded_at else None,
@@ -155,9 +144,15 @@ class LazyModelManager:
             "batch_oom_fallbacks": self._batch_fallbacks,
         }
 
-    def load(self) -> None:
+    def load(self, return_time_stamps: bool = True) -> None:
         with self._lock:
             if self._model is not None:
+                if return_time_stamps and getattr(self._model, "aligner", None) is None:
+                    aligner_path = resolve_pinned_snapshot(
+                        snapshot_download, repo_id=ALIGNER_ID, revision=ALIGNER_REVISION, logger=logger)
+                    _require_gpu_capacity()
+                    attention = {} if ATTENTION_IMPLEMENTATION == "auto" else {"attn_implementation": ATTENTION_IMPLEMENTATION}
+                    self._model.load_aligner(aligner_path, {"dtype": _dtype(), "device_map": DEVICE, **attention})
                 self._last_used = time.time()
                 self._last_activity = time.monotonic()
                 return
@@ -172,8 +167,8 @@ class LazyModelManager:
                 from native_runtime import NativeQwenASR
                 aligner_path = resolve_pinned_snapshot(
                     snapshot_download, repo_id=ALIGNER_ID, revision=ALIGNER_REVISION, logger=logger,
-                )
-                logger.info("Loading Qwen3-ASR and ForcedAligner on %s", DEVICE)
+                ) if return_time_stamps else None
+                logger.info("Loading Qwen3-ASR on %s alignment=%s", DEVICE, return_time_stamps)
                 self._needs_cleanup = True
                 attention_kwargs = {} if ATTENTION_IMPLEMENTATION == "auto" else {
                     "attn_implementation": ATTENTION_IMPLEMENTATION,
@@ -188,10 +183,14 @@ class LazyModelManager:
                     device_map=DEVICE,
                     max_inference_batch_size=MAX_BATCH_SIZE,
                     max_new_tokens=MAX_NEW_TOKENS,
-                    forced_aligner=aligner_path,
+                    forced_aligner=aligner_path if getattr(self,"_alignment_runtime",None) is None else None,
                     forced_aligner_kwargs={"dtype": _dtype(), "device_map": DEVICE, **attention_kwargs},
                     **attention_kwargs,
                 )
+                if getattr(self,"_alignment_runtime",None) is not None:
+                    self._model.aligner = self._alignment_runtime.aligner
+                    self._model.aligner_processor = self._alignment_runtime.aligner_processor
+                    self._alignment_runtime = None
                 self._loaded_at = time.time()
                 self._last_used = self._loaded_at
                 self._last_activity = time.monotonic()
@@ -215,6 +214,7 @@ class LazyModelManager:
                 return False
             logger.info("Unloading Qwen3-ASR models after idle period")
             self._model = None
+            self._alignment_runtime = None
             self._loaded_at = 0.0
             gc.collect()
             if torch.cuda.is_available():
@@ -222,7 +222,39 @@ class LazyModelManager:
             self._needs_cleanup = False
             return True
 
-    def transcribe(self, audios, languages, contexts, context_keys):
+    def align(self, waveform, text, language):
+        with self._admission_lock, self._lock:
+            self._busy = True
+            runtime = None
+            try:
+                self._stage.configure(torch, DEVICE)
+                from native_runtime import NativeQwenASR
+                if self._model is not None:
+                    self.load(True)
+                    runtime = self._model
+                else:
+                    runtime = getattr(self,"_alignment_runtime",None)
+                    if runtime is None:
+                        path = resolve_pinned_snapshot(snapshot_download, repo_id=ALIGNER_ID, revision=ALIGNER_REVISION, logger=logger)
+                        _require_gpu_capacity()
+                        runtime = NativeQwenASR()
+                        runtime.aligner = runtime.aligner_processor = None
+                        runtime.load_aligner(path, {"dtype": _dtype(), "device_map": DEVICE})
+                        self._alignment_runtime = runtime
+                        self._needs_cleanup = True
+                with torch.inference_mode():
+                    spans = runtime._align(waveform, text, language)
+                if spans is None:
+                    raise ValueError("alignment_language_or_evidence_unavailable")
+                words = [{"text":word.text,"start_ms":round(word.start_time*1000),"end_ms":round(word.end_time*1000)} for word in spans.items]
+                if not words or validated_word_spans(words, round(len(waveform)*1000/16000)) != words:
+                    raise ValueError("alignment_evidence_unavailable")
+                return words
+            finally:
+                self._busy = False
+                self._last_activity = time.monotonic()
+
+    def transcribe(self, audios, languages, contexts, context_keys, return_time_stamps=True, progress=None):
         if not (len(audios) == len(languages) == len(contexts) == len(context_keys)):
             raise ValueError("audio, language, context, and context key counts must match")
         histories = {}
@@ -243,10 +275,13 @@ class LazyModelManager:
                     batch_contexts = [context] if ROLLING_CONTEXT_CHARS > 0 else contexts[start:end]
                     batch_results = self._transcribe_batch(
                         audios[start:end], languages[start:end], batch_contexts, context_keys[start:end],
+                        **({"return_time_stamps": False} if not return_time_stamps else {}),
                     )
                 finally:
                     self._waiting_for_gpu = False
                 results.extend(checked_results(batch_results, end - start))
+                if progress is not None:
+                    progress(list(results))
                 for key, result in zip(context_keys[start:end], batch_results):
                     text = str(getattr(result, "text", "")).strip()
                     if text:
@@ -259,12 +294,13 @@ class LazyModelManager:
         languages: list[Optional[str]],
         contexts: list[str],
         context_keys: list[str],
+        return_time_stamps: bool = True,
     ) -> list[Any]:
         with self._lock:
             self._busy = True
             try:
                 self._stage.begin(torch, DEVICE)
-                self.load()
+                self.load(**({"return_time_stamps": False} if not return_time_stamps else {}))
                 if self._model is None:
                     raise RuntimeError("Qwen3-ASR model failed to load")
                 if not (len(audios) == len(languages) == len(contexts) == len(context_keys)):
@@ -277,7 +313,7 @@ class LazyModelManager:
                         try:
                             batch = self._model.transcribe(
                                 audio=audios[start:end], context=[v.strip() for v in contexts[start:end]],
-                                language=languages[start:end], return_time_stamps=True,
+                                language=languages[start:end], return_time_stamps=return_time_stamps,
                             )
                         except torch.cuda.OutOfMemoryError as exc:
                             if end - start == 1:
@@ -292,7 +328,7 @@ class LazyModelManager:
                             for index in range(start, end):
                                 batch.extend(checked_results(self._model.transcribe(
                                     audio=[audios[index]], context=contexts[index].strip(),
-                                    language=languages[index], return_time_stamps=True,
+                                    language=languages[index], return_time_stamps=return_time_stamps,
                                 ), 1))
                         results.extend(checked_results(batch, end - start))
                     return results
@@ -315,7 +351,7 @@ class LazyModelManager:
                         audio=[audio],
                         context="\n".join(prompt_parts),
                         language=language,
-                        return_time_stamps=True,
+                        return_time_stamps=return_time_stamps,
                     )[0]
                     results.append(result)
                     text = str(getattr(result, "text", "")).strip()
@@ -361,7 +397,7 @@ def _engine() -> dict[str, Any]:
         "mode": "primary",
         "timestamp_origin": "forced-aligner",
         "capability_gaps": [],
-        "context_strategy": "configured-terms-plus-same-speaker-rolling-v1",
+        "context_strategy": "vocabulary-with-context-free-echo-recheck-v1",
     }
 
 
@@ -403,6 +439,7 @@ def _result_payload(result: Any, duration_ms: int) -> dict[str, Any]:
                 "language": language,
                 "emotions": [],
                 "events": [],
+                "context_echo_rechecked": bool(getattr(result, "context_echo_rechecked", False)),
                 **({"words": words} if words else {}),
             }
         )
@@ -462,9 +499,6 @@ def _segmented_payload(
             maximum_overlap_characters=ROLLING_CONTEXT_CHARS,
             maximum_removed_end_ms=int(chunk["start_ms"]),
         ))
-        # A context-like phrase may have actually been spoken. Retain it for
-        # review; the coordinator's VAD evidence handles no-speech hallucination.
-        configured_context_echo_suspected = _configured_context_echo(text)
         if text:
             previous_text_by_speaker[speaker_key] = text
         detected_language = str(getattr(result, "language", "") or "unknown")
@@ -489,8 +523,7 @@ def _segmented_payload(
                 "events": [],
                 **({"words": words} if words else {}),
                 "removed_rolling_context_characters": removed_context_characters,
-                "configured_context_echo_removed": False,
-                "configured_context_echo_suspected": configured_context_echo_suspected,
+                "context_echo_rechecked": bool(getattr(result, "context_echo_rechecked", False)),
             }
         )
     unique_languages = list(dict.fromkeys(languages))
@@ -565,15 +598,8 @@ async def unload_models() -> dict[str, Any]:
     return {"status": "unloaded", "manager": manager.status()}
 
 
-@app.post("/transcribe")
-async def transcribe(
-    files: Annotated[list[UploadFile], File(description="Audio files")],
-    language: Annotated[str, Form()] = "auto",
-    use_itn: Annotated[bool, Form()] = True,
-    ban_emo_unk: Annotated[bool, Form()] = True,
-    context: Annotated[str, Form()] = "",
-    segment_plan: Annotated[Optional[str], Form()] = None,
-) -> dict[str, Any]:
+async def _recognize(files, language="auto", use_itn=True, ban_emo_unk=True, context="", segment_plan=None,
+                     return_time_stamps=True, progress=None):
     del use_itn, ban_emo_unk
     audio_inputs: list[tuple[Any, int]] = []
     chunk_metadata: list[dict[str, Any]] = []
@@ -643,12 +669,24 @@ async def transcribe(
             return payloads[0] if len(payloads) == 1 else {"results": payloads}
 
         try:
+            def completed_chunks(results):
+                if progress is None:
+                    return
+                for file_index, duration_ms in enumerate(durations_ms):
+                    indexes = [i for i in range(len(results)) if chunk_file_indexes[i] == file_index]
+                    if not indexes:
+                        continue
+                    value = _segmented_payload([results[i] for i in indexes], [chunk_metadata[i] for i in indexes], duration_ms, segmentation)
+                    progress({"source_index": file_index, "text": value["text"],
+                              "processed_until_ms": max(chunk_metadata[i]["end_ms"] for i in indexes)})
             results = await asyncio.to_thread(
                 manager.transcribe,
                 audio_inputs,
                 chunk_languages,
                 chunk_contexts,
                 chunk_context_keys,
+                **({"return_time_stamps": False} if not return_time_stamps else {}),
+                **({"progress": completed_chunks} if progress is not None else {}),
             )
         except Exception as exc:
             logger.exception("Qwen3-ASR inference failed")
@@ -669,3 +707,36 @@ async def transcribe(
     finally:
         for path in temp_paths:
             path.unlink(missing_ok=True)
+
+
+@app.post("/transcribe")
+async def transcribe(
+    files: Annotated[list[UploadFile], File()], language: Annotated[str, Form()] = "auto",
+    use_itn: Annotated[bool, Form()] = True, ban_emo_unk: Annotated[bool, Form()] = True,
+    context: Annotated[str, Form()] = "", segment_plan: Annotated[Optional[str], Form()] = None,
+    return_time_stamps: Annotated[bool, Form()] = True, stream: Annotated[bool, Form()] = False,
+):
+    if stream:
+        from provider_stream import response
+        return response(lambda emit: _recognize(files, language, use_itn, ban_emo_unk, context, segment_plan, return_time_stamps, emit))
+    return await _recognize(files, language, use_itn, ban_emo_unk, context, segment_plan, return_time_stamps)
+
+
+@app.post("/align")
+async def align_only(file: Annotated[UploadFile, File()], text: Annotated[str, Form(max_length=12000)], language: Annotated[str, Form()]):
+    if not text.strip():raise HTTPException(400,"alignment_text_required")
+    from tempfile import NamedTemporaryFile
+    payload=await file.read(3000000)
+    if len(payload)>=3000000:raise HTTPException(413,"alignment_audio_limit")
+    with NamedTemporaryFile(suffix=".wav") as input:
+        input.write(payload);input.flush()
+        waveform,rate=librosa.load(input.name,sr=16000,mono=True)
+    if not 0<len(waveform)<=90*16000:raise HTTPException(400,"alignment_duration_limit")
+    language=LANGUAGE_MAP.get(language.lower(),language)
+    supported={"Chinese","English","Cantonese","French","German","Italian","Japanese","Korean","Portuguese","Russian","Spanish"}
+    codes={"fr":"French","de":"German","it":"Italian","pt":"Portuguese","ru":"Russian","es":"Spanish"}
+    language=codes.get(language,language)
+    if language not in supported:raise HTTPException(400,"alignment_language_not_supported")
+    try:words=await asyncio.to_thread(manager.align,waveform,text,language)
+    except Exception:raise HTTPException(422,"alignment_failed") from None
+    return {"text":text,"text_source":"user","language":language,"words":words,"engine":{"model":ALIGNER_ID,"revision":ALIGNER_REVISION}}

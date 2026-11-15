@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Recognition:
-    transcript: dict
+    transcript: dict | None
     analysis: dict
     evidence: dict
 
@@ -36,4 +36,4 @@ def speech_evidence(value, transcript):
         sentences.append(row)
     if not sentences and transcript["text"].strip():
         sentences = [{"sentence_id": 0, "text": transcript["text"]}]
-    return {"transcripts": [{"channel_id": 0, "text": transcript["text"], "sentences": sentences}]}
+    return {"language": value.get("language"), "transcripts": [{"channel_id": 0, "text": transcript["text"], "sentences": sentences}]}

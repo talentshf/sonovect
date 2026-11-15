@@ -47,7 +47,7 @@ FROM qwen-base AS asr-worker
 ENV LC_ALL=C.UTF-8 LANGUAGE=C.UTF-8
 COPY --from=os-security-build /os-security/ /tmp/sonovect-os-security/
 RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
-ARG VERSION=0.3.0
+ARG VERSION=0.4.0
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.title="Sonovect qwen-worker" org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0"
 USER 10001:10001
@@ -70,6 +70,7 @@ RUN pip install --no-cache-dir --no-deps --no-build-isolation /opt/sonovect/pack
 COPY --chmod=644 providers/speech/api/*.py /opt/sonovect/providers/provider/
 COPY --chmod=644 providers/speech/segmentation-worker/*.py providers/speech/segmentation-worker/pinned-models.json /opt/sonovect/providers/segmentation/
 COPY --chmod=644 providers/speech/qwen-worker/*.py /opt/sonovect/providers/asr/
+COPY --chmod=644 providers/speech/understanding-worker/*.py providers/speech/shared/*.py /opt/sonovect/providers/understanding/
 COPY --chmod=644 providers/speech/shared/*.py /opt/sonovect/providers/provider/
 COPY --chmod=644 providers/speech/shared/*.py /opt/sonovect/providers/segmentation/
 COPY --chmod=644 providers/speech/shared/*.py /opt/sonovect/providers/asr/
@@ -88,7 +89,7 @@ RUN SONOVECT_IMAGE_BUILD=1 sh /tmp/sonovect-os-security/source/recipe/install.sh
 USER 10001:10001
 RUN ["python", "-c", "import os; from pathlib import Path; root=Path('/opt/sonovect/providers'); assert all(p.is_file() and os.access(p.parent, os.X_OK) for p in [root/'asr/app.py',root/'segmentation/app.py',root/'provider/app.py'])"]
 RUN ["python", "/usr/local/share/sonovect-os-security/source/recipe/facts.py", "--verify"]
-ARG VERSION=0.3.0
+ARG VERSION=0.4.0
 ARG REVISION=uncommitted
 LABEL org.opencontainers.image.version=$VERSION org.opencontainers.image.revision=$REVISION org.opencontainers.image.licenses="Apache-2.0"
 ENV SONOVECT_DATA_DIR=/data SONOVECT_PROVIDER_URL=http://127.0.0.1:8080

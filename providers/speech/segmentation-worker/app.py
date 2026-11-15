@@ -11,7 +11,8 @@ from typing import Any
 
 import librosa
 import numpy as np
-from fastapi import FastAPI, File, HTTPException, UploadFile
+import torch
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from funasr import AutoModel
 from funasr.models.campplus.cluster_backend import ClusterBackend, SpectralCluster
 from funasr.models.campplus.utils import postprocess, sv_chunk
@@ -57,30 +58,32 @@ class Models:
         self._cluster: Any = None
         self._error: str | None = None
 
-    def load(self) -> None:
+    def load(self, speakers: bool = True) -> None:
         with self._lock:
-            if self._vad is not None and self._speaker is not None and self._cluster is not None:
+            if self._vad is not None and (not speakers or self._speaker is not None and self._cluster is not None):
                 return
             try:
-                if VAD_BACKEND == "firered":
-                    from sonovect_assets import resolve
-                    root = os.getenv("FIRERED_VAD_ROOT") or str(Path(resolve("firered")) / "VAD")
-                    self._vad = load_firered_vad(root)
-                else:
-                    self._vad = AutoModel(
-                        model=resolve_pinned_model(VAD_MODEL, os.getenv("MODELSCOPE_CACHE", "/models")),
+                if self._vad is None:
+                    if VAD_BACKEND == "firered":
+                        from sonovect_assets import resolve
+                        root = os.getenv("FIRERED_VAD_ROOT") or str(Path(resolve("firered")) / "VAD")
+                        self._vad = load_firered_vad(root)
+                    else:
+                        self._vad = AutoModel(
+                            model=resolve_pinned_model(VAD_MODEL, os.getenv("MODELSCOPE_CACHE", "/models")),
+                            device=MODEL_DEVICE,
+                            disable_update=True,
+                            vad_kwargs={"max_single_segment_time": 30_000},
+                        )
+                if speakers and self._speaker is None:
+                    self._speaker = AutoModel(
+                        model=resolve_pinned_model(SPEAKER_MODEL, os.getenv("MODELSCOPE_CACHE", "/models")),
                         device=MODEL_DEVICE,
                         disable_update=True,
-                        vad_kwargs={"max_single_segment_time": 30_000},
                     )
-                self._speaker = AutoModel(
-                    model=resolve_pinned_model(SPEAKER_MODEL, os.getenv("MODELSCOPE_CACHE", "/models")),
-                    device=MODEL_DEVICE,
-                    disable_update=True,
-                )
-                self._cluster = ClusterBackend(merge_thr=SPEAKER_MERGE_THRESHOLD).to(MODEL_DEVICE)
-                previous = self._cluster.spectral_cluster
-                self._cluster.spectral_cluster = BoundedSpectralCluster(previous.min_num_spks, previous.max_num_spks, previous.pval)
+                    self._cluster = ClusterBackend(merge_thr=SPEAKER_MERGE_THRESHOLD).to(MODEL_DEVICE)
+                    previous = self._cluster.spectral_cluster
+                    self._cluster.spectral_cluster = BoundedSpectralCluster(previous.min_num_spks, previous.max_num_spks, previous.pval)
                 self._error = None
             except Exception as exc:
                 self._vad = None
@@ -91,14 +94,15 @@ class Models:
 
     def status(self) -> dict[str, Any]:
         return {
-            "loaded": self._vad is not None and self._speaker is not None and self._cluster is not None,
+            "loaded": self._vad is not None,
+            "speaker_loaded": self._speaker is not None and self._cluster is not None,
             "last_load_error": self._error,
         }
 
-    def analyze(self, path: Path) -> dict[str, Any]:
+    def analyze(self, path: Path, speakers: bool = True) -> dict[str, Any]:
         # A disconnected HTTP caller must not start concurrent inference on these models.
         with self._lock:
-            return self._analyze(path)
+            return self._analyze(path, speakers)
 
     def speech_regions(self, waveform: np.ndarray) -> list[dict[str, Any]]:
         """Shared selected-VAD path for inference and offline diagnostics."""
@@ -118,14 +122,21 @@ class Models:
             speech_regions = _speech_regions(raw_regions, duration_ms)
         return speech_regions
 
-    def _analyze(self, path: Path) -> dict[str, Any]:
-        self.load()
+    def _analyze(self, path: Path, speakers: bool = True) -> dict[str, Any]:
+        self.load(speakers)
         started = time.monotonic()
         waveform, _ = librosa.load(path, sr=SAMPLE_RATE, mono=True)
         duration_ms = round(len(waveform) * 1000 / SAMPLE_RATE)
         decoded = time.monotonic()
         speech_regions = self.speech_regions(waveform)
         vad_done = time.monotonic()
+        if not speakers:
+            logger.info("segmentation duration_ms=%s speakers=false decode_s=%.2f vad_s=%.2f", duration_ms, decoded-started, vad_done-decoded)
+            return {"duration_ms": duration_ms,
+                    "vad_model": FIRERED_VAD_MODEL if VAD_BACKEND == "firered" else VAD_MODEL,
+                    "vad_revision": FIRERED_VAD_REVISION if VAD_BACKEND == "firered" else pinned_revision(VAD_MODEL),
+                    "speech_regions": speech_regions, "speaker_turns": [], "speaker_profiles": [],
+                    "speaker_clustering": {"state": "not_requested"}}
         segments = sv_chunk([
             [
                 float(region["start_ms"]) / 1000,
@@ -161,7 +172,9 @@ class Models:
         return {
             "duration_ms": duration_ms,
             "vad_model": FIRERED_VAD_MODEL if VAD_BACKEND == "firered" else VAD_MODEL,
-            "vad_revision": FIRERED_VAD_REVISION if VAD_BACKEND == "firered" else None,
+            "vad_revision": FIRERED_VAD_REVISION if VAD_BACKEND == "firered" else pinned_revision(VAD_MODEL),
+            "diarization_model": SPEAKER_MODEL,
+            "diarization_revision": pinned_revision(SPEAKER_MODEL),
             "speech_regions": speech_regions,
             "speaker_turns": speaker_turns,
             "speaker_profiles": _speaker_profiles(speaker_turns, centers),
@@ -313,6 +326,7 @@ async def load_models() -> dict[str, Any]:
 @app.post("/analyze")
 async def analyze(
     files: Annotated[list[UploadFile], File(description="Audio files")],
+    speakers: Annotated[bool, Form()] = True,
 ) -> dict[str, Any]:
     outputs: list[dict[str, Any]] = []
     temp_paths: list[Path] = []
@@ -323,7 +337,7 @@ async def analyze(
                 handle.write(await upload.read())
                 path = Path(handle.name)
             temp_paths.append(path)
-            outputs.append(await asyncio.to_thread(models.analyze, path))
+            outputs.append(await asyncio.to_thread(models.analyze, path, speakers))
     except Exception as exc:
         logger.exception("segmentation_failed")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
@@ -331,3 +345,23 @@ async def analyze(
         for path in temp_paths:
             path.unlink(missing_ok=True)
     return outputs[0] if len(outputs) == 1 else {"results": outputs}
+
+@app.post("/vad/scores")
+async def vad_scores(file: Annotated[UploadFile, File()]):
+    if VAD_BACKEND != "firered":raise HTTPException(422,"neural_live_vad_not_configured")
+    payload=await file.read(600001)
+    if len(payload)>600000:raise HTTPException(413,"vad_window_limit")
+    from tempfile import NamedTemporaryFile
+    def detect():
+        with models._lock:
+            models.load(speakers=False)
+            with NamedTemporaryFile(suffix=".wav") as temp:
+                temp.write(payload);temp.flush()
+                audio,rate=librosa.load(temp.name,sr=SAMPLE_RATE,mono=True)
+            if not 1600<=len(audio)<=5*SAMPLE_RATE:raise ValueError("vad_window_limit")
+            pcm=(np.clip(audio,-1,1)*32767).astype(np.int16)
+            with torch.inference_mode():_,probabilities=models._vad.detect(pcm,do_postprocess=False)
+            return {"probabilities":probabilities.reshape(-1).tolist(),"frame_shift_ms":10,
+                    "duration_ms":round(len(audio)*1000/SAMPLE_RATE),"engine":{"model":FIRERED_VAD_MODEL,"revision":FIRERED_VAD_REVISION}}
+    try:return await asyncio.to_thread(detect)
+    except Exception:raise HTTPException(422,"vad_window_failed") from None

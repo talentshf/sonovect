@@ -7,7 +7,7 @@ import time
 from types import SimpleNamespace
 import unittest
 
-spec = importlib.util.spec_from_file_location("gpu_release", Path(__file__).parents[1] / "moss-worker/gpu_release.py")
+spec = importlib.util.spec_from_file_location("gpu_release", Path(__file__).parents[1] / "shared/gpu_release.py")
 release = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(release)
 

@@ -7,15 +7,21 @@
     "authority": "https://github.com/talentshf/sonovect"
   },
   "kind": "service",
-  "audience": "Agents using an authorized, configured Sonovect service",
+  "audience": "agent-consumer",
   "dependencies": [
     "A configured Sonovect MCP connection or Sonovect CLI with an authorized service URL and token",
     "Deployment-owned readable input directories; model assets and credentials are separate"
   ],
   "platforms": {
-    "codex": {"checks": []},
-    "openclaw": {"checks": []},
-    "hermes": {"checks": []}
+    "codex": {
+      "checks": []
+    },
+    "openclaw": {
+      "checks": []
+    },
+    "hermes": {
+      "checks": []
+    }
   },
   "exports": {
     "SKILL.md": "SKILL.md",

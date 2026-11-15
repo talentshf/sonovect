@@ -14,7 +14,8 @@
             "speech.asr",
             "speech.configuration",
             "speech.provider",
-            "speech.segmentation"
+            "speech.segmentation",
+            "speech.understanding"
           ],
           "title": "Component",
           "type": "string"
@@ -122,7 +123,8 @@
             "speech.asr",
             "speech.configuration",
             "speech.provider",
-            "speech.segmentation"
+            "speech.segmentation",
+            "speech.understanding"
           ],
           "title": "Component",
           "type": "string"
@@ -235,7 +237,8 @@
         "speech.asr",
         "speech.configuration",
         "speech.provider",
-        "speech.segmentation"
+        "speech.segmentation",
+        "speech.understanding"
       ],
       "title": "Component",
       "type": "string"

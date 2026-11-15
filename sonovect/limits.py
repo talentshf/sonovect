@@ -6,6 +6,11 @@ from starlette.responses import JSONResponse
 
 def boundary_error(path, status, code):
     headers = {"WWW-Authenticate": "Bearer"} if status == 401 else {}
+    if path.startswith("/v1/audio/") or path in {"/v1/models", "/v1/chat/completions"}:
+        return JSONResponse({"error": {"message": code, "type": "invalid_request_error" if status < 500 else "server_error",
+                                       "param": None, "code": code}}, status_code=status, headers=headers)
+    if path == "/v1/listen":
+        return JSONResponse({"err_code": code, "err_msg": code, "request_id": uuid.uuid4().hex}, status_code=status,headers=headers)
     if path == "/api/v1" or path.startswith("/api/v1/"):
         return JSONResponse({"request_id": uuid.uuid4().hex, "code": code, "message": code},
                             status_code=status, headers=headers)
@@ -70,10 +75,11 @@ class BearerGate:
 
     async def __call__(self, scope, receive, send):
         path = scope.get("path", "")
-        if scope["type"] == "http" and (path == "/v1" or path.startswith("/v1/") or path == "/api/v1" or path.startswith("/api/v1/")):
+        if scope["type"] == "http" and (path == "/v1" or path.startswith("/v1/") or path == "/api/v1" or path.startswith("/api/v1/") or path.startswith("/models/")):
             values = [v for k, v in scope["headers"] if k.lower() == b"authorization"]
             scheme, _, credential = values[0].partition(b" ") if len(values) == 1 else (b"", b"", b"")
-            if scheme.lower() != b"bearer" or not hmac.compare_digest(credential, self.token):
+            schemes = {b"bearer",b"token"} if path == "/v1/listen" else {b"bearer"}
+            if scheme.lower() not in schemes or not hmac.compare_digest(credential, self.token):
                 response = boundary_error(path, 401, "authentication_required")
                 return await response(scope, receive, send)
         await self.app(scope, receive, send)

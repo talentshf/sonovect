@@ -10,7 +10,7 @@ import weakref
 
 MODULE_PATH = (
     Path(__file__).resolve().parents[1]
-    / "moss-worker/failure_cleanup.py"
+    / "shared/failure_cleanup.py"
 )
 SPEC = importlib.util.spec_from_file_location("moss_failure_cleanup", MODULE_PATH)
 assert SPEC and SPEC.loader

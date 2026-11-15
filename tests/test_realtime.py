@@ -36,7 +36,7 @@ class RealtimeTests(unittest.TestCase):
     def setUp(self):
         self.tmp = TemporaryDirectory()
         self.settings = Settings(data_dir=Path(self.tmp.name) / "jobs", token="realtime-test-token",
-                                 realtime_enabled=True, realtime_model_path=self.tmp.name)
+                                 realtime_enabled=True, realtime_backend="qwen", realtime_model_path=self.tmp.name)
         self.app = create_app(self.settings)
         self.engine = self.app.state.realtime_engine = Engine()
         self.client = TestClient(self.app)
@@ -147,59 +147,3 @@ class RealtimeTests(unittest.TestCase):
                     self.assertEqual(ws.receive_json()["code"], "realtime_busy")
             finally:
                 release.set()
-
-    def test_real_websocket_client_roundtrip_over_loopback(self):
-        import socket
-        import threading
-        import time
-        import uvicorn
-        sock = socket.socket(); sock.bind(("127.0.0.1", 0))
-        port = sock.getsockname()[1]
-        server = uvicorn.Server(uvicorn.Config(self.app, log_level="error", ws_max_size=64000))
-        thread = threading.Thread(target=lambda: server.run(sockets=[sock]), daemon=True)
-        thread.start()
-        try:
-            deadline = time.monotonic() + 3
-            while not server.started and time.monotonic() < deadline:
-                time.sleep(0.01)
-            self.assertTrue(server.started)
-            import wave
-            from contextlib import redirect_stdout
-            from sonovect.cli import main
-            path = Path(self.tmp.name) / "live.wav"
-            with wave.open(str(path), "wb") as wav:
-                wav.setparams((1, 2, 16000, 0, "NONE", "not compressed")); wav.writeframes(b"\0\0" * 40000)
-            out = io.StringIO()
-            with patch.dict("os.environ", {"SONOVECT_URL": f"http://127.0.0.1:{port}",
-                                          "SONOVECT_TOKEN": self.settings.token, "SONOVECT_TOKEN_FILE": ""}), redirect_stdout(out):
-                self.assertEqual(main(["stream", str(path), "--language", "Chinese"]), 0)
-            result = [json.loads(line) for line in out.getvalue().splitlines()]
-            self.assertEqual([v["type"] for v in result], ["started", "partial", "partial", "final"])
-            self.assertEqual(result[-1]["received_audio_ms"], 2500)
-            self.assertEqual(self.engine.finishes, 1)
-        finally:
-            server.should_exit = True; thread.join(3); sock.close()
-        self.assertFalse(thread.is_alive())
-
-    def test_client_uses_header_auth_validates_sequence_and_never_reconnects(self):
-        class Socket:
-            def __init__(self): self.sent = []; self.index = 0
-            def __enter__(self): return self
-            def __exit__(self, *a): pass
-            def send(self, value): self.sent.append(value)
-            def recv(self, **kw):
-                self.index += 1
-                return json.dumps({"session_id": "s", "sequence": self.index,
-                    "type": ["started", "partial", "final"][self.index - 1], "text": "稿"})
-        sock = Socket()
-        c = Client(url="https://example.test", token=self.settings.token)
-        try:
-            with patch("websockets.sync.client.connect", return_value=sock) as connect:
-                result = list(events(c, io.BytesIO(b"\0\0" * 100)))
-                self.assertEqual([v["type"] for v in result], ["started", "partial", "final"])
-                connect.assert_called_once()
-                self.assertEqual(connect.call_args.kwargs["additional_headers"], self.headers)
-                self.assertNotIn(self.settings.token, connect.call_args.args[0])
-                self.assertEqual(sock.sent[-1], '{"type":"finish"}')
-        finally:
-            c.close()

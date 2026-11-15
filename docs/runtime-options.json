@@ -8,6 +8,7 @@
     "MIN_TEXT_DENSITY_PER_SPEECH_SECOND": "0.2",
     "MOSS_TIMEOUT_SECONDS": "3600",
     "MOSS_URL": "http://moss-audio-worker:8083",
+    "OMNI_ENABLED": "false",
     "QWEN_TIMEOUT_SECONDS": "1800",
     "QWEN_URL": "http://qwen3-asr-worker:8081",
     "SEGMENTATION_TIMEOUT_SECONDS": "600",
@@ -17,7 +18,11 @@
     "SEGMENT_MERGE_GAP_MS": "3000",
     "SEGMENT_PADDING_MS": "1000",
     "SEGMENT_TARGET_MS": "30000",
+    "SONOVECT_TOKEN": "",
+    "SONOVECT_TRANSLATION_MODEL": null,
     "SOUND_ENABLED": "false",
+    "TRANSLATION_BACKEND_TOKEN_FILE": "",
+    "TRANSLATION_BACKEND_URL": "",
     "VOICE_BACKEND": "moss",
     "VOICE_ENABLED": "false",
     "VOICE_URL": null
@@ -47,7 +52,7 @@
     "QWEN_DEVICE": "cuda:0",
     "QWEN_DTYPE": "bfloat16",
     "QWEN_GPU_BUDGET_MIB": "8192",
-    "QWEN_IDLE_UNLOAD_SECONDS": "300",
+    "QWEN_IDLE_UNLOAD_SECONDS": "1800",
     "QWEN_MAX_BATCH_AUDIO_SECONDS": "60",
     "QWEN_MAX_BATCH_SIZE": "1",
     "QWEN_MAX_NEW_TOKENS": "2048",
@@ -88,5 +93,11 @@
   "measurement-worker": {
     "MEASUREMENT_THREADS": "2",
     "MEASUREMENT_WINDOW_SECONDS": "10"
+  },
+  "understanding-worker": {
+    "OMNI_DEVICE": "cuda:0",
+    "OMNI_MAX_SECONDS": "60",
+    "OMNI_MODEL_CACHE": "/models/omni",
+    "OMNI_SERVED_MODEL": "qwen2.5-omni"
   }
 }

@@ -127,7 +127,12 @@ class MediaTests(unittest.TestCase):
             self.assertFalse(value["processing_routes"][-1]["available"])
             self.assertEqual(value["options_schema"]["properties"]["audio_track"]["default"], 0)
             for route in value["processing_routes"]:
-                Options.model_validate(route["options"])
+                inputs=dict(route["options"])
+                samples={"language":"zh","alignment_text":"已有文字","audio_question":"What is audible?"}
+                for name in route.get("required_options",[]):
+                    self.assertIn(name,Options.model_fields)
+                    inputs[name]=samples[name]
+                Options.model_validate(inputs)
             error = api.post("/v1/jobs", headers={"Authorization": "Bearer " + self.settings.token},
                              files={"files": ("a", b"audio")}, data={"options": json.dumps({"analyze_sound": True})})
             self.assertEqual(error.json()["code"], "sound_backend_not_configured")

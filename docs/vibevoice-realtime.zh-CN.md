@@ -1,3 +1,5 @@
+> 0.4: The `sonovect stream` CLI now uses the shared OpenAI24kHz contract. The16kHz private protocols below describe only explicitly selected experimental engines; use their protocol-specific clients.
+
 # VibeVoice 文件转写与可选实时识别
 
 以下可选适配代码及配方已纳入 v0.3.0，模型和隔离的显卡运行环境另行准备。默认文件任务、原任务编号查询和恢复方式保持；代码测试不能替代模型质量、显存和部署验收。[英文完整合同](vibevoice-realtime.md)提供对应上游链接。

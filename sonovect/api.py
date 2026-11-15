@@ -39,7 +39,10 @@ def create_app(settings=None):
     app.state.store = store
     app.state.settings = settings
     app.state.readiness = readiness
-    from .realtime import install as install_realtime
+    if settings.realtime_backend == "shared":
+        from .realtime_standard import install as install_realtime
+    else:
+        from .realtime import install as install_realtime
     install_realtime(app, settings)
     app.add_middleware(BodyLimit, maximum=settings.max_upload_bytes + settings.max_files * 8192 + 20000)
 
@@ -49,7 +52,9 @@ def create_app(settings=None):
     @app.exception_handler(StarletteHTTPException)
     async def http_error(request, error):
         code = error.detail if isinstance(error.detail, str) else "request_failed"
-        return problem(request, error.status_code, code)
+        response = problem(request, error.status_code, code)
+        response.headers.update(error.headers or {})
+        return response
 
     @app.exception_handler(RequestValidationError)
     async def validation_error(request, error):
@@ -61,7 +66,9 @@ def create_app(settings=None):
 
     @app.exception_handler(Conflict)
     async def conflict(request, error):
-        return problem(request, 409, str(error))
+        response=problem(request, 429 if str(error)=="queue_full" else 409, str(error))
+        if str(error)=="queue_full":response.headers["Retry-After"]="2"
+        return response
 
     bearer = HTTPBearer(auto_error=False)
     def authenticate(credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer)]):
@@ -105,13 +112,30 @@ def create_app(settings=None):
     @router.post("/jobs", status_code=202)
     async def submit(files: Annotated[list[UploadFile], File()],
                      options: Annotated[str, Form(max_length=20000)] = "{}",
-                     idempotency_key: Annotated[str | None, Header(max_length=128, min_length=1)] = None):
+                     idempotency_key: Annotated[str | None, Header(max_length=128, min_length=1)] = None,
+                     callback_url: Annotated[str | None, Form(max_length=2000)] = None):
+        from .delivery import callback_url as validate_callback
+        callback_url = validate_callback(callback_url, settings)
         if not 1 <= len(files) <= settings.max_files:
             raise HTTPException(422, "invalid_file_count")
         try:
             selected = Options.model_validate_json(options)
         except (ValidationError, ValueError):
             raise HTTPException(422, "invalid_options")
+        if settings.backend == "speech" and selected.language:
+            from .languages import speech_language
+            try:selected=Options.model_validate({**selected.wire(),"language":speech_language(selected.language)})
+            except ValueError:raise HTTPException(422,"language_not_supported") from None
+        if selected.context and settings.backend != "speech":
+            raise HTTPException(422, "context_not_supported_by_model")
+        if selected.classify_audio and not (settings.sound_enabled and settings.sound_url):
+            raise HTTPException(422, "classification_not_configured")
+        if selected.audio_question and not settings.understanding_url:
+            raise HTTPException(422, "understanding_not_configured")
+        if selected.translate_to and not settings.translation_url:
+            raise HTTPException(422, "translation_not_configured")
+        if (selected.detect_speech or selected.alignment_text or (not selected.transcribe and any((selected.speakers,selected.analyze_sound,selected.analyze_voice,selected.measure_voice)))) and settings.backend != "speech":
+            raise HTTPException(422, "independent_processing_not_configured")
         if selected.analyze_sound and not describe(settings)["sound_analysis"]:
             raise HTTPException(422, "sound_backend_not_configured")
         if selected.analyze_voice and not describe(settings)["voice_analysis"]:
@@ -137,7 +161,7 @@ def create_app(settings=None):
                 if not size:
                     raise HTTPException(422, "empty_audio")
                 sources.append({"path": str(path), "sha256": digest.hexdigest(), "size": size})
-            job_id, created = store.admit(sources, selected.wire(), idempotency_key)
+            job_id, created = store.admit(sources, selected.wire(), idempotency_key, callback_url)
         return JSONResponse(store.public(job_id), status_code=202 if created else 200,
                             headers={"Location": f"/v1/jobs/{job_id}"})
 
@@ -158,13 +182,16 @@ def create_app(settings=None):
     @router.get("/jobs/{job_id}/result", response_model=list[Transcript], response_model_exclude_none=True,
                 responses={200: {"content": {"text/plain": {}, "application/x-subrip": {}}}})
     def result(job_id: str, format: Literal["json", "text", "srt"] = "json"):
-        values = completed(job_id)["result"]
+        job = completed(job_id)
+        if not job["options"].get("transcribe", True):
+            raise HTTPException(409, "transcription_not_requested")
+        values = job["result"]
         if format == "json":
             return Response(encoded(values), media_type="application/json")
         if format == "text":
             return Response(as_text(values), media_type="text/plain; charset=utf-8")
         try:
-            return Response(as_srt(values), media_type="application/x-subrip")
+            return Response(as_srt(values, job["evidence"]), media_type="application/x-subrip")
         except ValueError:
             raise HTTPException(422, "subtitle_timing_unavailable_or_multiple_sources")
 
@@ -172,13 +199,30 @@ def create_app(settings=None):
     def analysis(job_id: str):
         return Response(encoded(completed(job_id)["analysis"]), media_type="application/json")
 
+    @router.get("/jobs/{job_id}/evidence")
+    def evidence(job_id: str):
+        return Response(encoded(completed(job_id)["evidence"] or []), media_type="application/json")
+
+    @router.get("/jobs/{job_id}/translation")
+    def translation(job_id: str):
+        job = completed(job_id)
+        if not job["options"].get("translate_to"):
+            raise HTTPException(409, "translation_not_requested")
+        return Response(encoded(job["translation"] or []), media_type="application/json")
+
     @router.get("/jobs/{job_id}/manifest")
     def manifest(job_id: str):
         job = completed(job_id)
         artifacts = []
         for layer, value in (("result", job["result"]), ("analysis", job["analysis"])):
+            if layer == "result" and not job["options"].get("transcribe", True):
+                continue
             content = encoded(value)
             artifacts.append({"name": f"{layer}.json", "url": f"/v1/jobs/{job_id}/{layer}",
+                              "sha256": hashlib.sha256(content).hexdigest(), "size": len(content), "media_type": "application/json"})
+        if job["options"].get("translate_to"):
+            content = encoded(job["translation"] or [])
+            artifacts.append({"name": "translation.json", "url": f"/v1/jobs/{job_id}/translation",
                               "sha256": hashlib.sha256(content).hexdigest(), "size": len(content), "media_type": "application/json"})
         return {"job_id": job_id, "attempt": job["attempt"], "artifacts": artifacts}
 
@@ -190,9 +234,19 @@ def create_app(settings=None):
     def retry(job_id: str):
         return store.retry(job_id)
 
+    from .audio_api import install as install_audio_api
+    install_audio_api(app, settings, store, authenticate, submit)
+    from .listen import install as install_listen
+    install_listen(app, settings, store, submit)
     app.include_router(router)
     from .filetrans import install
     install(app, settings, store, authenticate)
+    from .transcriptions import install as install_transcriptions
+    install_transcriptions(app, settings, store, authenticate, submit)
+    from .translations import install as install_translations
+    install_translations(app, settings, store, authenticate, submit)
+    from .delivery import install as install_delivery
+    install_delivery(app, settings, store, authenticate)
     return app
 
 

@@ -146,7 +146,7 @@ def install(app, settings, store, authenticate):
         p = body.parameters
         terms = sorted(p.vocabulary, key=lambda v: (-p.vocabulary[v], v))
         options = Options(language=p.language_hints[0] if p.language_hints else None,
-                          speakers=p.diarization_enabled, hotwords=terms).wire()
+                          speakers=p.diarization_enabled, timestamps="word", hotwords=terms).wire()
         job_id, created = store.admit_remote(body.input.file_urls[0], options,
             {"model": body.model, "identity": identity, "vocabulary": p.vocabulary}, idempotency_key, x_input_sha256)
         job = store.get(job_id)

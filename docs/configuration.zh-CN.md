@@ -1,5 +1,7 @@
 # 配置与模型选型
 
+标准文件转写增加 `SONOVECT_SERVED_MODEL`（可选的明确模型标识，默认沿部署引擎）和 `SONOVECT_SYNC_TIMEOUT`（同步等待秒数，默认 120）。等待超时保留原任务，通过 `X-Sonovect-Job-ID` 响应头返回任务号。Qwen 默认空闲 1800 秒再卸载；对齐器只在请求时间或说话人归属确有需要时加载。
+
 可选的[标准异步文件转写接口](filetrans-compatibility.zh-CN.md)默认关闭。`SONOVECT_COMPAT_MODEL` 为单个模型名，`SONOVECT_COMPAT_PUBLIC_URL` 为对外 HTTPS 加密地址，`SONOVECT_COMPAT_INPUT_HOSTS` 为逗号分隔的输入域名精确列表；三项均默认不设置。`SONOVECT_COMPAT_SIGNING_KEY_FILE` 为进程内独立持久签名文件，`SONOVECT_COMPAT_SIGNING_KEY_HOST_FILE` 为可选容器覆盖方案所用的宿主文件。`SONOVECT_COMPAT_DOWNLOAD_TIMEOUT` 默认 300 秒，`SONOVECT_COMPAT_LINK_SECONDS` 默认 3600 秒，`SONOVECT_COMPAT_MAX_QUEUED` 默认 32 个排队及处理中任务。详细权限、组合部署和恢复规则见接口说明。
 
 Sonovect v0.3.0。部署时选组件，任务时选是否运行；默认任务只转写。配置生成器不安装宿主依赖、不启动服务、不覆盖已有文件；凭据仅写入权限0600的新配置，不打印。
@@ -197,13 +199,60 @@ SQLite（嵌入式数据库）的临时写锁冲突会让工作进程等待后�
 | `SONOVECT_VIBEVOICE_MAX_TOKENS` | `32768` | 生成长度上限，截断输出失败 |
 | `SONOVECT_PROVIDER_TOKEN_FILE` | `unset` | 可选上游认证令牌文件，只读挂载 |
 | `SONOVECT_REALTIME_ENABLED` | `false` | 显式启用本进程的实时服务 |
-| `SONOVECT_REALTIME_MODEL_PATH` | `unset` | 本地SDK格式Qwen权重目录，与文件路线的-hf格式分别准备 |
-| `SONOVECT_REALTIME_MAX_SECONDS` | `300` | 每会话音频时长，一个进程只允许一个会话 |
+| `SONOVECT_REALTIME_MODEL_PATH` | `unset` | 仅实验qwen路线所需的本地SDK格式权重目录 |
+| `SONOVECT_REALTIME_MAX_SECONDS` | `300` | 会话总时长；共用模型的并发上限见下文 |
 | `SONOVECT_REALTIME_IDLE_SECONDS` | `30` | 接收空闲超时秒数 |
 | `SONOVECT_REALTIME_GPU_MEMORY_UTILIZATION` | `0.35` | vLLM显存预留比例，范围(0,0.9] |
 
 ### VibeVoice Streaming 1.5B
 
-`--route vibevoice-1.5b` 生成独立实时服务配置；使用 `deploy/compose.realtime.vibevoice.yml` 和 `SONOVECT_REALTIME_IMAGE` 选定的候选镜像。`SONOVECT_REALTIME_PORT` 默认8097，`SONOVECT_MODELS_DIR` 为只读模型目录。`SONOVECT_REALTIME_BACKEND` 可选 `qwen`（原默认）或 `vibevoice-1.5b`；`SONOVECT_REALTIME_DEVICE` 默认 `cuda:0`，也可用 `cpu` 做功能检查，CPU不保证实时速度。该路线仍接收16kHz PCM，通过连续重采样送入24kHz模型；最长允许480秒，默认300秒。可按模型输出提供会话内匿名 `speaker_segments`，不提供字词时间。模型准备沿 `sonovect models prepare vibevoice-stream-1.5b --cache ...`，固定修订与文件摘要由模型清单验证。
+`--route vibevoice-1.5b` 生成独立实时服务配置；使用 `deploy/compose.realtime.vibevoice.yml` 和 `SONOVECT_REALTIME_IMAGE` 选定的候选镜像。`SONOVECT_REALTIME_PORT` 默认8097，`SONOVECT_MODELS_DIR` 为只读模型目录。`SONOVECT_REALTIME_BACKEND` 可选 `shared`（当前默认）、`qwen` 或 `vibevoice-1.5b`；`SONOVECT_REALTIME_DEVICE` 默认 `cuda:0`，也可用 `cpu` 做功能检查，CPU不保证实时速度。该路线仍接收16kHz PCM，通过连续重采样送入24kHz模型；最长允许480秒，默认300秒。可按模型输出提供会话内匿名 `speaker_segments`，不提供字词时间。模型准备沿 `sonovect models prepare vibevoice-stream-1.5b --cache ...`，固定修订与文件摘要由模型清单验证。
 
 `TORCH_DISABLE_NATIVE_JIT` 默认为1，仅作用于可选实时容器：在不带C编译器的精简运行时，使用已验证的PyTorch原生非即时编译路径。带完整编译工具链的镜像可显式设为0重新评测；该配置不改变现役文件工作器。
+
+Processing controls: `--speakers` / `--no-speakers`, `--timestamps none|segment|word`, `--transcribe` / `--no-transcribe`, `--detect-speech`. Defaults are text only; independent analysis disables transcription explicitly.
+
+标准一次转写：`sonovect transcribe FILE --model MODEL --prompt CONTEXT`；上下文用于拼写提示，不是指令。`SONOVECT_CALLBACK_HOSTS` 为完成回调的 HTTPS 主机允许列表，默认禁用；仅允许 443 端口，不跟随跳转。
+
+`--callback-url` 选择已获部署允许的完成通知地址；不能借此开启任意外连。
+
+## 0.4 通用语音中心配置
+
+`SONOVECT_REALTIME_BACKEND=shared` 现在是默认值，直接共用现有识别模型，不再单独加载实时模型。OpenAI（开放接口）实时转写使用 24kHz（采样率）单声道 PCM16（16位原始音频），由客户端提交录音段，返回增量文字和定稿；`sonovect stream` 沿用此合同，每十秒提交一段。`SONOVECT_REALTIME_MAX_SESSIONS` 默认4，三个协议入口共用会话上限；`SONOVECT_REALTIME_MAX_TURN_SECONDS` 默认60秒。现有实验路线 `qwen` 和 `vibevoice-1.5b` 需明确选择，仍使用各自旧协议；`SONOVECT_REALTIME_MODEL_PATH`、`SONOVECT_REALTIME_DEVICE`、`SONOVECT_REALTIME_GPU_MEMORY_UTILIZATION` 只作用于这些实验路线。
+
+| 配置 | 默认值 | 用途 |
+| --- | --- | --- |
+| `SONOVECT_MAX_QUEUED` | `64` | 所有排队和运行任务合计上限，满额返回429 |
+| `SONOVECT_TRANSLATION_URL` | 未设置 | 管理员选定的文字翻译模型接口，结尾 `/v1` |
+| `SONOVECT_TRANSLATION_MODEL` | 未设置 | 文字翻译模型名称 |
+| `SONOVECT_TRANSLATION_TOKEN_FILE` | 未设置 | 按原生机制挂载的可选凭据文件 |
+| `SONOVECT_TRANSLATION_EXTRA_BODY` | `{}` | 仅允许 `reasoning_effort`（推理强度）和 `keep_alive`（驻留时间） |
+| `SONOVECT_UNDERSTANDING_URL` | 未设置 | 真正支持音频输入的聊天补全接口 |
+| `SONOVECT_UNDERSTANDING_MODEL` | 未设置 | 音频理解模型名称 |
+| `SONOVECT_UNDERSTANDING_TOKEN_FILE` | 未设置 | 可选凭据文件 |
+| `SONOVECT_UNDERSTANDING_EXTRA_BODY` | `{}` | 可选推理强度与驻留设置 |
+| `SONOVECT_UNDERSTANDING_MAX_SECONDS` | `60` | 声音问答输入时长上限 |
+| `SONOVECT_OMNI_ENABLED` / `OMNI_ENABLED` | `false` | 启用随识别运行环境提供、仅输出文字的 Qwen Omni（多模态模型） |
+| `OMNI_SERVED_MODEL` | `qwen2.5-omni` | 原生理解模型名称 |
+| `OMNI_MODEL_CACHE` | `/models/omni` | 含 `qwen-omni-7b` 的只读模型缓存 |
+| `OMNI_DEVICE` | `cuda:0` | 使用的显卡，不提供中央处理器推理 |
+| `OMNI_MAX_SECONDS` | `60` | 原生输入时长上限，必须大于0且不超过60 |
+
+启用原生理解时，将准备好的模型缓存只读挂载到 `/models/omni`，设置 `SONOVECT_OMNI_ENABLED=true`；`SONOVECT_UNDERSTANDING_URL` 指向协调器的 `/v1`，模型设为 `qwen2.5-omni`。它复用识别容器中的 Transformers（模型推理库），不下载或执行远端代码。协调器先释放识别显存，再交给理解模型；每次理解结束卸载权重。因此理解之后的下一次识别可能需要重新加载。原生理解进程只在容器内部监听，公众调用经过统一认证入口。翻译可以使用既有本地文字模型，选型与实际质量需由部署验收确认；接口和模型必须成对配置，调用者不能自选上游地址。
+
+新增命令选项：`--translate-to`（目标语言）、`--translation-context`（翻译上下文）、`--classify-audio`（完整声音分类）、`--classify-top-k`（返回标签数量）、`--audio-question`（声音问答）、`--alignment-text`（对齐已有文字）。独立对齐需 `--no-transcribe --language`，单段最长90秒；没有识别模型驻留时只加载对齐模型。译文与原文分开保存，译文字幕沿用原语音片段的时间，不伪造译词时间；用 `sonovect translation JOB_ID` 读取译文。
+
+Wyoming（本地语音设备协议）桥接为可选安装项：`sonovect[wyoming]`，运行 `sonovect-wyoming --uri tcp://127.0.0.1:10300 --model qwen3-asr --max-seconds 60`。它通过 `SONOVECT_URL` 和原生凭据调用同一个文件识别服务，不另载模型。该协议本身没有认证，只绑定受信任的局域网或本地套接字。`deploy/Dockerfile.wyoming` 对官方协议包固定版本及摘要。
+
+`--channel-mode mix|independent` selects downmix or independent channels (maximum8).
+
+`SONOVECT_REALTIME_VAD_ENABLED` 默认 `false`，仅配合 FireRedVAD（神经语音检测模型）的中央处理器服务启用。启用后，OpenAI 新会话默认自动判断说话结束；客户端也可设 `turn_detection=null` 改为手动提交。`threshold`（门限）对应真实神经网络的人声分数，`prefix_padding_ms`（前置保留）支持0–1000毫秒，`silence_duration_ms`（结束静音）支持100–2000毫秒。每250毫秒检查最近两秒，需要连续100毫秒语音证据；此时不运行说话人模型或显卡识别。长时间不停顿的讲话受单段上限约束。Deepgram 实时入口随之默认使用300毫秒结束静音，也可用 `endpointing=false` 改为显式提交。降噪、语义判断结束和在线猜词尚不提供。
+
+`SONOVECT_WYOMING_PORT` defaults to10300; enable the optional `deploy/compose.wyoming.yml` profile with the existing trusted `SONOVECT_BIND`.
+
+本地文字模型位于另一个 Docker（容器）消费网络时，叠加 `deploy/compose.language-network.yml`，用 `SONOVECT_LANGUAGE_NETWORK` 指定既有网络，共享显卡时 `TRANSLATION_BACKEND_URL` 使用服务域名（协调入口为 `/translation/v1`），独立算力可以直接设置 `SONOVECT_TRANSLATION_URL`。不要假定容器可以绕经宿主的局域网发布端口再访问模型。只有队列工作器需要加入此网络。配置了 `SONOVECT_TOKEN` 时，识别协调器的处理请求也需认证；`SONOVECT_PROVIDER_TOKEN_FILE` 可指定独立内部凭据。位于同一识别提供方的原生声音理解复用内部认证。健康与模型目录只读，紧凑部署的模型子进程仍只在容器回环地址监听。
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `TRANSLATION_BACKEND_URL` | unset | 本地翻译模型上游；确认释放本服务显卡模型后再调用 |
+| `TRANSLATION_BACKEND_TOKEN_FILE` | unset | 本地翻译上游的可选凭据文件 |

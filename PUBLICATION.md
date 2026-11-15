@@ -1,5 +1,9 @@
 # Releases / 发行
 
+The main branch contains **0.4.0 service-center source**, including its product introduction, interfaces, client and skill. This update does not publish a v0.4.0 tag or a new artifact set; the latest separately packaged release remains v0.3.0 below. Selected four-role production validation does not attest all optional runtime images. See the [0.4.0 source guide](docs/release-v0.4.0.md).
+
+主分支已包含 **0.4.0服务中心源码**及配套介绍、接口、客户端和技能；本次提交不发布v0.4.0标签或新附件，独立打包的正式版本仍为下列v0.3.0。所选四角色生产验证不代表其他可选镜像已重新验收。
+
 Sonovect is open source under Apache-2.0. Get **v0.3.0** from the [GitHub release](https://github.com/talentshf/sonovect/releases/tag/v0.3.0), or clone the [repository](https://github.com/talentshf/sonovect). The release provides source, a clean Git bundle, the Python client, a source distribution and the standalone agent skill. Verify downloaded files with the attached `SHA256SUMS`.
 
 Sonovect 已按 Apache-2.0 开源。通过 [v0.3.0 发行页](https://github.com/talentshf/sonovect/releases/tag/v0.3.0)下载源码、干净 Git（版本管理）历史包、Python 客户端、源码安装包及独立智能体技能；附件使用 `SHA256SUMS` 校验。也可以直接克隆项目仓库。

@@ -1,0 +1,24 @@
+# Optional trusted-network protocol bridge; no model process or model mount.
+services:
+  wyoming:
+    profiles: [wyoming]
+    image: sonovect-wyoming:${SONOVECT_VERSION:-0.4.0}
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.wyoming
+      args:
+        CORE_BASE: sonovect:${SONOVECT_VERSION:-0.4.0}
+    restart: unless-stopped
+    init: true
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    environment:
+      SONOVECT_URL: http://api:8096
+      SONOVECT_TOKEN: ${SONOVECT_TOKEN:?Set a non-placeholder token}
+    ports:
+      - ${SONOVECT_BIND:-127.0.0.1}:${SONOVECT_WYOMING_PORT:-10300}:10300
+    depends_on:
+      api:
+        condition: service_healthy

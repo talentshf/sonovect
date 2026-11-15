@@ -29,10 +29,30 @@ def create_server(client=None):
         return service.request("GET", "/v1/capabilities").json()
 
     @server.tool(annotations=write)
-    def sonovect_submit(paths: list[str], language: str | None = None, speakers: StrictBool = True,
+    def sonovect_transcribe(path: str, language: str | None = None, prompt: str = "",
+                            idempotency_key: str | None = None) -> dict[str, Any]:
+        """Transcribe one local recording, returning text and its durable task ID.
+
+        Uses the same configured input root as submit. On a wait timeout,
+        recover the returned job ID; do not submit again.
+        """
+        raw_root = os.getenv("SONOVECT_MCP_INPUT_ROOT")
+        if not raw_root:
+            raise ToolError("MCP input root is not configured")
+        root = Path(raw_root).expanduser().resolve(strict=True)
+        selected = Path(path).expanduser().resolve(strict=True)
+        if not root.is_dir() or not selected.is_relative_to(root) or not selected.is_file():
+            raise ToolError("Audio file is outside the configured input root")
+        return service.transcribe(selected, language=language, prompt=prompt, idempotency_key=idempotency_key)
+
+    @server.tool(annotations=write)
+    def sonovect_submit(paths: list[str], language: str | None = None, speakers: StrictBool = False,
                      analyze_sound: StrictBool = False, hotwords: list[str] | None = None,
                      idempotency_key: str | None = None, audio_track: StrictInt = 0, analyze_voice: StrictBool = False,
-                     measure_voice: StrictBool = False) -> dict[str, Any]:
+                     measure_voice: StrictBool = False, transcribe: StrictBool = True,
+                     detect_speech: StrictBool = False, timestamps: Literal["none", "segment", "word"] = "none",
+                     callback_url: str | None = None, translate_to: str | None = None, translation_context: str = "", classify_audio: StrictBool = False, classify_top_k: StrictInt = 5,
+                     audio_question: str = "", alignment_text: str = "", channel_mode: Literal["mix","independent"] = "mix") -> dict[str, Any]:
         """Upload local audio/video within the operator-configured MCP input root; return a job ID.
 
         Poll sonovect_status with the returned ID. A wait is never a new submission.
@@ -53,8 +73,11 @@ def create_server(client=None):
         if len(paths) > maximum:
             raise ToolError("File count exceeds this deployment's limit")
         return service.submit(selected, Options(language=language, speakers=speakers,
+                              transcribe=transcribe, detect_speech=detect_speech, timestamps=timestamps,
+                              translate_to=translate_to, translation_context=translation_context,
+                              classify_audio=classify_audio, classify_top_k=classify_top_k, audio_question=audio_question, alignment_text=alignment_text,
                               analyze_sound=analyze_sound, analyze_voice=analyze_voice, hotwords=hotwords or [], audio_track=audio_track,
-                              measure_voice=measure_voice), idempotency_key)
+                              measure_voice=measure_voice, channel_mode=channel_mode), idempotency_key, callback_url)
 
     @server.tool(annotations=read)
     def sonovect_status(job_id: str) -> dict[str, Any]:
@@ -62,7 +85,7 @@ def create_server(client=None):
         return service.status(job_id)
 
     @server.tool(annotations=read)
-    def sonovect_result(job_id: str, layer: Literal["result", "analysis", "manifest"] = "result",
+    def sonovect_result(job_id: str, layer: Literal["result", "analysis", "translation", "manifest", "evidence", "attempts", "notification"] = "result",
                         format: Literal["json", "text", "srt"] = "json") -> dict[str, Any]:
         """Read a FunASR result list or its separate acoustic analysis/manifest.
 

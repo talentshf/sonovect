@@ -9,7 +9,7 @@ from collections import Counter
 from typing import Any, Optional
 
 import httpx
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import Request, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
 from typing_extensions import Annotated
 
@@ -45,6 +45,8 @@ SEGMENT_PADDING_MS = int(os.getenv("SEGMENT_PADDING_MS", "1000"))
 MIN_TEXT_DENSITY = float(os.getenv("MIN_TEXT_DENSITY_PER_SPEECH_SECOND", "0.2"))
 
 app = FastAPI(title="Sonovect speech coordinator", version=APP_VERSION)
+from provider_auth import ServiceAuth
+app.add_middleware(ServiceAuth,token=os.getenv("SONOVECT_TOKEN",""))
 STARTED_AT = time.time()
 GPU_PIPELINE_LOCK = asyncio.Lock()
 
@@ -70,8 +72,25 @@ async def _read_parts(files: list[UploadFile]) -> list[AudioPart]:
     ]
 
 
-async def _post_audio(url: str, path: str, parts: list[AudioPart], data: dict[str, Any], timeout: float) -> dict[str, Any]:
+async def _post_audio(url: str, path: str, parts: list[AudioPart], data: dict[str, Any], timeout: float, progress=None) -> dict[str, Any]:
     async with httpx.AsyncClient(timeout=timeout, trust_env=False) as client:
+        if progress is not None:
+            async with client.stream("POST", f"{url}{path}", data={**data, "stream": "true"}, files=[part.httpx() for part in parts]) as response:
+                response.raise_for_status()
+                result = None
+                async for line in response.aiter_lines():
+                    if not line:
+                        continue
+                    event = json.loads(line)
+                    if event["type"] == "progress":
+                        progress(event["data"])
+                    elif event["type"] == "result":
+                        result = event["data"]
+                    else:
+                        raise RuntimeError("asr_stream_failed")
+                if result is None:
+                    raise RuntimeError("asr_stream_incomplete")
+                return result
         response = await client.post(
             f"{url}{path}",
             data={key: str(value).lower() if isinstance(value, bool) else value for key, value in data.items()},
@@ -137,8 +156,11 @@ def _gate_sparse(payload: dict[str, Any], segmentation: dict[str, Any]) -> dict[
     speech_ms = _speech_ms(segmentation)
     text = str(payload.get("text", "")).strip()
     density = _linguistic_count(text) / max(0.001, speech_ms / 1000)
-    if speech_ms == 0 or (_linguistic_count(text) > 0 and density < MIN_TEXT_DENSITY):
+    if speech_ms == 0:
         payload = {**payload, "text": "", "raw_text": "", "segments": [], "words": [], "segment_count": 0}
+    elif _linguistic_count(text) > 0 and density < MIN_TEXT_DENSITY:
+        # Sparse speech is a review signal, not evidence that every word is false.
+        payload = {**payload, "quality_warnings": [*payload.get("quality_warnings", []), "low_text_density"]}
     return payload
 
 
@@ -189,6 +211,7 @@ def _compose(
     measure: bool = False,
     measurement_data: Optional[dict[str, Any]] = None,
     measurement_error: str | None = None,
+    transcribe_speech: bool = True,
 ) -> dict[str, Any]:
     if qwen.get("joint_diarization"):
         segmentation = {**segmentation, "speaker_turns": qwen.get("speaker_turns", []),
@@ -210,7 +233,7 @@ def _compose(
     events = [item for item in events if isinstance(item, dict) and str(item.get("kind") or "").lower() != "speech" and str(item.get("label") or "").lower() != "speech"]
     if _speech_ms(segmentation) == 0:
         emotions = []
-    duration_ms = int(segmentation.get("duration_ms") or (moss.get("duration_ms") if isinstance(moss, dict) else 0) or 0)
+    duration_ms = int(segmentation.get("duration_ms") or next((x.get("duration_ms") for x in (moss, events_data, measurement_data) if isinstance(x, dict) and x.get("duration_ms")), 0) or 0)
     speech_regions = segmentation.get("speech_regions", []) if isinstance(segmentation.get("speech_regions"), list) else []
     clustering = segmentation.get("speaker_clustering") if isinstance(segmentation.get("speaker_clustering"), dict) else {}
     selection = clustering.get("selection") if isinstance(clustering.get("selection"), dict) else {}
@@ -249,16 +272,16 @@ def _compose(
                 "vocal": {"payload": moss, "error": acoustic_error},
                 **({"measurements": {"payload": measurement_data, "error": measurement_error}} if measure else {})}},
             "lanes": {
-                "speech": _lane_state(requested=True, error=speech_error, complete=speech_error is None),
+                "speech": _lane_state(requested=transcribe_speech, error=speech_error, complete=speech_error is None),
                 "acoustic": _lane_state(requested=full or voice or measure, error=acoustic_error or events_error or measurement_error, complete=(not full or bool(events_data and events_data.get("events_valid"))) and (not voice or bool(moss and moss.get("vocal_valid"))) and (not measure or bool(measurement_data and measurement_data.get("measurements_valid")))),
-                "coverage": {"state": "completed", "duration_ms": duration_ms, "speech_ms": _speech_ms(segmentation)},
+                "coverage": {"state": "completed", "duration_ms": duration_ms, "speech_ms": _speech_ms(segmentation) if segmentation.get("vad_requested", True) else None},
             },
         },
     }
     return result
 
 
-async def _pipeline_once(parts: list[AudioPart], language: str, use_itn: bool, full: bool, speaker_identity: bool = False, context: str = "", voice: bool = False, measure_voice: bool = False) -> dict[str, Any]:
+async def _pipeline_once(parts: list[AudioPart], language: str, use_itn: bool, full: bool, speaker_identity: bool = False, context: str = "", voice: bool = False, measure_voice: bool = False, speakers: bool = True, return_time_stamps: bool = True, transcribe_speech: bool = True, detect_speech: bool = False, progress=None) -> dict[str, Any]:
     if full and not SOUND_ENABLED:
         raise HTTPException(status_code=422, detail="sound_backend_not_configured")
     if voice and not VOICE_ENABLED:
@@ -267,39 +290,49 @@ async def _pipeline_once(parts: list[AudioPart], language: str, use_itn: bool, f
         raise HTTPException(status_code=422, detail="measurements_backend_not_configured")
     if not parts:
         raise HTTPException(status_code=400, detail="No files provided")
-    segmentation, _ = await asyncio.gather(
-        _post_audio(SEGMENTATION_URL, "/analyze", parts, {}, SEGMENTATION_TIMEOUT),
-        _release_sound_before_speech(),
-    )
-    # ASR windows follow VAD. Diarizer overlap must not duplicate audio or
-    # force one voice onto all words in a window.
-    planning = {"results": [{**s, "speaker_turns": []} if s.get("overlap_detection") else s
-                            for s in _payloads(segmentation, len(parts))]}
-    plan = build_request_plan(
-        planning,
-        file_count=len(parts),
-        requested_language=language,
-        target_ms=SEGMENT_TARGET_MS,
-        hard_max_ms=SEGMENT_HARD_MAX_MS,
-        merge_gap_ms=SEGMENT_MERGE_GAP_MS,
-        boundary_silence_ms=SEGMENT_BOUNDARY_SILENCE_MS,
-        padding_ms=SEGMENT_PADDING_MS,
-    )
-    speech_error = None
-    try:
-        qwen = await _post_audio(
-            QWEN_URL,
-            "/transcribe",
-            parts,
-            {"language": language, "use_itn": use_itn, "segment_plan": json.dumps(plan, ensure_ascii=False, separators=(",", ":")),
-             **({"context": context} if context else {})},
-            QWEN_TIMEOUT,
+    needs_vad = transcribe_speech or speakers or detect_speech or voice or measure_voice
+    if needs_vad:
+        segmentation, _ = await asyncio.gather(
+            _post_audio(SEGMENTATION_URL, "/analyze", parts, {"speakers": speakers}, SEGMENTATION_TIMEOUT),
+            _release_sound_before_speech() if transcribe_speech else asyncio.sleep(0),
         )
-    except Exception as exc:
-        if not full:
-            raise
-        speech_error = _safe_error(exc)
-        qwen = {"results": [{"text": "", "raw_text": "", "segments": [], "words": []} for _ in parts]}
+    else:
+        segmentation = {"results": [{"vad_requested": False} for _ in parts]}
+    speech_error = None
+    qwen = {"results": [{"text": "", "raw_text": "", "segments": [], "words": []} for _ in parts]}
+    if transcribe_speech:
+        # ASR windows follow VAD. Diarizer overlap must not duplicate audio or
+        # force one voice onto all words in a window.
+        planning = {"results": [{**s, "speaker_turns": []} if s.get("overlap_detection") else s
+                                for s in _payloads(segmentation, len(parts))]}
+        plan = build_request_plan(
+            planning,
+            file_count=len(parts),
+            requested_language=language,
+            target_ms=SEGMENT_TARGET_MS,
+            hard_max_ms=SEGMENT_HARD_MAX_MS,
+            merge_gap_ms=SEGMENT_MERGE_GAP_MS,
+            boundary_silence_ms=SEGMENT_BOUNDARY_SILENCE_MS,
+            padding_ms=SEGMENT_PADDING_MS,
+        )
+        try:
+            qwen = await _post_audio(
+                QWEN_URL,
+                "/transcribe",
+                parts,
+                {"language": language, "use_itn": use_itn, "return_time_stamps": return_time_stamps or speakers, "segment_plan": json.dumps(plan, ensure_ascii=False, separators=(",", ":")),
+                 **({"context": context} if context else {})},
+                QWEN_TIMEOUT,
+                **({"progress": progress} if progress is not None else {}),
+            )
+        except Exception as exc:
+            if not full:
+                raise
+            speech_error = _safe_error(exc)
+            qwen = {"results": [{"text": "", "raw_text": "", "segments": [], "words": []} for _ in parts]}
+    if transcribe_speech and not speech_error and progress is not None:
+        for index,(recognized,segmented) in enumerate(zip(_payloads(qwen,len(parts)),_payloads(segmentation,len(parts)))):
+            progress({"stage":"speech.completed","source_index":index,"value":_compose(recognized,segmented)})
     events = moss = None
     events_error = acoustic_error = None
     measurement_data = None
@@ -342,19 +375,21 @@ async def _pipeline_once(parts: list[AudioPart], language: str, use_itn: bool, f
             full=full, speech_error=speech_error, acoustic_error=acoustic_error,
             events_data=event_values[index], events_error=events_error, voice=voice,
             measure=measure_voice, measurement_data=measurement_data[index] if measurement_data else None,
-            measurement_error=measurement_error,
+            measurement_error=measurement_error, transcribe_speech=transcribe_speech,
         )
         for index in range(len(parts))
     ]
     return outputs[0] if len(outputs) == 1 else {"results": outputs}
 
 
-async def _pipeline(parts: list[AudioPart], language: str, use_itn: bool, full: bool, speaker_identity: bool = False, context: str = "", voice: bool = False, measure_voice: bool = False) -> dict[str, Any]:
+async def _pipeline(parts: list[AudioPart], language: str, use_itn: bool, full: bool, speaker_identity: bool = False, context: str = "", voice: bool = False, measure_voice: bool = False, speakers: bool = True, return_time_stamps: bool = True, transcribe_speech: bool = True, detect_speech: bool = False, progress=None) -> dict[str, Any]:
     # Qwen and MOSS share one GPU.  Per-worker locks are insufficient:
     # concurrent HTTP requests can otherwise interleave Qwen from one
     # request with MOSS from another and defeat the sequential unload contract.
+    if not transcribe_speech and not (voice and VOICE_BACKEND == "moss"):
+        return await _pipeline_once(parts, language, use_itn, full, speaker_identity, context, voice, measure_voice, speakers, return_time_stamps, transcribe_speech, detect_speech, progress)
     async with GPU_PIPELINE_LOCK:
-        return await _pipeline_once(parts, language, use_itn, full, speaker_identity, context, voice, measure_voice)
+        return await _pipeline_once(parts, language, use_itn, full, speaker_identity, context, voice, measure_voice, speakers, return_time_stamps, transcribe_speech, detect_speech, progress)
 
 
 async def _probe(url: str) -> dict[str, Any]:
@@ -459,9 +494,18 @@ async def transcribe(
     ban_emo_unk: Annotated[bool, Form()] = True,
     speaker_identity: Annotated[bool, Form()] = False,
     context: Annotated[str, Form()] = "",
+    speakers: Annotated[bool, Form()] = True,
+    return_time_stamps: Annotated[bool, Form()] = True,
+    recognize: Annotated[bool, Form(alias="transcribe")] = True,
+    detect_speech: Annotated[bool, Form()] = False,
+    stream: Annotated[bool, Form()] = False,
 ) -> JSONResponse:
     del ban_emo_unk
-    return JSONResponse(await _pipeline(await _read_parts(files), language, use_itn, False, speaker_identity, context))
+    parts = await _read_parts(files)
+    if stream:
+        from provider_stream import response
+        return response(lambda emit: _pipeline(parts, language, use_itn, False, speaker_identity, context, speakers=speakers, return_time_stamps=return_time_stamps, transcribe_speech=recognize, detect_speech=detect_speech, progress=emit))
+    return JSONResponse(await _pipeline(parts, language, use_itn, False, speaker_identity, context, speakers=speakers, return_time_stamps=return_time_stamps, transcribe_speech=recognize, detect_speech=detect_speech))
 
 
 @app.post("/transcribe/full")
@@ -472,9 +516,97 @@ async def transcribe_full(
     ban_emo_unk: Annotated[bool, Form()] = True,
     speaker_identity: Annotated[bool, Form()] = False,
     context: Annotated[str, Form()] = "",
+    speakers: Annotated[bool, Form()] = True,
+    return_time_stamps: Annotated[bool, Form()] = True,
+    recognize: Annotated[bool, Form(alias="transcribe")] = True,
+    detect_speech: Annotated[bool, Form()] = False,
+    stream: Annotated[bool, Form()] = False,
     analyze_sound: bool = Form(True),
     analyze_voice: bool = Form(False),
     measure_voice: bool = Form(False),
 ) -> JSONResponse:
     del ban_emo_unk
-    return JSONResponse(await _pipeline(await _read_parts(files), language, use_itn, analyze_sound, speaker_identity, context, analyze_voice, measure_voice))
+    parts = await _read_parts(files)
+    if stream:
+        from provider_stream import response
+        return response(lambda emit: _pipeline(parts, language, use_itn, analyze_sound, speaker_identity, context, analyze_voice, measure_voice, speakers, return_time_stamps, recognize, detect_speech, emit))
+    return JSONResponse(await _pipeline(parts, language, use_itn, analyze_sound, speaker_identity, context, analyze_voice, measure_voice, speakers, return_time_stamps, recognize, detect_speech))
+
+
+@app.post("/v1/chat/completions")
+async def audio_understanding(request: Request):
+    if os.getenv("OMNI_ENABLED", "false").lower() not in {"true", "1", "yes"}:
+        raise HTTPException(400, "audio_understanding_not_configured")
+    value = await request.json()
+    async with GPU_PIPELINE_LOCK:
+        released = await _post_control(QWEN_URL, "/internal/unload")
+        if released.get("status") != "unloaded":
+            raise HTTPException(503, "asr_unload_not_confirmed")
+        await _release_sound_before_speech()
+        async with httpx.AsyncClient(timeout=QWEN_TIMEOUT, trust_env=False) as client:
+            response = await client.post("http://127.0.0.1:8087/v1/chat/completions", json=value)
+            if response.status_code != 200:
+                raise HTTPException(503, "audio_understanding_failed")
+            return response.json()
+
+
+@app.post("/translation/v1/chat/completions")
+async def local_translation(request: Request):
+    """Serialize the configured local language model with our own GPU models."""
+    url = os.getenv("TRANSLATION_BACKEND_URL", "").rstrip("/")
+    if not url:
+        raise HTTPException(400, "local_translation_not_configured")
+    raw = await request.body()
+    try:
+        if len(raw) > 100000:
+            raise ValueError()
+        value = json.loads(raw)
+        if value.get("model") != os.getenv("SONOVECT_TRANSLATION_MODEL") or value.get("stream", False):
+            raise ValueError()
+        messages = value["messages"]
+        if not isinstance(messages, list) or not 1 <= len(messages) <= 4:
+            raise ValueError()
+        if any(m.get("role") not in {"system", "user"} or not isinstance(m.get("content"), str) for m in messages):
+            raise ValueError()
+    except (ValueError, KeyError, TypeError, AttributeError):
+        raise HTTPException(400, "invalid_translation_request") from None
+    headers = {}
+    credential = os.getenv("TRANSLATION_BACKEND_TOKEN_FILE", "")
+    if credential:
+        from pathlib import Path
+        token = Path(credential).read_text().strip()
+        if not token or len(token) > 16384 or any(ord(c) < 33 or ord(c) > 126 for c in token):
+            raise HTTPException(503, "translation_credential_unavailable")
+        headers["Authorization"] = "Bearer " + token
+    async with GPU_PIPELINE_LOCK:
+        released = await _post_control(QWEN_URL, "/internal/unload")
+        state = released.get("manager") or {}
+        if released.get("status") != "unloaded" or state.get("resident", True) or state.get("busy", True):
+            raise HTTPException(503, "asr_unload_not_confirmed")
+        await _release_sound_before_speech()
+        async with httpx.AsyncClient(timeout=QWEN_TIMEOUT, trust_env=False) as client:
+            response = await client.post(url + "/chat/completions", json=value, headers=headers)
+            if response.status_code != 200:
+                raise HTTPException(503, "local_translation_failed")
+            return response.json()
+
+
+@app.post("/align")
+async def align_text(file: Annotated[UploadFile, File()], text: Annotated[str, Form(max_length=12000)], language: Annotated[str, Form()]):
+    parts=await _read_parts([file])
+    async with GPU_PIPELINE_LOCK:
+        await _release_sound_before_speech()
+        async with httpx.AsyncClient(timeout=QWEN_TIMEOUT,trust_env=False) as client:
+            response=await client.post(QWEN_URL+"/align",data={"text":text,"language":language},files={"file":("audio.wav",parts[0].content,"audio/wav")})
+            if response.status_code!=200:raise HTTPException(422,"alignment_failed")
+            return response.json()
+
+
+@app.post("/vad/scores")
+async def live_vad_scores(file: Annotated[UploadFile, File()]):
+    data=await file.read(600001)
+    if len(data)>600000:raise HTTPException(413,"vad_window_limit")
+    async with httpx.AsyncClient(timeout=10,trust_env=False) as client:
+        response=await client.post(SEGMENTATION_URL+"/vad/scores",files={"file":("audio.wav",data,"audio/wav")})
+        if response.status_code!=200:raise HTTPException(422,"vad_window_failed")
+        return response.json()

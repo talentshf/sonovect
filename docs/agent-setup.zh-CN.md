@@ -2,7 +2,7 @@
 
 [English](agent-setup.md) · [MCP工具参考](mcp.md)
 
-服务端运行模型；智能体所在机器安装轻量客户端连接服务；skill（技能）指导智能体如何调用。客户端需要 Python3.12+，无需显卡或模型权重。Sonovect v0.3.0 提供标准 MCP（模型上下文协议）服务和可独立安装的技能目录／压缩包，当前没有特定插件市场的一键安装包。
+服务端运行模型；智能体所在机器安装轻量客户端连接服务；skill（技能）指导智能体如何调用。客户端需要 Python3.12+，无需显卡或模型权重。Sonovect v0.4.0 提供标准 MCP（模型上下文协议）服务和可独立安装的技能目录／压缩包，当前没有特定插件市场的一键安装包。
 
 ## 1. 安装并连接客户端
 
@@ -16,7 +16,7 @@ sonovect --version
 也可以安装提供的 wheel（Python安装包），同时启用 MCP 依赖：
 
 ```sh
-python -m pip install './sonovect-0.3.0-py3-none-any.whl[mcp]'
+python -m pip install './sonovect-0.4.0-py3-none-any.whl[mcp]'
 ```
 
 使用已部署服务的 HTTP（网络接口）地址，并由部署者提供一个**仅含服务令牌**的受保护文件。以下路径均需替换为**客户端机器**上的实际路径。令牌必须与部署配置的 `SONOVECT_TOKEN` 一致；客户端不会自动读取 `deploy/.env`，也不能把整个配置文件当令牌文件。
@@ -66,7 +66,7 @@ SONOVECT_MCP_INPUT_ROOT = "/path/to/audio"
 
 ## 3. 安装技能
 
-把源码里的整个 `skills/sonovect` 目录复制到智能体支持的技能目录。独立的 `sonovect-0.3.0-skill.zip` 解压后也是同一 `sonovect/` 目录，须保留其中的 `SKILL.md`、`references/usage.md` 和 `agents/openai.yaml`。只安装 Python 包不会自动注册技能。
+把源码里的整个 `skills/sonovect` 目录复制到智能体支持的技能目录。独立的 `sonovect-0.4.0-skill.zip` 解压后也是同一 `sonovect/` 目录，须保留其中的 `SKILL.md`、`references/usage.md` 和 `agents/openai.yaml`。只安装 Python 包不会自动注册技能。
 
 Codex 首次安装到用户技能目录，可以从源码目录执行：
 
@@ -84,7 +84,7 @@ Codex 也支持项目里的 `.agents/skills`，详见[官方技能说明](https:
 
 > 使用 $sonovect 转写 /path/to/audio/example.wav。先检查服务能力，提交一次并等待同一个任务，返回文字和字幕。附加分析先关闭。
 
-应能发现六个工具，并依次完成能力查询、提交、同编号轮询和结果读取。之后可按能力增加环境音或音高能量分析。[技能使用流程](../skills/sonovect/references/usage.md)给出具体参数、结果层次和部分成功的处理方式。只有命令行能力的智能体，也可以配置同样的地址和令牌后，按技能中的命令行流程调用。
+应能发现八个工具，并依次完成能力查询、提交、同编号等待或查询和结果读取。之后可按能力增加环境音或音高能量分析。[技能使用流程](../skills/sonovect/references/usage.md)给出具体参数、结果层次和部分成功的处理方式。只有命令行能力的智能体，也可以配置同样的地址和令牌后，按技能中的命令行流程调用。
 
 | 现象 | 检查方法 |
 | --- | --- |
@@ -94,3 +94,5 @@ Codex 也支持项目里的 `.agents/skills`，详见[官方技能说明](https:
 | 附加能力不可用 | 先查询能力；部署启用的功能与单次任务开关分别设置 |
 | 仍在处理或客户端超时 | 查询原任务编号，等待无需重新提交 |
 | 找不到技能 | 完整安装到一个受支持的位置，再重新加载发现列表 |
+
+已有 OpenAI 原生转写支持的软件，可直接配置服务的 `/v1` 基址、原生保存的密钥及发现的识别模型；CLI/MCP 用于额外处理选项，不是普通语音输入的必经接力。见[接入清单](connections.md#中文接入清单)。

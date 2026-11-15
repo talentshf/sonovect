@@ -91,6 +91,13 @@ class QwenIdleTests(unittest.TestCase):
             self.manager._transcribe_batch([([0],1)],['Chinese'],[''],['file-0:a'])
         self.assertFalse(self.manager._busy)
 
+    def test_text_only_batch_disables_aligner_load_and_inference(self):
+        self.manager.load = Mock()
+        self.manager._model = SimpleNamespace(transcribe=Mock(return_value=[SimpleNamespace(text='text')]))
+        self.manager._transcribe_batch([([0], 1)], ['Chinese'], [''], ['file-0'], return_time_stamps=False)
+        self.manager.load.assert_called_once_with(return_time_stamps=False)
+        self.assertFalse(self.manager._model.transcribe.call_args.kwargs['return_time_stamps'])
+
     def test_oom_retries_individual_segments_under_the_same_stage(self):
         class OOM(Exception): pass
         self.cuda.OutOfMemoryError = OOM
@@ -103,6 +110,28 @@ class QwenIdleTests(unittest.TestCase):
         self.assertEqual(self.manager._batch_fallbacks,1)
         self.manager._stage.begin.assert_called_once()
         self.manager._stage.finish.assert_called_once()
+
+
+    def test_supplied_text_alignment_loads_only_aligner_and_reuses_it(self):
+        import contextlib,sys
+        from unittest.mock import patch
+        self.manager._admission_lock=threading.Lock()
+        self.manager._model=None
+        self.manager._alignment_runtime=None
+        runtime=SimpleNamespace(aligner=None,aligner_processor=None,
+            load_aligner=Mock(),_align=Mock(return_value=SimpleNamespace(items=[SimpleNamespace(text="你好",start_time=0.0,end_time=.1)])))
+        factory=Mock(return_value=runtime)
+        self.namespace.update(snapshot_download=Mock(),resolve_pinned_snapshot=Mock(return_value="pinned-aligner"),
+            ALIGNER_ID="aligner",ALIGNER_REVISION="revision",_require_gpu_capacity=Mock(),_dtype=lambda:"bf16",
+            validated_word_spans=lambda words,duration:words)
+        self.namespace['torch'].inference_mode=contextlib.nullcontext
+        with patch.dict(sys.modules,{'native_runtime':SimpleNamespace(NativeQwenASR=factory)}):
+            self.assertEqual(self.manager.align([0.0]*1600,"你好","Chinese")[0]['end_ms'],100)
+            self.manager.align([0.0]*1600,"你好","Chinese")
+        self.assertIsNone(self.manager._model)
+        self.assertIs(self.manager._alignment_runtime,runtime)
+        runtime.load_aligner.assert_called_once()
+        self.assertFalse(self.manager._busy)
 
 
 if __name__ == "__main__":

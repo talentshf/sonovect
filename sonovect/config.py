@@ -14,6 +14,19 @@ class Settings:
     layout: str = "compact"
     provider_url: str = "http://speech-provider:8080"
     provider_timeout: float = 7200
+    served_model: str = ""
+    max_queued: int = 64
+    sync_timeout: float = 120
+    callback_hosts: tuple[str, ...] = ()
+    translation_url: str = ""
+    translation_model: str = ""
+    translation_token_file: Path | None = None
+    translation_extra_body: dict = field(default_factory=dict)
+    understanding_url: str = ""
+    understanding_model: str = ""
+    understanding_token_file: Path | None = None
+    understanding_extra_body: dict = field(default_factory=dict)
+    understanding_max_seconds: float = 60
     max_upload_bytes: int = 256 * 1024**2
     max_files: int = 16
     max_media_seconds: float = 7200
@@ -45,19 +58,38 @@ class Settings:
     vibevoice_max_seconds: float = 900
     vibevoice_max_tokens: int = 32768
     provider_token_file: Path | None = None
+    realtime_vad_enabled: bool = False
     realtime_enabled: bool = False
-    realtime_backend: str = "qwen"
+    realtime_backend: str = "shared"
     realtime_model_path: str = ""
     realtime_max_seconds: float = 300
     realtime_idle_seconds: float = 30
     realtime_gpu_memory_utilization: float = 0.35
     realtime_device: str = "cuda:0"
+    realtime_max_sessions: int = 4
+    realtime_max_turn_seconds: float = 60
+
+    @property
+    def transcription_model(self):
+        return self.served_model or ("qwen3-asr" if self.backend == "speech" else
+                                    self.vibevoice_model if self.backend == "vibevoice" else self.model)
 
     @property
     def source_seconds_limit(self):
         return min(self.max_media_seconds, self.vibevoice_max_seconds) if self.backend == "vibevoice" else self.max_media_seconds
 
     def __post_init__(self):
+        from urllib.parse import urlsplit
+        for role in ("translation", "understanding"):
+            url, model = getattr(self, role + "_url"), getattr(self, role + "_model")
+            if bool(url) != bool(model):
+                raise ValueError(role + "_requires_url_and_model")
+            if url:
+                p = urlsplit(url)
+                if p.scheme not in {"http", "https"} or not p.hostname or p.username or p.password or p.query or p.fragment:
+                    raise ValueError(role + "_invalid_operator_url")
+            if set(getattr(self, role + "_extra_body")) - {"reasoning_effort", "keep_alive"}:
+                raise ValueError(role + "_unsupported_provider_option")
         if not self.token or self.token in {"change-me", "REPLACE_ME", "development-token"}:
             raise ValueError("Set SONOVECT_TOKEN to a non-placeholder secret")
         if self.layout not in {"compact", "distributed", "external"}:
@@ -76,21 +108,27 @@ class Settings:
                 raise ValueError("vibevoice_requires_pinned_revision_and_served_model")
         if not 0 < self.realtime_gpu_memory_utilization <= 0.9:
             raise ValueError("invalid_realtime_gpu_budget")
-        if self.realtime_backend not in {"qwen", "vibevoice-1.5b"}:
+        if self.realtime_backend not in {"shared", "qwen", "vibevoice-1.5b"}:
             raise ValueError("invalid_realtime_backend")
         if self.realtime_device not in {"cuda:0", "cpu"}:
             raise ValueError("invalid_realtime_device")
         if self.realtime_backend == "vibevoice-1.5b" and self.realtime_max_seconds > 480:
             raise ValueError("vibevoice_streaming_limit_is_480_seconds")
-        if self.realtime_enabled and (not self.realtime_model_path or not Path(self.realtime_model_path).is_dir()):
+        if self.realtime_enabled and self.realtime_backend == "shared" and self.backend != "speech":
+            raise ValueError("shared_realtime_requires_speech_provider")
+        if self.realtime_enabled and self.realtime_backend != "shared" and (not self.realtime_model_path or not Path(self.realtime_model_path).is_dir()):
             raise ValueError("realtime_requires_local_sdk_model_directory")
         if self.voice_backend not in {"moss", "emotion2vec"}:
             raise ValueError("SONOVECT_VOICE_BACKEND must be moss or emotion2vec")
-        limits = (self.max_upload_bytes, self.max_files, self.input_ttl_hours,
+        import re
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_./:-]{0,199}", self.transcription_model):
+            raise ValueError("invalid_served_model")
+        limits = (self.max_queued, self.sync_timeout, self.max_upload_bytes, self.max_files, self.input_ttl_hours,
                self.result_ttl_hours, self.lease_seconds, self.poll_seconds, self.provider_timeout,
                self.worker_stale_seconds, self.max_media_seconds, self.media_timeout,
                self.compat_download_timeout, self.compat_link_seconds, self.compat_max_queued,
-               self.vibevoice_max_seconds, self.vibevoice_max_tokens, self.realtime_max_seconds, self.realtime_idle_seconds)
+               self.vibevoice_max_seconds, self.vibevoice_max_tokens, self.realtime_max_seconds, self.realtime_idle_seconds,
+               self.realtime_max_sessions, self.realtime_max_turn_seconds, self.understanding_max_seconds)
         if any(not math.isfinite(value) or value <= 0 for value in limits):
             raise ValueError("Limits, retention and timeout values must be positive")
         if self.compat_model:
@@ -105,6 +143,7 @@ class Settings:
 
     @classmethod
     def from_env(cls):
+        import json
         p = "SONOVECT_"
         return cls(
             data_dir=Path(os.getenv(p + "DATA_DIR", "./data/jobs")).expanduser(),
@@ -113,6 +152,19 @@ class Settings:
             layout=os.getenv(p + "LAYOUT", "compact"),
             provider_url=os.getenv(p + "PROVIDER_URL", "http://speech-provider:8080").rstrip("/"),
             provider_timeout=float(os.getenv(p + "PROVIDER_TIMEOUT", "7200")),
+            served_model=os.getenv(p + "SERVED_MODEL", ""),
+            max_queued=int(os.getenv(p + "MAX_QUEUED", "64")),
+            sync_timeout=float(os.getenv(p + "SYNC_TIMEOUT", "120")),
+            callback_hosts=tuple(v.strip().lower() for v in os.getenv(p + "CALLBACK_HOSTS", "").split(",") if v.strip()),
+            translation_url=os.getenv(p + "TRANSLATION_URL", "").rstrip("/"),
+            translation_model=os.getenv(p + "TRANSLATION_MODEL", ""),
+            translation_token_file=Path(os.environ[p + "TRANSLATION_TOKEN_FILE"]).expanduser() if os.getenv(p + "TRANSLATION_TOKEN_FILE") else None,
+            translation_extra_body=json.loads(os.getenv(p + "TRANSLATION_EXTRA_BODY", "{}")),
+            understanding_url=os.getenv(p + "UNDERSTANDING_URL", "").rstrip("/"),
+            understanding_model=os.getenv(p + "UNDERSTANDING_MODEL", ""),
+            understanding_token_file=Path(os.environ[p + "UNDERSTANDING_TOKEN_FILE"]).expanduser() if os.getenv(p + "UNDERSTANDING_TOKEN_FILE") else None,
+            understanding_extra_body=json.loads(os.getenv(p + "UNDERSTANDING_EXTRA_BODY", "{}")),
+            understanding_max_seconds=float(os.getenv(p + "UNDERSTANDING_MAX_SECONDS", "60")),
             max_upload_bytes=int(os.getenv(p + "MAX_UPLOAD_BYTES", str(256 * 1024**2))),
             max_files=int(os.getenv(p + "MAX_FILES", "16")),
             max_media_seconds=float(os.getenv(p + "MAX_MEDIA_SECONDS", "7200")),
@@ -145,11 +197,14 @@ class Settings:
             vibevoice_max_seconds=float(os.getenv(p + "VIBEVOICE_MAX_SECONDS", "900")),
             vibevoice_max_tokens=int(os.getenv(p + "VIBEVOICE_MAX_TOKENS", "32768")),
             provider_token_file=Path(os.environ[p + "PROVIDER_TOKEN_FILE"]).expanduser() if os.getenv(p + "PROVIDER_TOKEN_FILE") else None,
+            realtime_vad_enabled=os.getenv(p + "REALTIME_VAD_ENABLED", "false").lower() in {"1", "true", "yes"},
             realtime_enabled=os.getenv(p + "REALTIME_ENABLED", "false").lower() in {"true", "1", "yes"},
-            realtime_backend=os.getenv(p + "REALTIME_BACKEND", "qwen"),
+            realtime_backend=os.getenv(p + "REALTIME_BACKEND", "shared"),
             realtime_model_path=os.getenv(p + "REALTIME_MODEL_PATH", ""),
             realtime_max_seconds=float(os.getenv(p + "REALTIME_MAX_SECONDS", "300")),
             realtime_idle_seconds=float(os.getenv(p + "REALTIME_IDLE_SECONDS", "30")),
             realtime_gpu_memory_utilization=float(os.getenv(p + "REALTIME_GPU_MEMORY_UTILIZATION", "0.35")),
             realtime_device=os.getenv(p + "REALTIME_DEVICE", "cuda:0"),
+            realtime_max_sessions=int(os.getenv(p + "REALTIME_MAX_SESSIONS", "4")),
+            realtime_max_turn_seconds=float(os.getenv(p + "REALTIME_MAX_TURN_SECONDS", "60")),
         )

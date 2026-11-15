@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## 0.4.0 — 2026-11-15
+
+- Add standard OpenAI file transcription, English translation and audio-input text Chat Completions; retain source transcripts separately from translations and sound answers.
+- Add shared-model OpenAI transcription sessions with manual commits or optional neural CPU speech endpoints, real file-stream deltas, Deepgram file/final-turn WebSockets, FunASR offline PCM turns, HF audio classification and an optional official-library Wyoming bridge.
+- Make ordinary STT lightweight: no speaker features, forced alignment or optional analysis unless requested; keep the recognition model resident for30 idle minutes. Re-listen without vocabulary context when a context echo is suspected.
+- Support independent speech/speaker intervals, supplied-text alignment, raw AudioSet classes, sound measurements, configured audio understanding and up to8 independent channels. Keep experimental voice/emotion outputs distinct.
+- Add a pinned, text-only Qwen2.5-Omni Thinker using the existing model runtime. Its audio frontend follows the native processor, bounds padding to the input and avoids unused vision/generation processors; GPU ownership is handed off and released per request.
+- Persist speech before auxiliary work, preserve successful sources/stages across retry, bound queue admission, expose replayable task events and signed completion delivery. Native client waiting consumes SSE rather than polling.
+- Split client/server dependencies, expand CLI/MCP processing options and document supported protocol subsets and unavailable confidence/diagnostics. Old experimental realtime protocols require explicit selection.
+
 ## 0.3.0 — 2026-11-09
 
 - Retain the newly observed low-severity GCC parser finding as an explicit residual service limitation, bound to the exact library and observed restrictions; do not claim a library fix or decoder unreachability.

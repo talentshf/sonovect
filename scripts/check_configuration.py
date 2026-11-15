@@ -4,7 +4,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 def inventory():
     roles={}
-    for role in ['api','segmentation-worker','qwen-worker','moss-worker','event-worker','vocal-worker','measurement-worker']:
+    for role in ['api','segmentation-worker','qwen-worker','moss-worker','event-worker','vocal-worker','measurement-worker','understanding-worker']:
         opts={}
         # Auxiliary download tools can have different fallbacks. Runtime app.py
         # wins deterministically, independent of filesystem directory ordering.

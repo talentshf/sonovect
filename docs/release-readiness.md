@@ -1,6 +1,6 @@
 # Release scope
 
-Sonovect maintains one v0.3.0 product, the native `/v1` task API, an opt-in compatible asynchronous file API, optional realtime sessions and one `audio-analysis-v1` contract. Public distribution status is recorded in [PUBLICATION.md](../PUBLICATION.md).
+Sonovect mainline maintains0.4.0 source with standard transcription/translation/audio-question APIs, shared-model realtime transcription, durable native jobs, documented protocol adapters and one staged `audio-analysis-v1` contract. Public distribution status is recorded in [PUBLICATION.md](../PUBLICATION.md).
 
 | Area | Maintained reference |
 | --- | --- |
@@ -11,4 +11,6 @@ Sonovect maintains one v0.3.0 product, the native `/v1` task API, an opt-in comp
 | Development and packaging | [Validation](validation.md), [contributing](../CONTRIBUTING.md) |
 | Security and component sources | [Security](../SECURITY.md), [OS assessment](security/os-assessment.md), [component records](model-licenses.md) |
 
-The retained library findings have completed project-side assessment and mitigation within the supported file-service boundary. Upstream limitations remain documented for dependency maintenance. Chinese emotion remains an optional experiment. Supported recipes target Linux amd64. File tasks remain the default; the [optional Qwen and VibeVoice-ASR realtime adapters](vibevoice-realtime.md) require separate GPU runtimes and explicit activation. VibeVoice 1.5B is an on-demand alternative, with no automatic restart or default resident service. No browser console is provided. The realtime runtime, model quality and production image are separate qualification scopes; file-image findings do not attest those optional runtimes.
+The retained library findings have completed project-side assessment and mitigation within the supported file-service boundary. Upstream limitations remain documented for dependency maintenance. Chinese emotion remains an optional experiment. Supported recipes target Linux amd64. File tasks remain the default. Shared-model realtime transcription is explicitly enabled against the current speech owner and adds no recognition model; the older [experimental Qwen and VibeVoice-ASR realtime adapters](vibevoice-realtime.md) require separate GPU runtimes and explicit selection. VibeVoice 1.5B is an on-demand alternative, with no automatic restart or default resident service. No browser console is provided. The realtime runtime, model quality and production image are separate qualification scopes; file-image findings do not attest those optional runtimes.
+
+Selected four-role production and native-client verification is described in the [0.4.0 scope](release-v0.4.0.md). It is not a new all-13-role image audit or separately packaged public release.

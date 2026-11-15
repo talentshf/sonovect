@@ -14,12 +14,12 @@ services:
       options:
         max-size: 10m
         max-file: '3'
-    image: sonovect:${SONOVECT_VERSION:-0.3.0}
+    image: sonovect:${SONOVECT_VERSION:-0.4.0}
     build:
       context: ..
       target: core
       args:
-        VERSION: ${SONOVECT_VERSION:-0.3.0}
+        VERSION: ${SONOVECT_VERSION:-0.4.0}
         REVISION: ${SONOVECT_REVISION:-uncommitted}
     environment:
       SONOVECT_TOKEN: ${SONOVECT_TOKEN:?Set a non-placeholder token}
@@ -42,6 +42,8 @@ services:
       SONOVECT_INPUT_TTL_HOURS: ${SONOVECT_INPUT_TTL_HOURS:-24}
       SONOVECT_RESULT_TTL_HOURS: ${SONOVECT_RESULT_TTL_HOURS:-168}
       SONOVECT_PROVIDER_TIMEOUT: ${SONOVECT_PROVIDER_TIMEOUT:-7200}
+      SONOVECT_SERVED_MODEL: ${SONOVECT_SERVED_MODEL:-}
+      SONOVECT_SYNC_TIMEOUT: ${SONOVECT_SYNC_TIMEOUT:-120}
       SONOVECT_LEASE_SECONDS: ${SONOVECT_LEASE_SECONDS:-120}
       SONOVECT_POLL_SECONDS: ${SONOVECT_POLL_SECONDS:-0.1}
       SONOVECT_WORKER_STALE_SECONDS: ${SONOVECT_WORKER_STALE_SECONDS:-45}
@@ -67,12 +69,12 @@ services:
       options:
         max-size: 10m
         max-file: '3'
-    image: sonovect-funasr:${SONOVECT_VERSION:-0.3.0}
+    image: sonovect-funasr:${SONOVECT_VERSION:-0.4.0}
     build:
       context: ..
       target: funasr-worker
       args:
-        VERSION: ${SONOVECT_VERSION:-0.3.0}
+        VERSION: ${SONOVECT_VERSION:-0.4.0}
         REVISION: ${SONOVECT_REVISION:-uncommitted}
     environment:
       SONOVECT_TOKEN: ${SONOVECT_TOKEN:?Set a non-placeholder token}
@@ -95,6 +97,8 @@ services:
       SONOVECT_INPUT_TTL_HOURS: ${SONOVECT_INPUT_TTL_HOURS:-24}
       SONOVECT_RESULT_TTL_HOURS: ${SONOVECT_RESULT_TTL_HOURS:-168}
       SONOVECT_PROVIDER_TIMEOUT: ${SONOVECT_PROVIDER_TIMEOUT:-7200}
+      SONOVECT_SERVED_MODEL: ${SONOVECT_SERVED_MODEL:-}
+      SONOVECT_SYNC_TIMEOUT: ${SONOVECT_SYNC_TIMEOUT:-120}
       SONOVECT_LEASE_SECONDS: ${SONOVECT_LEASE_SECONDS:-120}
       SONOVECT_POLL_SECONDS: ${SONOVECT_POLL_SECONDS:-0.1}
       SONOVECT_WORKER_STALE_SECONDS: ${SONOVECT_WORKER_STALE_SECONDS:-45}
@@ -123,12 +127,12 @@ services:
     mem_limit: ${ANALYSIS_MEMORY_LIMIT:-6g}
     profiles:
     - analysis
-    image: ${SONOVECT_ANALYSIS_IMAGE:-sonovect-analysis}:${SONOVECT_VERSION:-0.3.0}
+    image: ${SONOVECT_ANALYSIS_IMAGE:-sonovect-analysis}:${SONOVECT_VERSION:-0.4.0}
     build:
       context: ..
       target: ${SONOVECT_ANALYSIS_TARGET:-analysis-worker}
       args:
-        VERSION: ${SONOVECT_VERSION:-0.3.0}
+        VERSION: ${SONOVECT_VERSION:-0.4.0}
         REVISION: ${SONOVECT_REVISION:-uncommitted}
     command:
     - sonovect-runtime
@@ -178,12 +182,12 @@ services:
     shm_size: 4gb
     profiles:
     - voice
-    image: sonovect-sound:${SONOVECT_VERSION:-0.3.0}
+    image: sonovect-sound:${SONOVECT_VERSION:-0.4.0}
     build:
       context: ..
       dockerfile: providers/speech/moss-worker/Dockerfile
       args:
-        VERSION: ${SONOVECT_VERSION:-0.3.0}
+        VERSION: ${SONOVECT_VERSION:-0.4.0}
         REVISION: ${SONOVECT_REVISION:-uncommitted}
         MOSS_AUDIO_COMMIT: 5cbb1d823937cd5b5de3d8fa4d3a7253ebd3b883
     environment:

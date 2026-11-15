@@ -16,10 +16,82 @@
       "default": null,
       "title": "Language"
     },
-    "speakers": {
+    "transcribe": {
       "default": true,
+      "title": "Transcribe",
+      "type": "boolean"
+    },
+    "speakers": {
+      "default": false,
       "title": "Speakers",
       "type": "boolean"
+    },
+    "detect_speech": {
+      "default": false,
+      "title": "Detect Speech",
+      "type": "boolean"
+    },
+    "timestamps": {
+      "default": "none",
+      "enum": [
+        "none",
+        "segment",
+        "word"
+      ],
+      "title": "Timestamps",
+      "type": "string"
+    },
+    "context": {
+      "default": "",
+      "description": "Recognition context, not an instruction",
+      "maxLength": 4000,
+      "title": "Context",
+      "type": "string"
+    },
+    "translate_to": {
+      "anyOf": [
+        {
+          "maxLength": 32,
+          "minLength": 2,
+          "pattern": "^[\\w-]+$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Translate To"
+    },
+    "translation_context": {
+      "default": "",
+      "maxLength": 4000,
+      "title": "Translation Context",
+      "type": "string"
+    },
+    "classify_audio": {
+      "default": false,
+      "title": "Classify Audio",
+      "type": "boolean"
+    },
+    "classify_top_k": {
+      "default": 5,
+      "maximum": 527,
+      "minimum": 1,
+      "title": "Classify Top K",
+      "type": "integer"
+    },
+    "alignment_text": {
+      "default": "",
+      "maxLength": 12000,
+      "title": "Alignment Text",
+      "type": "string"
+    },
+    "audio_question": {
+      "default": "",
+      "maxLength": 12000,
+      "title": "Audio Question",
+      "type": "string"
     },
     "analyze_sound": {
       "default": false,
@@ -48,6 +120,15 @@
       "maxItems": 200,
       "title": "Hotwords",
       "type": "array"
+    },
+    "channel_mode": {
+      "default": "mix",
+      "enum": [
+        "mix",
+        "independent"
+      ],
+      "title": "Channel Mode",
+      "type": "string"
     },
     "audio_track": {
       "default": 0,

@@ -20,19 +20,36 @@ def main(argv=None):
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("setup", help="Select deployment models and generate private configuration")
     commands.add_parser("models", help="List, prepare or verify pinned model assets")
+    transcribe = commands.add_parser("transcribe", help="Upload one recording and return text using the standard file endpoint")
+    transcribe.add_argument("file")
+    transcribe.add_argument("--model")
+    transcribe.add_argument("--language")
+    transcribe.add_argument("--prompt", default="")
+    transcribe.add_argument("--idempotency-key")
     submit = commands.add_parser("submit", help="Upload audio or video soundtracks and create a durable job")
     submit.add_argument("files", nargs="+")
     submit.add_argument("--language")
-    submit.add_argument("--no-speakers", action="store_true")
+    submit.add_argument("--speakers", action=argparse.BooleanOptionalAction, default=False)
+    submit.add_argument("--timestamps", choices=["none", "segment", "word"], default="none")
+    submit.add_argument("--transcribe", action=argparse.BooleanOptionalAction, default=True)
+    submit.add_argument("--detect-speech", action="store_true")
+    submit.add_argument("--classify-audio", action="store_true", help="Unfiltered AudioSet class scores")
+    submit.add_argument("--classify-top-k", type=int, default=5)
+    submit.add_argument("--audio-question", default="", help="Question for the configured audio understanding model")
+    submit.add_argument("--alignment-text", default="", help="Align supplied text; requires --no-transcribe and --language")
+    submit.add_argument("--translate-to", help="Translate speech into the selected target language")
+    submit.add_argument("--translation-context", default="", help="Quoted spelling/context hints for translation")
     submit.add_argument("--analyze-sound", action="store_true", help="AST environment events only")
     submit.add_argument("--analyze-voice", action="store_true", help="Deployment-selected experimental vocal observations")
     submit.add_argument("--measure-voice", action=argparse.BooleanOptionalAction, default=False,
                         help="Independent weight-free pitch/energy; off unless explicitly requested")
     submit.add_argument("--hotword", action="append", default=[])
+    submit.add_argument("--channel-mode", choices=["mix", "independent"], default="mix")
     submit.add_argument("--audio-track", type=int, default=0, help="Zero-based audio stream index (default: 0)")
     submit.add_argument("--idempotency-key")
     submit.add_argument("--wait", action="store_true")
-    for name in ("status", "wait", "cancel", "retry", "result", "analysis", "export"):
+    submit.add_argument("--callback-url", help="Allowlisted HTTPS receiver for signed completion events")
+    for name in ("status", "wait", "cancel", "retry", "result", "analysis", "translation", "export"):
         sub = commands.add_parser(name)
         sub.add_argument("job_id")
         if name == "result":
@@ -42,9 +59,9 @@ def main(argv=None):
         if name == "wait":
             sub.add_argument("--timeout", type=float, default=7200)
     commands.add_parser("capabilities")
-    stream = commands.add_parser("stream", help="Stream 16kHz mono PCM16 WAV or live PCM stdin; emit NDJSON snapshots")
+    stream = commands.add_parser("stream", help="Stream 24kHz mono PCM16 WAV or live PCM stdin; emit OpenAI NDJSON events")
     stream.add_argument("file", nargs="?")
-    stream.add_argument("--stdin", action="store_true", help="Read raw little-endian PCM16 mono 16kHz from stdin")
+    stream.add_argument("--stdin", action="store_true", help="Read raw little-endian PCM16 mono 24kHz from stdin")
     stream.add_argument("--language")
     stream.add_argument("--hotword", action="append", default=[])
     ready = commands.add_parser("ready", help="Check service/worker readiness without loading models")
@@ -61,11 +78,17 @@ def main(argv=None):
                              language=args.language, hotwords=args.hotword):
                 print(json.dumps(event, ensure_ascii=False), flush=True)
             return 0
+        elif args.command == "transcribe":
+            value = client.transcribe(args.file, model=args.model, language=args.language, prompt=args.prompt,
+                                      idempotency_key=args.idempotency_key)
         elif args.command == "submit":
-            selected = Options(language=args.language, speakers=not args.no_speakers,
+            selected = Options(language=args.language, speakers=args.speakers, timestamps=args.timestamps,
+                               transcribe=args.transcribe, detect_speech=args.detect_speech,
+                               translate_to=args.translate_to, translation_context=args.translation_context,
+                               classify_audio=args.classify_audio, classify_top_k=args.classify_top_k, audio_question=args.audio_question, alignment_text=args.alignment_text,
                                analyze_sound=args.analyze_sound, analyze_voice=args.analyze_voice, hotwords=args.hotword, audio_track=args.audio_track,
-                               measure_voice=args.measure_voice)
-            value = client.submit(args.files, selected, args.idempotency_key)
+                               measure_voice=args.measure_voice, channel_mode=args.channel_mode)
+            value = client.submit(args.files, selected, args.idempotency_key, args.callback_url)
             if args.wait:
                 value = client.wait(value["id"])
         elif args.command == "status":

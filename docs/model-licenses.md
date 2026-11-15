@@ -15,6 +15,7 @@ Sonovect是模型组装与服务平台，负责接入、任务、输出和部署
 | `punc` | [iic/punc_ct-transformer_cn-en-common-vocab471067-large](https://www.modelscope.cn/models/iic/punc_ct-transformer_cn-en-common-vocab471067-large) · `v2.0.4` | Apache-2.0 |
 | `cam` | [iic/speech_campplus_sv_zh-cn_16k-common](https://www.modelscope.cn/models/iic/speech_campplus_sv_zh-cn_16k-common) · `v2.0.2` | Apache-2.0 |
 | `paraformer-v2.0.9` | [iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch](https://www.modelscope.cn/models/iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch) · `v2.0.9` | Apache-2.0 |
+| `qwen-omni-7b` | [Qwen/Qwen2.5-Omni-7B](https://huggingface.co/Qwen/Qwen2.5-Omni-7B/tree/ae9e1690543ffd5c0221dc27f79834d0294cba00) · `ae9e1690543ffd5c0221dc27f79834d0294cba00` | Apache-2.0 |
 | `ast-events` | [MIT/ast-finetuned-audioset-10-10-0.4593](https://huggingface.co/MIT/ast-finetuned-audioset-10-10-0.4593/tree/f826b80d28226b62986cc218e5cec390b1096902) · `f826b80d28226b62986cc218e5cec390b1096902` | BSD-3-Clause |
 | `emotion2vec-base` | [emotion2vec/emotion2vec_plus_base](https://huggingface.co/emotion2vec/emotion2vec_plus_base/tree/b318240bfe67db81a8c572ecb37ce9c3759b81c9) · `b318240bfe67db81a8c572ecb37ce9c3759b81c9` | model-license |
 | `vibevoice-stream-1.5b` | [microsoft/VibeVoice-ASR-Streaming-1.5B](https://huggingface.co/microsoft/VibeVoice-ASR-Streaming-1.5B/tree/4262d23d8a539a6530cf64fbd0b1751ef9a30853) · `4262d23d8a539a6530cf64fbd0b1751ef9a30853` | MIT |
