@@ -29,7 +29,7 @@ wyoming = ["wyoming==1.11.0"]
 stream-client = ["websockets>=15,<17"]
 funasr = ["funasr==1.4.16", "torch==2.14.1", "torchaudio==2.11.0", "transformers==5.20.2", "modelscope==1.40.2"]
 evaluation = ["rapidfuzz>=3.14,<4"]
-test = ["openai>=2,<4", "websockets>=15,<17", "rapidfuzz>=3.14,<4", "jsonschema>=4,<5", "numpy>=1.26,<3", "scipy>=1.14,<2", "librosa==1.0.0", "soxr>=1.1,<2"]
+test = ["openai>=2,<4", "websockets>=15,<17", "wyoming==1.11.0", "rapidfuzz>=3.14,<4", "jsonschema>=4,<5", "numpy>=1.26,<3", "scipy>=1.14,<2", "librosa==1.0.0", "soxr>=1.1,<2"]
 
 [project.scripts]
 sonovect = "sonovect.cli:main"
