@@ -9,6 +9,8 @@ import os
 import sqlite3
 import struct
 import subprocess
+import ssl
+import _ssl
 
 
 def dynamic_symbols(path, *, undefined):
@@ -34,6 +36,18 @@ def dynamic_symbols(path, *, undefined):
 
 def undefined_symbols(path):
     return dynamic_symbols(path, undefined=True)
+
+
+def openssl_tls_probe():
+    """Observe the stdlib TLS binding; not a claim about every native caller."""
+    path = Path(_ssl.__file__)
+    imports = undefined_symbols(path)
+    forbidden = ('CMS_', 'OSSL_QUIC_', 'EVP_CipherInit', 'EVP_EncryptInit',
+                 'EVP_DecryptInit', 'EVP_CIPHER_fetch')
+    return {'version': ssl.OPENSSL_VERSION,
+            'stdlib_ssl_sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
+            'non_tls_crypto_imports': [name for name in imports if name.startswith(forbidden)],
+            'tls_ciphers': sorted({row['name'] for row in ssl.create_default_context().get_ciphers()})}
 
 
 def sqlite_store_probe():
@@ -82,8 +96,8 @@ def collect():
                 'tar', 'rmt', 'chown', 'chgrp', 'sort', 'uniq', 'unexpand',
                 'login', 'su', 'chfn', 'chsh', 'sulogin', 'init', 'apt-key', 'getfacl', 'setfacl', 'chacl', 'getfattr', 'setfattr',
                 'bzip2recover', 'nscd', 'systemd-oomd', 'systemd-journald',
-                'newuidmap', 'newgidmap', 'pod2text', 'gcc', 'g++', 'apt', 'apt-get', 'apt-cache')
-    modules = {'file_temp': [], 'pod_text': [], 'nscd': [], 'systemd_programs': [], 'pam_userdb': [], 'sqlite_zipfile': [], 'apt_methods': [], 'apt_libraries': []}
+                'newuidmap', 'newgidmap', 'pod2text', 'gcc', 'g++', 'apt', 'apt-get', 'apt-cache', 'openssl', 'dpkg-source')
+    modules = {'file_temp': [], 'pod_text': [], 'nscd': [], 'systemd_programs': [], 'pam_userdb': [], 'sqlite_zipfile': [], 'apt_methods': [], 'apt_libraries': [], 'dpkg_source': []}
     for directory in ('/usr', '/sbin', '/bin'):
         for path in Path(directory).rglob('*'):
             if not path.is_file():
@@ -92,6 +106,8 @@ def collect():
                 modules['file_temp'].append(str(path))
             if path.name == 'Text.pm' and path.parent.name == 'Pod':
                 modules['pod_text'].append(str(path))
+            if '/Dpkg/Source/' in str(path):
+                modules['dpkg_source'].append(str(path))
             if path.name == 'nscd':
                 modules['nscd'].append(str(path))
             if path.name == 'pam_userdb.so':
@@ -107,7 +123,7 @@ def collect():
     dash = shutil.which('dash')
     dash_unicode = subprocess.check_output([dash, '-c', "printf '\\u0041'"]) if dash else None
     libraries = {}
-    for name in ('libstdc++.so.6', 'libc.so.6', 'libsqlite3.so.0', 'libz.so.1'):
+    for name in ('libstdc++.so.6', 'libc.so.6', 'libsqlite3.so.0', 'libz.so.1', 'libssl.so.3', 'libcrypto.so.3'):
         path = next(Path('/usr/lib').rglob(name), None)
         if path:
             path = path.resolve()
@@ -125,6 +141,7 @@ def collect():
             'effective_capabilities': next(line.split()[1] for line in status.splitlines() if line.startswith('CapEff:')),
             'no_new_privileges': next(line.split()[1] for line in status.splitlines() if line.startswith('NoNewPrivs:')),
             'sqlite_runtime': sqlite3.sqlite_version,
+            'openssl_tls': openssl_tls_probe(),
             'sqlite_store': sqlite_store_probe(),
             'cpp_templates': {
                 'parallel_algorithm_exports': [name for name in defined if '__gnu_parallel' in name and '_Settings' not in name],

@@ -60,6 +60,42 @@
       "source": "gcc-14",
       "source_version": "14.2.0-19",
       "semantic_sha256": "1aaf796c7b7566ea7808187d5054648865ec9dd7ecd47f7ac0a96688e2b6274e"
+    },
+    "CVE-2026-100290": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "semantic_sha256": "14a78caeef9a903461c2335be49ed4144c305686d891d0f1c07c6e92a64d9898"
+    },
+    "CVE-2026-115819": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "semantic_sha256": "145204fe01a3fb93188ec6cbfce7989bb1449c68d869b5ac822763e0cd78ac3d"
+    },
+    "CVE-2026-88822": {
+      "source": "openssl",
+      "source_version": "3.5.7-1~deb13u3",
+      "semantic_sha256": "99379d1e4772f9d008ee67bcfbb82ab0d18e0ae7740d3ad56f2e01ff2cc71973"
+    },
+    "CVE-2026-88823": {
+      "source": "openssl",
+      "source_version": "3.5.7-1~deb13u3",
+      "semantic_sha256": "d9acb624e6d23114c8aeea9a883200474199219de86c1fae441d78aacf60cea2"
+    },
+    "CVE-2026-95691": {
+      "source": "openssl",
+      "source_version": "3.5.7-1~deb13u3",
+      "semantic_sha256": "b9261452a2c876abd032103ea025521a970cf50c28f79a69ef9c715479c5f126"
+    },
+    "CVE-2026-95692": {
+      "source": "openssl",
+      "source_version": "3.5.7-1~deb13u3",
+      "semantic_sha256": "b2708b5361e7b8cb7633e299eb7b81804276d3a5767da388b86d9f3655755ad6"
+    },
+    "CVE-2026-107496": {
+      "source": "openssl",
+      "source_version": "3.5.7-1~deb13u3",
+      "semantic_sha256": "d95a0bd2a13dff4d738e72e35c55497cd929360de12d4703452ed6d46aa96760"
     }
-  }
+  },
+  "reviewed": "2026-11-15"
 }

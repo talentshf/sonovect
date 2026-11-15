@@ -202,3 +202,37 @@ class GettextBoundaryTests(unittest.TestCase):
         for key,value in [('lc_messages','en_US.UTF-8'),('lc_all','en_US.UTF-8'),('language','../catalog'),('ssh_server_present',True)]:
             bad=copy.deepcopy(facts);bad['residual']['gettext_locale'][key]=value
             self.assertTrue(module.classify(audit,bad)['unresolved_lower_severity'])
+
+
+class Release040BoundaryTests(unittest.TestCase):
+    fixture = OSAuditTests.fixture
+
+    def test_openssl_needs_exact_binding_libraries_and_restricted_transport(self):
+        audit,facts=self.fixture('CVE-2026-88822','openssl','3.5.7-1~deb13u3')
+        audit['Results'][0]['Vulnerabilities'][0]['Severity']='MEDIUM'
+        proof=module.POLICY['CVE-2026-88822']['proof']
+        facts['residual']={'uid':10001,'effective_capabilities':'0000000000000000','no_new_privileges':'1',
+            'commands':{k:[] for k in ('sh','bash','dash','perl','openssl')},
+            'libraries':{name:{'sha256':value} for name,value in proof['libraries'].items()},
+            'openssl_tls':{'stdlib_ssl_sha256':proof['stdlib_ssl_sha256'],'non_tls_crypto_imports':[],
+                           'tls_ciphers':['TLS_AES_256_GCM_SHA384']}}
+        self.assertFalse(module.classify(audit,facts)['unresolved_lower_severity'])
+        for field,value in [('stdlib_ssl_sha256','changed'),('non_tls_crypto_imports',['CMS_encrypt']),
+                            ('tls_ciphers',[]),('tls_ciphers',['AES-256-GCM-SIV'])]:
+            bad=copy.deepcopy(facts);bad['residual']['openssl_tls'][field]=value
+            self.assertTrue(module.classify(audit,bad)['unresolved_lower_severity'])
+        bad=copy.deepcopy(facts);bad['residual']['libraries']['libcrypto.so.3']['sha256']='changed'
+        self.assertTrue(module.classify(audit,bad)['unresolved_lower_severity'])
+        bad=copy.deepcopy(facts);bad['residual']['commands']['openssl']=['/usr/bin/openssl']
+        self.assertTrue(module.classify(audit,bad)['unresolved_lower_severity'])
+
+    def test_new_unknown_glibc_finding_is_not_downgraded_or_accepted_without_digest(self):
+        audit,facts=self.fixture('CVE-2026-100290','glibc','2.43-7~sonovect13.1')
+        audit['Results'][0]['Vulnerabilities'][0]['Severity']='UNKNOWN'
+        proof=module.POLICY['CVE-2026-100290']['proof']
+        facts['residual']={'uid':10001,'effective_capabilities':'0000000000000000','no_new_privileges':'1',
+            'commands':{k:[] for k in ('sh','bash','dash','perl','grep','egrep','fgrep')},
+            'libraries':{name:{'sha256':value} for name,value in proof['libraries'].items()}}
+        self.assertFalse(module.classify(audit,facts)['unresolved_lower_severity'])
+        del facts['residual']['libraries']
+        self.assertTrue(module.classify(audit,facts)['unresolved_lower_severity'])

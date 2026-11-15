@@ -52,7 +52,7 @@ nvidia-nccl-cu13==2.30.7
 nvidia-nvjitlink==13.4.92
 nvidia-nvshmem-cu13==3.4.5
 nvidia-nvtx==13.2.86
-opentelemetry-api==1.45.1
+opentelemetry-api==1.45.2
 packaging==26.3
 pip==26.2.1
 platformdirs==4.13.5

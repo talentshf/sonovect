@@ -12,7 +12,8 @@ PROGRAMS = ('bash', 'bashbug', 'dash', 'sh', 'perl', 'tar', 'rmt', 'rmt-tar',
             'unexpand', 'login', 'su', 'sulogin', 'runuser', 'chfn', 'chsh', 'gpasswd',
             'newgrp', 'passwd', 'chage', 'chpasswd', 'usermod', 'userdel',
             'groupadd', 'groupdel', 'groupmod', 'useradd', 'newusers', 'chroot',
-            'apt', 'apt-get', 'apt-cache', 'apt-config', 'apt-key', 'apt-mark', 'apt-cdrom')
+            'apt', 'apt-get', 'apt-cache', 'apt-config', 'apt-key', 'apt-mark', 'apt-cdrom',
+            'openssl', 'dpkg-source')
 
 
 def minimize():
@@ -42,6 +43,12 @@ def minimize():
             if path.is_file() or path.is_symlink():
                 remove(path)
         shutil.rmtree(modules)
+    source_unpacker = Path('/usr/share/perl5/Dpkg/Source')
+    if source_unpacker.is_dir():
+        for path in sorted(source_unpacker.rglob('*')):
+            if path.is_file() or path.is_symlink():
+                remove(path)
+        shutil.rmtree(source_unpacker)
     for path in Path('/usr/lib').rglob('pam_userdb.so'):
         remove(path)
     for path in Path('/usr/lib').rglob('libapt-*.so*'):

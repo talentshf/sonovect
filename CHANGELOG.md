@@ -4,6 +4,8 @@
 
 ## 0.4.0 — 2026-11-15
 
+- Require OpenTelemetry API1.45.2 in maintained locks and MCP clients; assess newly observed OS findings against exact image evidence, remove unused crypto/source-unpacking CLI code, and retain explicit upstream limitations.
+
 - Include the channel-selection filter in the bounded FFmpeg build and verify independent stereo decoding in each maintained media image, closing a gap exposed by actual-image qualification.
 - Add standard OpenAI file transcription, English translation and audio-input text Chat Completions; retain source transcripts separately from translations and sound answers.
 - Add shared-model OpenAI transcription sessions with manual commits or optional neural CPU speech endpoints, real file-stream deltas, Deepgram file/final-turn WebSockets, FunASR offline PCM turns, HF audio classification and an optional official-library Wyoming bridge.

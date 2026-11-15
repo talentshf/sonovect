@@ -67,6 +67,20 @@ def policy_disposition(item, package, facts):
                  and evidence.get('no_new_privileges') == '1' and facts.get('setid_paths') == []
                  and all(key in commands and not commands[key]
                          for key in ('sh', 'bash', 'dash', 'perl', *proof.get('commands', []))))
+        valid = valid and all(evidence.get('libraries', {}).get(name, {}).get('sha256') == digest
+                              for name, digest in proof.get('libraries', {}).items())
+    elif kind == 'openssl-tls-service-boundary':
+        commands = evidence.get('commands', {})
+        profile = evidence.get('openssl_tls', {})
+        ciphers = profile.get('tls_ciphers', [])
+        valid = (evidence.get('uid') == 10001 and evidence.get('effective_capabilities') == '0000000000000000'
+                 and evidence.get('no_new_privileges') == '1' and facts.get('setid_paths') == []
+                 and all(key in commands and not commands[key] for key in ('sh','bash','dash','perl','openssl'))
+                 and profile.get('stdlib_ssl_sha256') == proof['stdlib_ssl_sha256']
+                 and profile.get('non_tls_crypto_imports') == [] and ciphers
+                 and not any('SIV' in cipher.upper() for cipher in ciphers)
+                 and all(evidence.get('libraries', {}).get(name, {}).get('sha256') == digest
+                         for name,digest in proof['libraries'].items()))
     elif kind == 'gettext-locale-boundary':
         profile = evidence.get('gettext_locale', {})
         safe = {'C', 'C.UTF-8', 'C.utf8', 'POSIX'}

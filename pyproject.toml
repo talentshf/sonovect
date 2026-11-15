@@ -24,7 +24,7 @@ Changelog = "https://github.com/talentshf/sonovect/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 server = ["fastapi>=0.150,<1", "starlette>=1.9,<2", "python-multipart>=0.0.32,<1", "uvicorn>=0.54,<1", "websockets>=15,<17"]
-mcp = ["mcp>=2.3,<3"]
+mcp = ["mcp>=2.3,<3", "opentelemetry-api>=1.45.2,<2"]
 wyoming = ["wyoming==1.11.0"]
 stream-client = ["websockets>=15,<17"]
 funasr = ["funasr==1.4.16", "torch==2.14.1", "torchaudio==2.11.0", "transformers==5.20.2", "modelscope==1.40.2"]

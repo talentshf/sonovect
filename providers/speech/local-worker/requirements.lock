@@ -78,7 +78,7 @@ nvidia-nvjitlink==13.4.92
 nvidia-nvshmem-cu13==3.4.5
 nvidia-nvtx==13.2.86
 omegaconf==2.3.1
-opentelemetry-api==1.45.1
+opentelemetry-api==1.45.2
 oss2==2.19.1
 packaging==26.3
 pip==26.2.1

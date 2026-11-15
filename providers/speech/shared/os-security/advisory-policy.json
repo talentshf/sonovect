@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed": "2026-11-07",
+  "reviewed": "2026-11-15",
   "scope": "Supported immutable Linuxamd64 service images and maintained file-job interface only; not arbitrary operator Python/shell or host security. Raw findings remain visible.",
   "records": {
     "CVE-2011-3374": {
@@ -1199,6 +1199,163 @@
         "library_sha256": "972bb2a18b71140dab0240f8a1f68ab3fb1d56bcd4c4f824a91b70888faf5a00"
       },
       "reason": "Unfixed libstdc++ std::from_chars out-of-bounds read with non-NUL-terminated buffers can cause invalid float parsing or denial of service. The authenticated single-trust-domain service accepts bounded media and typed options, not C++ pointers, compiler input or arbitrary native code. Exact distro source/library identity, non-root execution, dropped capabilities, no-new-privileges, absent setid programs, shells and compiler headers are required. These controls limit exposure and privilege impact; they do not prove native decoder paths unreachable or repair parsing. Residual process availability and parsing risk remains disclosed. Wheel-bundled libraries, optional realtime operator images and alternate callers require separate assessment."
+    },
+    "CVE-2026-91094": {
+      "source": "dpkg",
+      "source_version": "1.22.22",
+      "severity": "UNKNOWN",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-91094"
+      ],
+      "status": "affected-program-absent",
+      "proof": {
+        "type": "absence",
+        "commands": [
+          "dpkg-source",
+          "perl"
+        ],
+        "modules": [
+          "dpkg_source"
+        ]
+      },
+      "reason": "The affected quilt source-package unpacker is not a media decoder. The immutable runtime removes dpkg-source and Perl and requires the Dpkg/Source module paths absent. Exact source identity, UNKNOWN scanner severity and raw findings remain visible. Build-time trusted hash-locked source archives are a separate boundary; this does not fix dpkg."
+    },
+    "CVE-2026-100290": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "UNKNOWN",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-100290"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "service-boundary",
+        "commands": [
+          "grep",
+          "egrep",
+          "fgrep"
+        ],
+        "libraries": {
+          "libc.so.6": "c930313656f289aff92977beedae1ba038524158d53ca758d1f32a36041eef36"
+        }
+      },
+      "reason": "regcomp/regexec allocation-failure cleanup can double-free memory under pressure. The media APIs do not accept native regular expressions; Python regex uses its separate engine. Grep/interpreters are absent. Native decoder availability risk is not proven unreachable. Debian currently lists no fixed source and marks a minor issue; UNKNOWN remains the scanner severity, not a claim of low severity. Acceptance requires the exact library digest, non-root/no-capability/no-new-privilege/no-setid service and absent shells/Perl. This is an explicit retained limitation, not a library fix; arbitrary operator code is outside scope."
+    },
+    "CVE-2026-115819": {
+      "source": "glibc",
+      "source_version": "2.43-7~sonovect13.1",
+      "severity": "UNKNOWN",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-115819"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "service-boundary",
+        "commands": [
+          "grep",
+          "egrep",
+          "fgrep"
+        ],
+        "libraries": {
+          "libc.so.6": "c930313656f289aff92977beedae1ba038524158d53ca758d1f32a36041eef36"
+        }
+      },
+      "reason": "Wide scanf conversion to a narrow array can write a second terminator past its end. No native scanf format or wide-conversion API is exposed. This restricted caller contract does not prove all bundled native decoder paths unreachable or repair the memory-safety defect. Debian currently lists no fixed source and marks a minor issue; UNKNOWN remains the scanner severity, not a claim of low severity. Acceptance requires the exact library digest, non-root/no-capability/no-new-privilege/no-setid service and absent shells/Perl. This is an explicit retained limitation, not a library fix; arbitrary operator code is outside scope."
+    },
+    "CVE-2026-88822": {
+      "source": "openssl",
+      "source_version": "3.5.7-1~deb13u3",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-88822",
+        "https://openssl-library.org/news/secadv/20261110.txt"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "openssl-tls-service-boundary",
+        "libraries": {
+          "libssl.so.3": "9592038e92d1f41affcbb625334d0b6e788714c889104fa6d5b107cf9fd657f2",
+          "libcrypto.so.3": "8ae56f0a9481280a68c19f59809cd242a07a91ad7142944d21a878221992244b"
+        },
+        "stdlib_ssl_sha256": "6891800dbb9144863d3e1fbcf812694035533c6872a29575f857d5163a8b5c7e"
+      },
+      "reason": "QUIC automatic peer detection may disclose uninitialized stack bytes. The maintained application exposes bounded media and typed options, not CMS encryption, QUIC or arbitrary EVP/AES-GCM-SIV operations. Its standard-library TLS binding has no observed CMS/QUIC/general-cipher imports or SIV TLS ciphers; the openssl CLI and shells are removed. Exact libssl/libcrypto and stdlib binding digests, unprivileged restrictions and observed TLS profile are required. This is a scoped application boundary, not a library fix or a proof about every native/wheel-bundled caller. Upstream public fixes are scheduled for a later release; arbitrary operator code, HTTP/3, new crypto callers and independent runtimes require renewed assessment. Raw MEDIUM matches remain visible."
+    },
+    "CVE-2026-88823": {
+      "source": "openssl",
+      "source_version": "3.5.7-1~deb13u3",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-88823",
+        "https://openssl-library.org/news/secadv/20261110.txt"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "openssl-tls-service-boundary",
+        "libraries": {
+          "libssl.so.3": "9592038e92d1f41affcbb625334d0b6e788714c889104fa6d5b107cf9fd657f2",
+          "libcrypto.so.3": "8ae56f0a9481280a68c19f59809cd242a07a91ad7142944d21a878221992244b"
+        },
+        "stdlib_ssl_sha256": "6891800dbb9144863d3e1fbcf812694035533c6872a29575f857d5163a8b5c7e"
+      },
+      "reason": "AES-GCM-SIV empty incremental AAD can invalidate authentication. The maintained application exposes bounded media and typed options, not CMS encryption, QUIC or arbitrary EVP/AES-GCM-SIV operations. Its standard-library TLS binding has no observed CMS/QUIC/general-cipher imports or SIV TLS ciphers; the openssl CLI and shells are removed. Exact libssl/libcrypto and stdlib binding digests, unprivileged restrictions and observed TLS profile are required. This is a scoped application boundary, not a library fix or a proof about every native/wheel-bundled caller. Upstream public fixes are scheduled for a later release; arbitrary operator code, HTTP/3, new crypto callers and independent runtimes require renewed assessment. Raw MEDIUM matches remain visible."
+    },
+    "CVE-2026-95691": {
+      "source": "openssl",
+      "source_version": "3.5.7-1~deb13u3",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-95691",
+        "https://openssl-library.org/news/secadv/20261110.txt"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "openssl-tls-service-boundary",
+        "libraries": {
+          "libssl.so.3": "9592038e92d1f41affcbb625334d0b6e788714c889104fa6d5b107cf9fd657f2",
+          "libcrypto.so.3": "8ae56f0a9481280a68c19f59809cd242a07a91ad7142944d21a878221992244b"
+        },
+        "stdlib_ssl_sha256": "6891800dbb9144863d3e1fbcf812694035533c6872a29575f857d5163a8b5c7e"
+      },
+      "reason": "QUIC CRYPTO retransmission can cause use-after-free and a small disclosure. The maintained application exposes bounded media and typed options, not CMS encryption, QUIC or arbitrary EVP/AES-GCM-SIV operations. Its standard-library TLS binding has no observed CMS/QUIC/general-cipher imports or SIV TLS ciphers; the openssl CLI and shells are removed. Exact libssl/libcrypto and stdlib binding digests, unprivileged restrictions and observed TLS profile are required. This is a scoped application boundary, not a library fix or a proof about every native/wheel-bundled caller. Upstream public fixes are scheduled for a later release; arbitrary operator code, HTTP/3, new crypto callers and independent runtimes require renewed assessment. Raw MEDIUM matches remain visible."
+    },
+    "CVE-2026-95692": {
+      "source": "openssl",
+      "source_version": "3.5.7-1~deb13u3",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-95692",
+        "https://openssl-library.org/news/secadv/20261110.txt"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "openssl-tls-service-boundary",
+        "libraries": {
+          "libssl.so.3": "9592038e92d1f41affcbb625334d0b6e788714c889104fa6d5b107cf9fd657f2",
+          "libcrypto.so.3": "8ae56f0a9481280a68c19f59809cd242a07a91ad7142944d21a878221992244b"
+        },
+        "stdlib_ssl_sha256": "6891800dbb9144863d3e1fbcf812694035533c6872a29575f857d5163a8b5c7e"
+      },
+      "reason": "AES-GCM-SIV invalid IV lengths can overread or fail to bind the IV. The maintained application exposes bounded media and typed options, not CMS encryption, QUIC or arbitrary EVP/AES-GCM-SIV operations. Its standard-library TLS binding has no observed CMS/QUIC/general-cipher imports or SIV TLS ciphers; the openssl CLI and shells are removed. Exact libssl/libcrypto and stdlib binding digests, unprivileged restrictions and observed TLS profile are required. This is a scoped application boundary, not a library fix or a proof about every native/wheel-bundled caller. Upstream public fixes are scheduled for a later release; arbitrary operator code, HTTP/3, new crypto callers and independent runtimes require renewed assessment. Raw MEDIUM matches remain visible."
+    },
+    "CVE-2026-107496": {
+      "source": "openssl",
+      "source_version": "3.5.7-1~deb13u3",
+      "severity": "MEDIUM",
+      "references": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-107496",
+        "https://openssl-library.org/news/secadv/20261110.txt"
+      ],
+      "status": "reviewed-service-boundary",
+      "proof": {
+        "type": "openssl-tls-service-boundary",
+        "libraries": {
+          "libssl.so.3": "9592038e92d1f41affcbb625334d0b6e788714c889104fa6d5b107cf9fd657f2",
+          "libcrypto.so.3": "8ae56f0a9481280a68c19f59809cd242a07a91ad7142944d21a878221992244b"
+        },
+        "stdlib_ssl_sha256": "6891800dbb9144863d3e1fbcf812694035533c6872a29575f857d5163a8b5c7e"
+      },
+      "reason": "CMS encryption with an attacker-controlled order-1 EC group can hang. The maintained application exposes bounded media and typed options, not CMS encryption, QUIC or arbitrary EVP/AES-GCM-SIV operations. Its standard-library TLS binding has no observed CMS/QUIC/general-cipher imports or SIV TLS ciphers; the openssl CLI and shells are removed. Exact libssl/libcrypto and stdlib binding digests, unprivileged restrictions and observed TLS profile are required. This is a scoped application boundary, not a library fix or a proof about every native/wheel-bundled caller. Upstream public fixes are scheduled for a later release; arbitrary operator code, HTTP/3, new crypto callers and independent runtimes require renewed assessment. Raw MEDIUM matches remain visible."
     }
   }
 }
