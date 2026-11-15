@@ -1,4 +1,4 @@
-# OS advisory assessment — 0.3.0
+# OS advisory assessment — 0.4.0
 
 This register records exact source versions, primary advisories and scoped dispositions for maintained Linux amd64 immutable service images. It is source applicability evidence; actual image/package inventory, complete scanner coverage and per-role qualification are required separately. Raw findings remain visible. TEMP identifiers are Debian tracker entries, not assigned CVEs.
 

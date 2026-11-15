@@ -4,6 +4,7 @@
 
 ## 0.4.0 — 2026-11-15
 
+- Include the channel-selection filter in the bounded FFmpeg build and verify independent stereo decoding in each maintained media image, closing a gap exposed by actual-image qualification.
 - Add standard OpenAI file transcription, English translation and audio-input text Chat Completions; retain source transcripts separately from translations and sound answers.
 - Add shared-model OpenAI transcription sessions with manual commits or optional neural CPU speech endpoints, real file-stream deltas, Deepgram file/final-turn WebSockets, FunASR offline PCM turns, HF audio classification and an optional official-library Wyoming bridge.
 - Make ordinary STT lightweight: no speaker features, forced alignment or optional analysis unless requested; keep the recognition model resident for30 idle minutes. Re-listen without vocabulary context when a context echo is suspected.

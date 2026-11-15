@@ -68,6 +68,12 @@ def validate(evidence, images, revision, version):
                 raise ValueError('missing_moss_corresponding_source_or_notice')
         if role in {'measurements', 'analysis-measurements'} and names & {'torch', 'torchaudio', 'funasr', 'transformers', 'moss-audio'}:
             raise ValueError('measurement_role_contains_model_framework')
+        if role in {'worker', 'native', 'vocal', 'qwen', 'analysis'}:
+            media = json.loads((directory/'media-channels.json').read_text())
+            if (media.get('image_id') != image['image'] or media.get('source_revision') != revision
+                    or media.get('uid') != 10001 or media.get('channel_samples') != [1000, -2000]
+                    or media.get('duration_ms') != [100, 100]):
+                raise ValueError('independent_channel_decode_failed:'+role)
         records.append({'role': role, 'image': image['image'], 'os_raw_matches': os_result['raw_matches'],
                         'python_packages': len(installed), 'source_license_inventory': True})
     return {'version': version, 'revision': revision, 'engineering_gate': 'passed',

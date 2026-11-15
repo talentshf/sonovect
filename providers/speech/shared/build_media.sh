@@ -23,7 +23,7 @@ cd "ffmpeg-${VERSION}"
     --enable-parser=aac,aac_latm,mpegaudio,flac,opus,vorbis \
     --enable-encoder=pcm_s16le,pcm_s16be,flac,aac,mpeg4,ffv1,libmp3lame,libopus,libvpx_vp8 \
     --enable-indev=lavfi \
-    --enable-filter=color,sine,anullsrc,asetpts,aresample,adelay,aformat,anull,format,scale,abuffer,abuffersink,buffer,buffersink
+    --enable-filter=color,sine,anullsrc,pan,asetpts,aresample,adelay,aformat,anull,format,scale,abuffer,abuffersink,buffer,buffersink
 make -j4
 install -m755 ffmpeg ffprobe /out/bin/
 cp ../ffmpeg.tar.xz /out/share/sonovect-media/ffmpeg-${VERSION}.tar.xz
