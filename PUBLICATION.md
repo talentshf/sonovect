@@ -1,12 +1,14 @@
 # Releases / 发行
 
+Latest maintenance release: [v0.4.1](docs/release-v0.4.1.md), including the OpenSSL security backports and compatible dependency updates. 最新维护版本包含加密库安全修复和兼容依赖更新。
+
 **v0.4.0 is the speech processing service-center release.** It includes the product introduction, documented standard interfaces, client, deployment recipes and standalone skill. See the [release guide](docs/release-v0.4.0.md) for features, upgrade guidance and verification boundaries.
 
 **v0.4.0 是通用语音处理服务中心正式版。** 产品介绍、标准接入、客户端、部署配方与独立技能随版本交付，功能、升级与验证范围见[发行说明](docs/release-v0.4.0.md)。
 
-Sonovect is open source under Apache-2.0. Get **v0.4.0** from the [GitHub release](https://github.com/talentshf/sonovect/releases/tag/v0.4.0), or clone the [repository](https://github.com/talentshf/sonovect). The release provides source, a clean Git bundle, the Python client, a source distribution and the standalone agent skill. Verify downloaded files with the attached `SHA256SUMS`.
+Sonovect is open source under Apache-2.0. Get **v0.4.1** from the [GitHub release](https://github.com/talentshf/sonovect/releases/tag/v0.4.1), or clone the [repository](https://github.com/talentshf/sonovect). The release provides source, a clean Git bundle, the Python client, a source distribution and the standalone agent skill. Verify downloaded files with the attached `SHA256SUMS`.
 
-Sonovect 已按 Apache-2.0 开源。通过 [v0.4.0 发行页](https://github.com/talentshf/sonovect/releases/tag/v0.4.0)下载源码、干净 Git（版本管理）历史包、Python 客户端、源码安装包及独立智能体技能；附件使用 `SHA256SUMS` 校验。也可以直接克隆项目仓库。
+Sonovect 已按 Apache-2.0 开源。通过 [v0.4.1 发行页](https://github.com/talentshf/sonovect/releases/tag/v0.4.1)下载源码、干净 Git（版本管理）历史包、Python 客户端、源码安装包及独立智能体技能；附件使用 `SHA256SUMS` 校验。也可以直接克隆项目仓库。
 
 Container recipes build locally. Model weights are downloaded separately according to your selections; this release does not distribute prebuilt registry images or publish a package to PyPI. Follow [deployment](deploy/README.md) and [agent setup](docs/agent-setup.md).
 

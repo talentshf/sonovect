@@ -3,6 +3,7 @@
 0.4.1 is a dependency-maintenance release. Its speech features and connection formats are the same as [0.4.0](release-v0.4.0.md).
 
 - Apply five official OpenSSL 3.5 security fixes, with upstream regression tests and actual installed-library verification. See the [dependency review](security/release-041-advisories-20261115.md).
+- Refresh compatible certificate, multipart-upload, validation and CLI dependency patches in the maintained runtime locks.
 - Remove the obsolete 0.3 application-overlay Dockerfile and duplicate transport lock; use the full maintained Dockerfiles.
 - Keep the twelve documented, reviewed system-library limitations visible. This is not a zero-vulnerability claim.
 

@@ -1,9 +1,9 @@
 # Linux amd64 / Python 3.12 installed dependency baseline. Torch is installed from its official CPU/CUDA index first.
-annotated-doc==0.0.5
+annotated-doc==0.0.6
 annotated-types==0.8.0
 anyio==4.15.1
-certifi==2026.10.19
-click==8.5.0
+certifi==2026.10.23
+click==8.5.1
 fastapi==0.150.0
 h11==0.16.0
 httpcore==1.0.9
@@ -12,12 +12,12 @@ idna==3.20
 opentelemetry-api==1.45.2
 packaging==26.3
 pip==26.2.1
-pydantic==2.14.1
-pydantic_core==2.50.1
-python-multipart==0.0.32
+pydantic==2.14.3
+pydantic_core==2.50.4
+python-multipart==0.0.33
 setuptools==84.2.0
 starlette==1.9.0
-typing-inspection==0.4.4
+typing-inspection==0.4.5
 typing_extensions==4.16.0
 uvicorn==0.54.0
 websockets==17.3
