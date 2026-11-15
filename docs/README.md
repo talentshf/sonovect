@@ -1,6 +1,6 @@
 # Documentation
 
-Sonovect mainline is0.4.0: transcription, translation into text and sound understanding through documented standard interfaces and durable jobs. Packaged release availability is separate in [PUBLICATION.md](../PUBLICATION.md).
+Sonovect v0.4.0: transcription, translation into text and sound understanding through documented standard interfaces and durable jobs. Download the packaged release through [PUBLICATION.md](../PUBLICATION.md).
 
 | Need | Reference |
 | --- | --- |
@@ -22,4 +22,4 @@ Sonovect mainline is0.4.0: transcription, translation into text and sound unders
 
 Private planning, retired development versions and raw acceptance materials are maintained outside this product repository. No machine-specific credentials, source locations or business workflows are required by the product or its skill.
 
-[Product introduction / 产品介绍](positioning.md) · [0.4.0 source guide / 版本说明](release-v0.4.0.md)
+[Product introduction / 产品介绍](positioning.md) · [0.4.0 release guide / 版本说明](release-v0.4.0.md)

@@ -1,6 +1,6 @@
 # Validation
 
-This file describes Sonovect v0.3.0 only. The supported release scope is in [release scope](release-readiness.md). Tests verify public contracts, independent optional stages, strict inputs, durable jobs, cancellation/retry, media clocks, MCP/CLI, selected assets, security predicates and release packaging.
+This file describes Sonovect v0.4.0. The supported release scope is in [release scope](release-readiness.md). Tests verify public contracts, independent optional stages, strict inputs, durable jobs, cancellation/retry, media clocks, MCP/CLI, selected assets, security predicates and release packaging.
 
 Run core and provider suites in separate Python processes because their module names may overlap:
 
@@ -20,3 +20,5 @@ Model quality, actual installed-image scans, real inference and clean installati
 The retained-advisory check requires the official upstream pages, or saved pages supplied by `--pages`; it fails on incomplete retrieval or changed reviewed records rather than auto-updating the baseline. The 600-event/690-Mandarin supplement has a separate [frozen protocol](quality-protocol.md); it does not replace the earlier speech/CLI/MCP acceptance or qualify natural Chinese emotion.
 
 Compact validation additionally covers all selected-module combinations, model-cache namespaces, helper startup admission, child failure shutdown, graceful queue drain and numeric-only dependency closure. Resolve both compact and distributed recipes across speech/events/vocal/measurement choices and compare selected assets before running real inference. Verify 2 base containers, at most1CPU analysis unit and independent optional MOSS; container consolidation must never imply an unrequested model load.
+
+A formal release requires actual-image evidence for all 14 maintained roles, including the optional Wyoming bridge. `scripts/check_release.py` rejects missing or duplicate roles, mismatched source revisions, incomplete package scans, unresolved findings and missing source/license inventories. The isolated experimental realtime runtimes remain a separate scope. Installed-package acceptance uses a synthetic engine and local loopback; actual model quality requires its own dated evidence.

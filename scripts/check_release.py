@@ -7,7 +7,7 @@ from check_os_audit import classify as classify_os
 from check_dependency_audit import classify as classify_python
 
 ROOT = Path(__file__).resolve().parents[1]
-ROLES = {'core', 'worker', 'native', 'vocal', 'provider', 'segmentation', 'asr', 'events', 'sound', 'measurements', 'qwen', 'analysis', 'analysis-measurements'}
+ROLES = {'core', 'worker', 'native', 'vocal', 'provider', 'segmentation', 'asr', 'events', 'sound', 'measurements', 'qwen', 'analysis', 'analysis-measurements', 'wyoming'}
 
 
 def normalized(name):
@@ -30,7 +30,7 @@ def validate(evidence, images, revision, version):
         if os_result['unresolved_high_critical'] or os_result['unresolved_lower_severity']:
             raise ValueError('unreviewed_os_findings:'+role)
         audit = json.loads((directory/'python-audit.json').read_text())
-        mapped = {'worker': 'media-worker', 'qwen': 'asr', 'analysis': 'vocal', 'analysis-measurements': 'measurements'}.get(role, role)
+        mapped = {'worker': 'media-worker', 'qwen': 'asr', 'analysis': 'vocal', 'analysis-measurements': 'measurements', 'wyoming': 'core'}.get(role, role)
         python_result = classify_python(audit, statements, role=mapped, platform='linux')
         if python_result['unresolved'] or python_result['skipped']:
             raise ValueError('unreviewed_or_skipped_python:'+role)
