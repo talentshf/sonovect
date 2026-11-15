@@ -1,6 +1,6 @@
 {
-  "reviewed_utc": "2026-11-07T15:03:34.183518+00:00",
-  "review_scope": "Ten retained service-boundary advisories. The 2026-11-09 GCC from_chars record was manually reviewed and retained as an explicit unfixed low-severity availability/parsing limitation, with exact-library and observed restriction guards. The prior nine records are retained unchanged. This is not a library fix or proof of native decoder unreachability; optional realtime and wheel-bundled libraries remain separate scopes.",
+  "reviewed_utc": "2026-11-15T09:42:20.077303+00:00",
+  "review_scope": "Two changed tracker pages reviewed on2026-11-15; the other eight digests unchanged. Existing source identities, exact-library guards and unfixed service-boundary residual risks retained. Details: docs/security/advisory-review-20261115.md. This is not a library fix, image scan, or proof of native decoder unreachability.",
   "records": {
     "CVE-2010-4756": {
       "source": "glibc",
@@ -47,7 +47,7 @@
     "CVE-2021-45346": {
       "source": "sqlite3",
       "source_version": "3.54.1-2~sonovect13.2",
-      "semantic_sha256": "b659e7dba8d3474d54a79ca9d163bc5c2d1fff27bd3c21a8e0e0e3339de3e2ff",
+      "semantic_sha256": "ef2c3ba10bcc989aec7c946ddf8f42603ec616c0391bf412195461a46b68598e",
       "url": "https://security-tracker.debian.org/tracker/CVE-2021-45346"
     },
     "CVE-2026-84243": {
@@ -59,7 +59,7 @@
     "CVE-2026-115456": {
       "source": "gcc-14",
       "source_version": "14.2.0-19",
-      "semantic_sha256": "3261334a62aed5e6718c175f77dcda23f96ad552459a0cd4e87f7098f0907d41"
+      "semantic_sha256": "1aaf796c7b7566ea7808187d5054648865ec9dd7ecd47f7ac0a96688e2b6274e"
     }
   }
 }
