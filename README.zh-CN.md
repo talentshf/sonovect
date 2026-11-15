@@ -3,7 +3,7 @@
 
 [English](README.md) · [接入清单](docs/connections.md#中文接入清单) · [部署](deploy/README.md) · [智能体接入](docs/agent-setup.zh-CN.md) · [测试参考](docs/quality.zh-CN.md)
 
-[![Checks](https://github.com/talentshf/sonovect/actions/workflows/checks.yml/badge.svg)](https://github.com/talentshf/sonovect/actions/workflows/checks.yml) · [Apache-2.0](LICENSE) · Python 3.12+ · [0.4.0版本说明](docs/release-v0.4.0.md)
+[![Checks](https://github.com/talentshf/sonovect/actions/workflows/checks.yml/badge.svg)](https://github.com/talentshf/sonovect/actions/workflows/checks.yml) · [Apache-2.0](LICENSE) · Python 3.12+ · [0.4.1版本说明](docs/release-v0.4.1.md)
 
 # 自己的语音处理服务，多种标准方式接入
 
@@ -11,7 +11,7 @@
 
 日常一句话走轻量流程：不默认计算说话人特征、不加载词对齐器、不做额外声音分析。Qwen 识别模型默认空闲驻留30分钟；本地翻译和声音理解等重型处理会协调自己的模型交接，适应共享显卡。
 
-正式版本 [v0.4.0](https://github.com/talentshf/sonovect/releases/tag/v0.4.0)提供客户端、源码和独立智能体技能。功能范围与验证边界见[0.4.0说明](docs/release-v0.4.0.md)。本项目不包含语音生成。
+正式版本 [v0.4.1](https://github.com/talentshf/sonovect/releases/tag/v0.4.1)提供客户端、源码和独立智能体技能。功能范围与验证边界见[0.4.0说明](docs/release-v0.4.0.md)。本项目不包含语音生成。
 
 ## 按用途选功能
 

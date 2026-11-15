@@ -3,7 +3,7 @@
 
 [中文](README.zh-CN.md) · [Connect an application](docs/connections.md) · [Deployment](deploy/README.md) · [Agent setup](docs/agent-setup.md) · [Measured quality](docs/quality.md)
 
-[![Checks](https://github.com/talentshf/sonovect/actions/workflows/checks.yml/badge.svg)](https://github.com/talentshf/sonovect/actions/workflows/checks.yml) · [Apache-2.0](LICENSE) · Python 3.12+ · [0.4.0 release guide](docs/release-v0.4.0.md)
+[![Checks](https://github.com/talentshf/sonovect/actions/workflows/checks.yml/badge.svg)](https://github.com/talentshf/sonovect/actions/workflows/checks.yml) · [Apache-2.0](LICENSE) · Python 3.12+ · [0.4.1 release guide](docs/release-v0.4.1.md)
 
 # Your speech processing service, connected your way
 
@@ -11,7 +11,7 @@
 
 Ordinary transcription keeps the path short: speaker features, forced alignment and optional sound analysis run only when requested. Qwen recognition stays loaded for 30 idle minutes by default. Heavy local translation or understanding work coordinates its own model handoff on a shared GPU.
 
-Download [v0.4.0](https://github.com/talentshf/sonovect/releases/tag/v0.4.0), including the client, source and standalone agent skill. See [scope and limits](docs/release-v0.4.0.md) before choosing a deployment. No speech generation is included.
+Download [v0.4.1](https://github.com/talentshf/sonovect/releases/tag/v0.4.1), including the client, source and standalone agent skill. See [scope and limits](docs/release-v0.4.0.md) before choosing a deployment. No speech generation is included.
 
 ## Choose the result
 
